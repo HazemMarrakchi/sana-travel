@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { artFor, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
 import { PosterImage } from '../../components/ui/PosterImage'
+import { useT } from '../../core/i18n'
+import { formatPrice } from '../../core/money'
 
 export function DestinationsPage() {
   const [{ offers, live }, setState] = useState<{ offers: Offer[]; live: boolean }>({
@@ -10,6 +12,7 @@ export function DestinationsPage() {
     live: false,
   })
   const [filter, setFilter] = useState<string>('tout')
+  const { t, lang } = useT()
 
   useEffect(() => {
     void fetchOffers().then(setState)
@@ -21,28 +24,26 @@ export function DestinationsPage() {
   return (
     <main className="bg-ivory min-h-screen">
       <div className="mx-auto max-w-7xl px-5 pt-32 pb-24 lg:px-8">
-      <p className="text-coral text-xs font-bold uppercase tracking-[0.35em]">Toutes nos offres</p>
+      <p className="text-coral text-xs font-bold uppercase tracking-[0.35em]">{t('dest.kicker')}</p>
       <h1 className="font-display mt-3 text-5xl font-black lg:text-6xl">
-        Où partirez-vous<br />la prochaine fois ?
+        {t('dest.title1')}<br />{t('dest.title2')}
       </h1>
       <p className="text-slate-soft mt-4 max-w-xl">
-        {live
-          ? '✅ Offres en direct de notre système de réservation.'
-          : 'Mode démonstration — offres statiques (l\'API est endormie).'}
+        {live ? t('dest.liveNote') : t('dest.demoNote')}
       </p>
 
       <div className="mt-8 flex flex-wrap gap-2">
-        {tags.map((t) => (
+        {tags.map((tag) => (
           <button
-            key={t}
-            onClick={() => setFilter(t)}
+            key={tag}
+            onClick={() => setFilter(tag)}
             className={`rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
-              filter === t
+              filter === tag
                 ? 'border-ink bg-ink text-gold'
                 : 'border-ink/15 hover:border-ink/40'
             }`}
           >
-            {t}
+            {tag === 'tout' ? t('filter.all') : tag}
           </button>
         ))}
       </div>
@@ -61,12 +62,12 @@ export function DestinationsPage() {
             </span>
             <div className="absolute inset-x-0 bottom-0 p-6">
               <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/70">
-                {o.country} · {o.nights} nuits
+                {o.country} · {o.nights} {t('card.nights')}
               </p>
               <h2 className="font-display mt-1 text-3xl font-black text-white">{o.title}</h2>
               <p className="text-white/80 mt-1 line-clamp-2 text-sm">{o.summary}</p>
               <p className="mt-3 inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm transition-colors group-hover:bg-gold group-hover:text-ink">
-                à partir de {o.priceEur}€
+                {t('card.from')} {formatPrice(o.priceEur, lang)}
               </p>
             </div>
           </Link>
