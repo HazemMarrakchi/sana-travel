@@ -112,6 +112,7 @@ export const fr: Dict = {
   'bk.pdf': 'Télécharger le devis PDF',
   'bk.home': "Retour à l'accueil",
   'bk.noOffer': 'Offre introuvable.',
+  'bk.loading': 'Chargement de votre voyage…',
   'bk.pickFirst': 'Choisissez dabord une destination.',
   'bk.invalid': 'Vérifiez votre nom et votre email.',
   'bk.serverError': 'Le serveur ne répond pas — réessayez dans un instant.',

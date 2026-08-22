@@ -8,15 +8,28 @@ import { formatPrice } from '../../core/money'
 
 export function OfferDetailPage() {
   const { slug = '' } = useParams()
-  const [state, setState] = useState<{ offer?: Offer; live: boolean }>({ live: false })
+  const [state, setState] = useState<{ offer?: Offer; live: boolean; loading: boolean }>({
+    loading: true,
+    live: false,
+  })
   const { t, lang } = useT()
 
   useEffect(() => {
-    void fetchOffer(slug).then(setState)
+    void fetchOffer(slug).then((r) => setState({ ...r, loading: false }))
     window.scrollTo(0, 0)
   }, [slug])
 
   const o = state.offer
+  if (state.loading) {
+    return (
+      <main className="bg-deep grid min-h-screen place-items-center text-white">
+        <div className="animate-pulse text-center">
+          <p className="font-display text-3xl font-black text-gold">SANA</p>
+          <p className="text-mist mt-3 text-sm">{t('bk.loading')}</p>
+        </div>
+      </main>
+    )
+  }
   if (!o) {
     return (
       <main className="grid min-h-screen place-items-center bg-deep px-6 text-center">

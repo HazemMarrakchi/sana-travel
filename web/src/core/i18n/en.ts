@@ -112,6 +112,7 @@ export const en: Dict = {
   'bk.pdf': 'Download the PDF quote',
   'bk.home': 'Back to home',
   'bk.noOffer': 'Offer not found.',
+  'bk.loading': 'Loading your trip…',
   'bk.pickFirst': 'Pick a destination first.',
   'bk.invalid': 'Please check your name and email.',
   'bk.serverError': 'The server is not responding — try again in a moment.',

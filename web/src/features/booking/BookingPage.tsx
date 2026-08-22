@@ -18,7 +18,9 @@ export function BookingPage() {
   const slug = params.get('offer') ?? ''
   const { t, lang } = useT()
 
-  const [{ offer }, setOfferState] = useState<{ offer?: Offer }>({})
+  const [{ offer, loading }, setOfferState] = useState<{ offer?: Offer; loading: boolean }>({
+    loading: true,
+  })
   const [step, setStep] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -31,11 +33,23 @@ export function BookingPage() {
   const [contactPhone, setContactPhone] = useState('')
 
   useEffect(() => {
-    if (slug) void fetchOffer(slug).then((r) => setOfferState({ offer: r.offer }))
+    if (slug)
+      void fetchOffer(slug).then((r) => setOfferState({ offer: r.offer, loading: false }))
     window.scrollTo(0, 0)
   }, [slug])
 
   const totalEur = useMemo(() => (offer ? offer.priceEur * travelers : 0), [offer, travelers])
+
+  if (loading) {
+    return (
+      <main className="bg-deep grid min-h-screen place-items-center px-6 text-center text-white">
+        <div className="animate-pulse">
+          <p className="font-display text-3xl font-black text-gold">SANA</p>
+          <p className="text-mist mt-3 text-sm">{t('bk.loading')}</p>
+        </div>
+      </main>
+    )
+  }
 
   if (!offer) {
     return (
