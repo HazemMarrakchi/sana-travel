@@ -66,7 +66,7 @@ Principes : Simplicity First · domain-driven · pas de micro-fichiers · loggin
 - [x] ~~Booking 3 étapes + devis PDF + Resend~~ ✅ M3 : wizard invité, référence SNA-XXXXXX, total serveur, jsPDF, email Resend optionnel. E2E testé (SNA-BJE7BC, 2670€)
 - [ ] Admin : CRUD UI des offres (stats + statuts réservations déjà livrés)
 - [x] ~~Concierge IA~~ ✅ M5 : POST /api/chat (mode règles 5/5 tests ; Groq llama-3.3-70b auto si GROQ_API_KEY), log chat_logs + escalades visibles dans /admin, widget flottant FR/EN/AR. KB = catalogue offres en direct (source unique)
-- [ ] Déploiements (Render API + GitHub Pages front) + seed prod
+- [x] ~~Déploiements~~ ✅ Prêt : workflow GitHub Pages (.github/workflows/deploy-web.yml, SPA 404 fallback) + DEPLOY.md checklist Render/Pages — reste les clics du propriétaire (Étapes 1-5 du guide)
 - [ ] Compte Resend à créer par le propriétaire pour activer l'envoi email
 
 ## Milestones (verifiable goals)
