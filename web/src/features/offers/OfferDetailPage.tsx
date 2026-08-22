@@ -16,9 +16,9 @@ export function OfferDetailPage() {
   const o = state.offer
   if (!o) {
     return (
-      <main className="grid min-h-screen place-items-center px-6 text-center">
+      <main className="grid min-h-screen place-items-center bg-deep px-6 text-center">
         <div>
-          <p className="font-display text-5xl font-black">Offre introuvable</p>
+          <p className="font-display text-5xl font-black text-white">Offre introuvable</p>
           <Link to="/destinations" className="text-coral mt-4 inline-block font-bold underline">
             ← Retour aux destinations
           </Link>
@@ -47,7 +47,7 @@ export function OfferDetailPage() {
       </section>
 
       {/* details */}
-      <section className="mx-auto grid max-w-7xl gap-12 px-5 py-16 lg:grid-cols-[1.6fr_1fr] lg:px-8">
+      <section className="bg-ivory mx-auto grid max-w-7xl gap-12 px-5 py-16 lg:grid-cols-[1.6fr_1fr] lg:px-8">
         <div>
           <h2 className="font-display text-3xl font-black">Votre séjour</h2>
           <p className="text-slate-soft mt-4 leading-relaxed">{o.description}</p>

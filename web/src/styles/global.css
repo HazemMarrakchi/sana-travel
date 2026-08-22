@@ -34,7 +34,7 @@ html {
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-ivory);
+  background-color: var(--color-deep);
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
 }

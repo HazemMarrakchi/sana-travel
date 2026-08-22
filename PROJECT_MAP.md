@@ -60,7 +60,7 @@ Principes : Simplicity First · domain-driven · pas de micro-fichiers · loggin
 ## [ORPHANS & PENDING]
 - [ ] Navbar liens morts : /concierge, /contact, /login, /booking (routes manquantes)
 - [ ] i18n FR/EN/AR (Context + RTL) — M2b
-- [ ] Photos Unsplash vérifiées HTTP 200 (fallback gradient) — M2c
+- [x] ~~Photos Unsplash vérifiées HTTP 200 (fallback gradient)~~ ✅ 6 URLs testées, en DB + fallback statique
 - [ ] Auth JWT (register/login/guard admin) — modules users/bookings non protégés
 - [ ] Page booking 3 étapes + génération devis PDF + envoi Resend
 - [ ] Espace client (mes réservations)

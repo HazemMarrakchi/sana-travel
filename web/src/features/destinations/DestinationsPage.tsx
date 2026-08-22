@@ -19,7 +19,8 @@ export function DestinationsPage() {
   const visible = filter === 'tout' ? offers : offers.filter((o) => o.tags.includes(filter))
 
   return (
-    <main className="bg-ivory mx-auto max-w-7xl px-5 pt-32 pb-24 lg:px-8">
+    <main className="bg-ivory min-h-screen">
+      <div className="mx-auto max-w-7xl px-5 pt-32 pb-24 lg:px-8">
       <p className="text-coral text-xs font-bold uppercase tracking-[0.35em]">Toutes nos offres</p>
       <h1 className="font-display mt-3 text-5xl font-black lg:text-6xl">
         Où partirez-vous<br />la prochaine fois ?
@@ -70,6 +71,7 @@ export function DestinationsPage() {
             </div>
           </Link>
         ))}
+      </div>
       </div>
     </main>
   )
