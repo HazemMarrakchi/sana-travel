@@ -2,6 +2,8 @@ import { Route, Routes } from 'react-router-dom'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { HomePage } from './features/home/HomePage'
+import { DestinationsPage } from './features/destinations/DestinationsPage'
+import { OfferDetailPage } from './features/offers/OfferDetailPage'
 
 export default function App() {
   return (
@@ -9,6 +11,8 @@ export default function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/destinations" element={<DestinationsPage />} />
+        <Route path="/offres/:slug" element={<OfferDetailPage />} />
         <Route
           path="*"
           element={

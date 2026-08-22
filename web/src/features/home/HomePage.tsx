@@ -1,15 +1,15 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-
-const DESTINATIONS = [
-  { name: 'Cappadoce', country: 'Turquie', price: 'à partir de 890€', art: 'from-orange-300 via-rose-400 to-purple-500' },
-  { name: 'Santorin', country: 'Grèce', price: 'à partir de 1 190€', art: 'from-sky-300 via-blue-400 to-indigo-600' },
-  { name: 'Maldives', country: 'Océan Indien', price: 'à partir de 2 450€', art: 'from-cyan-200 via-teal-400 to-emerald-600' },
-  { name: 'Marrakech', country: 'Maroc', price: 'à partir de 560€', art: 'from-amber-300 via-orange-500 to-red-600' },
-  { name: 'Istanbul', country: 'Turquie', price: 'à partir de 640€', art: 'from-violet-400 via-fuchsia-500 to-rose-500' },
-  { name: 'Bali', country: 'Indonésie', price: 'à partir de 1 780€', art: 'from-lime-300 via-emerald-400 to-cyan-600' },
-]
+import { artFor, fetchOffers } from '../../core/api'
+import type { Offer } from '../../data/offers'
 
 export function HomePage() {
+  const [offers, setOffers] = useState<Offer[]>([])
+
+  useEffect(() => {
+    void fetchOffers().then((r) => setOffers(r.offers))
+  }, [])
+
   return (
     <main>
       {/* ══════════ HERO ══════════ */}
@@ -89,20 +89,23 @@ export function HomePage() {
           </div>
 
           <div className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {DESTINATIONS.map((d) => (
-              <article
-                key={d.name}
-                className={`group relative aspect-[3/4] w-72 shrink-0 snap-start overflow-hidden rounded-3xl bg-gradient-to-br ${d.art} shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl`}
+            {offers.slice(0, 6).map((d) => (
+              <Link
+                key={d.slug}
+                to={`/offres/${d.slug}`}
+                className={`group relative aspect-[3/4] w-72 shrink-0 snap-start overflow-hidden rounded-3xl bg-gradient-to-br ${artFor(d.artKey)} shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl`}
               >
                 <div className="from-ink/80 via-ink/10 absolute inset-0 bg-gradient-to-t to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6">
-                  <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/70">{d.country}</p>
-                  <h3 className="font-display mt-1 text-3xl font-black text-white">{d.name}</h3>
+                  <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/70">
+                    {d.country} · {d.nights} nuits
+                  </p>
+                  <h3 className="font-display mt-1 text-3xl font-black text-white">{d.title}</h3>
                   <p className="mt-2 inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm transition-colors group-hover:bg-gold group-hover:text-ink">
-                    {d.price}
+                    à partir de {d.priceEur}€
                   </p>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </div>
