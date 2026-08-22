@@ -38,6 +38,11 @@ export const en: Dict = {
   'ct.body':
     'Availability, prices, visa, weather, excursion ideas — Sana answers instantly, 24/7, in French, Arabic and English. And if the question is sensitive, a human advisor takes over seamlessly.',
   'ct.cta': 'Try the concierge',
+  'ct.address': 'Address',
+  'ct.phone': 'Phone',
+  'ct.hours': 'Hours',
+  'ct.placeholder': 'Your message…',
+  'ct.send': 'Send message',
   'chat.u1': 'One week with family, beach + culture, €2500 budget from Paris ✈️',
   'chat.s1':
     'Wonderful choice! Here is my proposal: Istanbul 3d then Santorini 4d — family hotel sea view, flights included, €2,380. Shall I add a boat day?',

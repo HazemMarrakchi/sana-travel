@@ -26,7 +26,7 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+      className={`sticky inset-x-0 top-0 z-50 transition-all duration-300 ${
         onDarkHero ? 'bg-transparent text-white' : 'bg-ivory/85 text-ink shadow-sm backdrop-blur-md'
       }`}
     >

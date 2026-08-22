@@ -49,7 +49,7 @@ export function AccountPage() {
   }
 
   return (
-    <main className="bg-deep min-h-screen px-5 pt-32 pb-24 lg:px-8">
+    <main className="bg-deep min-h-screen px-5 pt-12 pb-24 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>

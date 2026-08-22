@@ -79,3 +79,50 @@ body {
 select.inp option {
   background: var(--color-night);
 }
+
+/* ── Effets premium ─────────────────────────────────── */
+
+/* aurores vivantes */
+@keyframes drift-a {
+  0%, 100% { transform: translate(-50%, 0) scale(1); }
+  50% { transform: translate(-44%, 6%) scale(1.12); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-8%, -10%) scale(1.18); }
+}
+.animate-drift-a { animation: drift-a 14s ease-in-out infinite; }
+.animate-drift-b { animation: drift-b 18s ease-in-out infinite; }
+
+/* balayage lumineux sur les cartes destination */
+.tilt-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.tilt-card .shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.22) 48%, transparent 60%);
+  transform: translateX(-120%);
+  transition: none;
+  pointer-events: none;
+}
+.tilt-card:hover .shine {
+  transform: translateX(120%);
+  transition: transform 0.9s ease;
+}
+
+/* apparition au scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none; opacity: 1; transform: none; }
+  .animate-drift-a, .animate-drift-b { animation: none; }
+}

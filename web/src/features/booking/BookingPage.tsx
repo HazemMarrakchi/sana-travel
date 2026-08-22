@@ -102,7 +102,7 @@ export function BookingPage() {
   // ══════════ SUCCESS SCREEN ══════════
   if (created) {
     return (
-      <main className="bg-deep min-h-screen px-5 pt-32 pb-24">
+      <main className="bg-deep min-h-screen px-5 pt-12 pb-24">
         <div className="mx-auto max-w-xl text-center text-white">
           <p className="text-6xl">🎉</p>
           <h1 className="font-display mt-6 text-4xl font-black">{t('bk.doneTitle')}</h1>
@@ -151,7 +151,7 @@ export function BookingPage() {
 
   return (
     <main className="bg-ivory min-h-screen">
-      <div className="mx-auto max-w-3xl px-5 pt-32 pb-24 lg:px-8">
+      <div className="mx-auto max-w-3xl px-5 pt-12 pb-24 lg:px-8">
         <p className="text-coral text-xs font-bold uppercase tracking-[0.35em]">{t('bk.kicker')}</p>
         <h1 className="font-display mt-3 text-4xl font-black lg:text-5xl">{t('bk.title')}</h1>
 

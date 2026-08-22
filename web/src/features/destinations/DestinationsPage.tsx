@@ -23,7 +23,7 @@ export function DestinationsPage() {
 
   return (
     <main className="bg-ivory min-h-screen">
-      <div className="mx-auto max-w-7xl px-5 pt-32 pb-24 lg:px-8">
+      <div className="mx-auto max-w-7xl px-5 pt-12 pb-24 lg:px-8">
       <p className="text-coral text-xs font-bold uppercase tracking-[0.35em]">{t('dest.kicker')}</p>
       <h1 className="font-display mt-3 text-5xl font-black lg:text-6xl">
         {t('dest.title1')}<br />{t('dest.title2')}

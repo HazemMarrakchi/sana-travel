@@ -38,6 +38,11 @@ export const fr: Dict = {
   'ct.body':
     'Disponibilité, prix, visa, météo, idées d’excursions — Sana répond instantanément, 24h/24, en français, arabe et anglais. Et si la question est délicate, un conseiller humain prend le relais sans coupure.',
   'ct.cta': 'Essayer le concierge',
+  'ct.address': 'Adresse',
+  'ct.phone': 'Téléphone',
+  'ct.hours': 'Horaires',
+  'ct.placeholder': 'Votre message…',
+  'ct.send': 'Envoyer le message',
   'chat.u1': 'Une semaine en famille, plage + culture, budget 2500€ depuis Paris ✈️',
   'chat.s1':
     'Magnifique choix ! Voici ma proposition : Istanbul 3j puis Santorin 4j — hôtel famille vue mer, vols inclus, 2 380€. Je peux ajouter une journée croisière ?',

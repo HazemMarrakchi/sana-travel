@@ -9,6 +9,8 @@ import { LoginPage } from './features/auth/LoginPage'
 import { AccountPage } from './features/account/AccountPage'
 import { AdminPage } from './features/admin/AdminPage'
 import { ChatWidget } from './features/concierge/ChatWidget'
+import { ConciergePage } from './features/concierge/ConciergePage'
+import { ContactPage } from './features/contact/ContactPage'
 
 export default function App() {
   return (
@@ -19,6 +21,8 @@ export default function App() {
         <Route path="/destinations" element={<DestinationsPage />} />
         <Route path="/offres/:slug" element={<OfferDetailPage />} />
         <Route path="/booking" element={<BookingPage />} />
+        <Route path="/concierge" element={<ConciergePage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/admin" element={<AdminPage />} />
