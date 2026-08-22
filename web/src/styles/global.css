@@ -58,3 +58,24 @@ body {
 .font-display {
   font-family: var(--font-display);
 }
+
+/* dark input used on auth/admin screens */
+.inp {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.7rem 1rem;
+  font-size: 0.875rem;
+  color: #fff;
+  outline: none;
+}
+.inp::placeholder {
+  color: rgba(143, 163, 189, 0.6);
+}
+.inp:focus {
+  border-color: var(--color-gold);
+}
+select.inp option {
+  background: var(--color-night);
+}

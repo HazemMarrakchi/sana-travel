@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { LANGS, useT } from '../../core/i18n'
+import { useAuth } from '../../core/auth'
 
 const LINK_KEYS = [
   { to: '/destinations', key: 'nav.destinations' },
@@ -14,6 +15,7 @@ export function Navbar() {
   const location = useLocation()
   const onDarkHero = location.pathname === '/' && !scrolled
   const { t, lang, setLang } = useT()
+  const { user, logout } = useAuth()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -64,16 +66,42 @@ export function Navbar() {
               </button>
             ))}
           </div>
-          <Link
-            to="/login"
-            className={`hidden rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors sm:block ${
-              onDarkHero
-                ? 'border-white/30 hover:bg-white/10'
-                : 'border-ink/20 hover:border-ink/50'
-            }`}
-          >
-            {t('nav.login')}
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to={user.role === 'admin' ? '/admin' : '/account'}
+                className={`hidden rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors sm:block ${
+                  onDarkHero
+                    ? 'border-white/30 hover:bg-white/10'
+                    : 'border-gold text-ink'
+                }`}
+              >
+                👤 {user.fullName.split(' ')[0]}
+              </Link>
+              <button
+                onClick={logout}
+                className={`hidden rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors sm:block ${
+                  onDarkHero
+                    ? 'border-white/30 hover:bg-white/10'
+                    : 'border-ink/20 hover:border-ink/50'
+                }`}
+                title={t('auth.logout')}
+              >
+                ⏻
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className={`hidden rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors sm:block ${
+                onDarkHero
+                  ? 'border-white/30 hover:bg-white/10'
+                  : 'border-ink/20 hover:border-ink/50'
+              }`}
+            >
+              {t('nav.login')}
+            </Link>
+          )}
           <Link
             to="/booking"
             className="from-gold to-gold-soft hover:shadow-lg hover:shadow-gold/40 rounded-full bg-gradient-to-r px-5 py-2.5 text-sm font-bold text-ink shadow-md transition-shadow"
