@@ -58,13 +58,14 @@ sana-travel/
 Principes : Simplicity First · domain-driven · pas de micro-fichiers · logging simple console par niveau.
 
 ## [ORPHANS & PENDING]
-- [ ] Navbar liens morts : /offres, /concierge, /contact, /login, /booking (routes manquantes)
+- [ ] Navbar liens morts : /concierge, /contact, /login, /booking (routes manquantes)
+- [ ] i18n FR/EN/AR (Context + RTL) — M2b
+- [ ] Photos Unsplash vérifiées HTTP 200 (fallback gradient) — M2c
 - [ ] Auth JWT (register/login/guard admin) — modules users/bookings non protégés
-- [ ] Page booking 3 étapes + génération devis PDF + envoi email
+- [ ] Page booking 3 étapes + génération devis PDF + envoi Resend
 - [ ] Espace client (mes réservations)
 - [ ] Dashboard admin (stats + CRUD UI offres + gestion clients)
 - [ ] Concierge IA : endpoint /chat + KB admin + escalade humaine (WebSocket ou polling simple)
-- [ ] Images réelles des destinations (remplacer gradients ART)
 - [ ] Déploiements (Render API + GitHub Pages front) + seed prod
 - [ ] Tests automatisés (API e2e minimal + web Vitest)
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { artFor, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
+import { PosterImage } from '../../components/ui/PosterImage'
 
 export function DestinationsPage() {
   const [{ offers, live }, setState] = useState<{ offers: Offer[]; live: boolean }>({
@@ -52,6 +53,7 @@ export function DestinationsPage() {
             to={`/offres/${o.slug}`}
             className={`group relative aspect-[3/4] overflow-hidden rounded-3xl bg-gradient-to-br ${artFor(o.artKey)} shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl`}
           >
+            <PosterImage src={o.photo ?? o.images?.[0]} alt={o.title} />
             <div className="from-ink/80 via-ink/10 absolute inset-0 bg-gradient-to-t to-transparent" />
             <span className="absolute top-4 right-4 rounded-full bg-white/85 px-3 py-1 text-xs font-bold backdrop-blur-sm">
               ★ {o.rating}

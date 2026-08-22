@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { artFor, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
+import { PosterImage } from '../../components/ui/PosterImage'
 
 export function HomePage() {
   const [offers, setOffers] = useState<Offer[]>([])
@@ -95,6 +96,7 @@ export function HomePage() {
                 to={`/offres/${d.slug}`}
                 className={`group relative aspect-[3/4] w-72 shrink-0 snap-start overflow-hidden rounded-3xl bg-gradient-to-br ${artFor(d.artKey)} shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl`}
               >
+                <PosterImage src={d.photo ?? d.images?.[0]} alt={d.title} />
                 <div className="from-ink/80 via-ink/10 absolute inset-0 bg-gradient-to-t to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6">
                   <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/70">

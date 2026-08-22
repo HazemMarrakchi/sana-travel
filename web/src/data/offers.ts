@@ -12,6 +12,20 @@ export interface Offer {
   tags: string[]
   artKey: string
   featured: boolean
+  photo?: string
+  images?: string[]
+}
+
+const U = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`
+
+/** Unsplash IDs vérifiés HTTP 200 le 2026-08-22 */
+export const PHOTOS = {
+  cappadoce: U('1533105079780-92b9be482077'),
+  santorin: U('1570077188670-e3a8d69ac5ff'),
+  maldives: U('1514282401047-d79a71a590e8'),
+  marrakech: U('1597212618440-806262de4f6b'),
+  istanbul: U('1524231757912-21f4fe3a7200'),
+  bali: U('1537996194471-e657df975ab4'),
 }
 
 /** poster gradient per artKey — replaced by real photos later */

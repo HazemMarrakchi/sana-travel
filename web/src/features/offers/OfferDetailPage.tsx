@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { artFor, fetchOffer } from '../../core/api'
 import type { Offer } from '../../data/offers'
+import { PosterImage } from '../../components/ui/PosterImage'
 
 export function OfferDetailPage() {
   const { slug = '' } = useParams()
@@ -32,6 +33,7 @@ export function OfferDetailPage() {
       <section
         className={`relative flex min-h-[70vh] items-end overflow-hidden bg-gradient-to-br ${artFor(o.artKey)}`}
       >
+        <PosterImage src={o.photo ?? o.images?.[0]} alt={o.title} />
         <div className="from-ink/85 via-ink/20 absolute inset-0 bg-gradient-to-t to-transparent" />
         <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 lg:px-8">
           <Link to="/destinations" className="text-white/80 hover:text-gold text-xs font-bold uppercase tracking-[0.3em] transition-colors">
