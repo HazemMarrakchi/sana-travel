@@ -4,6 +4,7 @@ import { Footer } from './components/layout/Footer'
 import { HomePage } from './features/home/HomePage'
 import { DestinationsPage } from './features/destinations/DestinationsPage'
 import { OfferDetailPage } from './features/offers/OfferDetailPage'
+import { BookingPage } from './features/booking/BookingPage'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/destinations" element={<DestinationsPage />} />
         <Route path="/offres/:slug" element={<OfferDetailPage />} />
+        <Route path="/booking" element={<BookingPage />} />
         <Route
           path="*"
           element={

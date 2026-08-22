@@ -5,14 +5,28 @@ export type BookingStatus = 'draft' | 'quote_sent' | 'confirmed' | 'cancelled'
 
 @Schema({ collection: 'bookings', timestamps: true })
 export class Booking {
-  @Prop({ required: true })
-  userId!: string
+  /** set when the client creates an account (session 4) */
+  @Prop()
+  userId?: string
+
+  /** public reference shown to the client, e.g. SNA-7K2Q9F */
+  @Prop({ required: true, unique: true })
+  reference!: string
 
   @Prop({ required: true })
   offerId!: string
 
   @Prop({ required: true })
   offerSlug!: string
+
+  @Prop({ required: true })
+  contactName!: string
+
+  @Prop({ required: true })
+  contactEmail!: string
+
+  @Prop()
+  contactPhone?: string
 
   @Prop({ required: true, min: 1, max: 12 })
   travelers!: number
@@ -31,4 +45,11 @@ export class Booking {
 export type BookingDocument = HydratedDocument<Booking>
 export const BookingSchema = SchemaFactory.createForClass(Booking)
 
-BookingSchema.set('toJSON', { versionKey: false })
+BookingSchema.set('toJSON', {
+  versionKey: false,
+  transform: (_doc, ret) => {
+    const clone = ret as unknown as Record<string, unknown>
+    delete clone.__v
+    return clone
+  },
+})
