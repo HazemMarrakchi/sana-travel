@@ -25,6 +25,13 @@ interface AdminUser {
   createdAt: string
 }
 
+interface Escalation {
+  _id: string
+  question: string
+  answer: string
+  createdAt: string
+}
+
 const STATUSES = ['draft', 'quote_sent', 'confirmed', 'cancelled'] as const
 
 export function AdminPage() {
@@ -32,6 +39,7 @@ export function AdminPage() {
   const { t, lang } = useT()
   const [bookings, setBookings] = useState<AdminBooking[] | null>(null)
   const [clients, setClients] = useState<AdminUser[] | null>(null)
+  const [escal, setEscal] = useState<Escalation[] | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -42,6 +50,9 @@ export function AdminPage() {
     void apiAuth('/users', token)
       .then((d) => setClients(d as AdminUser[]))
       .catch(() => setClients([]))
+    void apiAuth('/chat/escalations', token)
+      .then((d) => setEscal(d as Escalation[]))
+      .catch(() => setEscal([]))
   }, [token, user])
 
   const stats = useMemo(() => {
@@ -171,6 +182,25 @@ export function AdminPage() {
             </div>
           ))}
         </div>
+
+        {/* questions sans réponse du concierge */}
+        {escal && escal.length > 0 && (
+          <>
+            <h2 className="font-display mt-14 mb-5 text-xl font-bold text-white">
+              🤖 Questions à traiter <span className="text-gold">({escal.length})</span>
+            </h2>
+            <div className="space-y-2">
+              {escal.map((e) => (
+                <div key={e._id} className="bg-night rounded-2xl px-5 py-4">
+                  <p className="text-white/90">« {e.question} »</p>
+                  <p className="text-mist mt-1 text-xs">
+                    {new Date(e.createdAt).toLocaleString(lang === 'en' ? 'en-US' : 'fr-FR')}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </main>
   )

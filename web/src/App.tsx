@@ -8,6 +8,7 @@ import { BookingPage } from './features/booking/BookingPage'
 import { LoginPage } from './features/auth/LoginPage'
 import { AccountPage } from './features/account/AccountPage'
 import { AdminPage } from './features/admin/AdminPage'
+import { ChatWidget } from './features/concierge/ChatWidget'
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
         />
       </Routes>
       <Footer />
+      <ChatWidget />
     </div>
   )
 }

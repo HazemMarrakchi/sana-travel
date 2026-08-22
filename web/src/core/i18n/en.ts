@@ -148,4 +148,11 @@ export const en: Dict = {
   'admin.bookings': 'Bookings',
   'admin.noBookings': 'No bookings yet.',
   'admin.clientsList': 'Clients',
+
+  'chat.open': 'Chat with our concierge',
+  'chat.title': 'Sana — Virtual concierge',
+  'chat.welcome': 'Hello! 👋 I am Sana. Ask me anything about our destinations, prices or stays.',
+  'chat.placeholder': 'Your question…',
+  'chat.send': 'Send',
+  'chat.error': 'Connection lost. Please try again in a moment.',
 }

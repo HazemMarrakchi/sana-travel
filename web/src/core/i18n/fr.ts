@@ -148,4 +148,12 @@ export const fr: Dict = {
   'admin.bookings': 'Réservations',
   'admin.noBookings': 'Aucune réservation.',
   'admin.clientsList': 'Clients',
+
+  'chat.open': 'Discuter avec notre concierge',
+  'chat.title': 'Sana — Concierge virtuelle',
+  'chat.welcome':
+    'Bonjour ! 👋 Je suis Sana. Posez-moi vos questions sur nos destinations, nos prix ou vos séjours.',
+  'chat.placeholder': 'Votre question…',
+  'chat.send': 'Envoyer',
+  'chat.error': 'Connexion interrompue. Réessayez dans un instant.',
 }

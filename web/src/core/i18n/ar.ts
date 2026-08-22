@@ -147,4 +147,11 @@ export const ar: Dict = {
   'admin.bookings': 'الحجوزات',
   'admin.noBookings': 'لا حجوزات.',
   'admin.clientsList': 'الزبائن',
+
+  'chat.open': 'تحدث مع الكونسيرج',
+  'chat.title': 'سناء — كونسيرج افتراضي',
+  'chat.welcome': 'مرحباً! 👋 أنا سناء. اسألني عن وجهاتنا وأسعارنا ورحلاتنا.',
+  'chat.placeholder': 'سؤالك…',
+  'chat.send': 'إرسال',
+  'chat.error': 'انقطع الاتصال. حاول بعد قليل.',
 }
