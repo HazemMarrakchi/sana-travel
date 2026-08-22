@@ -35,15 +35,46 @@ export function LoginPage() {
   }
 
   return (
-    <main className="bg-deep grid min-h-screen place-items-center px-5 pt-24 pb-16">
-      <div className="w-full max-w-md">
-        <Link to="/" className="font-display block text-center text-4xl font-black text-white">
-          SANA<span className="text-gold">.</span>
-        </Link>
+    <main className="bg-deep min-h-screen lg:grid lg:grid-cols-[1.1fr_1fr]">
+      {/* ── Panneau immersif (desktop) ─────────────── */}
+      <section className="from-deep via-night relative hidden overflow-hidden bg-gradient-to-br to-[#0d1e38] lg:flex lg:flex-col lg:justify-between">
+        <div className="bg-gold/15 pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full blur-3xl" />
+        <div className="bg-coral/10 pointer-events-none absolute right-0 bottom-0 h-80 w-80 rounded-full blur-3xl" />
 
-        <div className="bg-night mt-8 rounded-3xl p-8 shadow-xl">
-          {/* tabs */}
-          <div className="border-white/10 grid grid-cols-2 gap-1 rounded-full border bg-white/5 p-1">
+        <svg viewBox="0 0 600 300" className="pointer-events-none absolute inset-x-0 top-1/2 w-full opacity-[0.14]" fill="none">
+          <path d="M-20 260 C 150 200, 260 60, 620 20" stroke="#e2b04a" strokeWidth="1.5" strokeDasharray="6 8" />
+          <circle cx="470" cy="52" r="5" fill="#e2b04a" />
+          <circle cx="180" cy="212" r="3" fill="#2ec4b6" />
+        </svg>
+
+        <div className="relative p-12">
+          <Link to="/" className="font-display text-4xl font-black text-white">
+            SANA<span className="text-gold">.</span>
+          </Link>
+        </div>
+
+        <div className="relative px-12 pb-14">
+          <p className="font-display text-mist text-sm font-semibold tracking-[0.35em] uppercase">Voyages sur mesure</p>
+          <h2 className="font-display mt-4 text-6xl leading-[1.02] font-black text-white">
+            Le monde<br />
+            vous attend<span className="text-gold">.</span>
+          </h2>
+          <p className="font-display text-gold-soft/70 mt-8 space-y-1 text-lg italic">
+            Marrakech · Istanbul · Santorin<br />
+            Bali · Maldives · Cappadoce
+          </p>
+        </div>
+      </section>
+
+      {/* ── Formulaire ─────────────────────────────── */}
+      <section className="flex flex-col justify-center px-6 py-16 sm:px-12">
+        <div className="mx-auto w-full max-w-md">
+          <Link to="/" className="font-display block text-center text-4xl font-black text-white lg:hidden">
+            SANA<span className="text-gold">.</span>
+          </Link>
+
+          {/* tabs soulignés */}
+          <div className="border-night mt-10 flex gap-8 border-b lg:mt-0">
             {(['login', 'register'] as const).map((m) => (
               <button
                 key={m}
@@ -52,16 +83,17 @@ export function LoginPage() {
                   setMode(m)
                   setError('')
                 }}
-                className={`rounded-full py-2.5 text-sm font-bold transition-colors ${
-                  mode === m ? 'bg-gold text-ink' : 'text-mist hover:text-white'
+                className={`relative pb-4 text-sm font-bold transition-colors ${
+                  mode === m ? 'text-white' : 'text-mist hover:text-white/70'
                 }`}
               >
                 {t(m === 'login' ? 'auth.tabLogin' : 'auth.tabRegister')}
+                {mode === m && <span className="bg-gold absolute inset-x-0 -bottom-px h-0.5 rounded-full" />}
               </button>
             ))}
           </div>
 
-          <form onSubmit={submit} className="mt-6 space-y-4">
+          <form onSubmit={submit} className="mt-8 space-y-5">
             {mode === 'register' && (
               <>
                 <AuthField label={t('bk.name')}>
@@ -73,10 +105,10 @@ export function LoginPage() {
               </>
             )}
             <AuthField label={t('bk.email')}>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="vous@email.com" className="inp" />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="vous@email.com" className="inp" autoComplete="email" />
             </AuthField>
             <AuthField label={t('auth.password')}>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className="inp" />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className="inp" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
             </AuthField>
 
             {error && <p className="text-coral text-sm font-semibold">{error}</p>}
@@ -84,13 +116,17 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={busy}
-              className="from-gold to-gold-soft w-full rounded-full bg-gradient-to-r py-4 text-sm font-bold text-ink shadow-lg transition-transform hover:scale-[1.01] disabled:opacity-60"
+              className="from-gold to-gold-soft hover:shadow-gold/25 w-full rounded-full bg-gradient-to-r py-4 text-sm font-bold text-[#0a1628] shadow-lg transition-all hover:scale-[1.01] hover:shadow-xl disabled:opacity-60"
             >
               {busy ? '⏳ …' : t(mode === 'login' ? 'auth.submitLogin' : 'auth.submitRegister')}
             </button>
+
+            <p className="text-mist pt-2 text-center text-xs">
+              {mode === 'login' ? t('auth.tabRegister') + ' →' : ''}{' '}
+            </p>
           </form>
         </div>
-      </div>
+      </section>
     </main>
   )
 }
