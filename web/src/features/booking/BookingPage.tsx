@@ -120,7 +120,7 @@ export function BookingPage() {
 
           <button
             onClick={() =>
-              downloadDevis({
+              void downloadDevis({
                 reference: created.reference,
                 offerTitle: offer.title,
                 city: offer.city,

@@ -1,5 +1,3 @@
-import { jsPDF } from 'jspdf'
-
 export interface DevisData {
   reference: string
   offerTitle: string
@@ -15,6 +13,12 @@ export interface DevisData {
   contactEmail: string
 }
 
+/** jsPDF est lourd (~380 kB) → chargé uniquement quand l'utilisateur télécharge le devis */
+async function loadJsPDF(): Promise<typeof import('jspdf').jsPDF> {
+  const mod = await import('jspdf')
+  return mod.jsPDF
+}
+
 const EUR_TND = 3.4
 const GOLD: [number, number, number] = [226, 176, 74]
 const INK: [number, number, number] = [10, 22, 40]
@@ -24,7 +28,8 @@ const MIST: [number, number, number] = [92, 107, 128]
  * Document officiel : généré toujours en français
  * (usage commercial standard en Tunisie ; l'UI reste trilingue).
  */
-export function downloadDevis(d: DevisData): void {
+export async function downloadDevis(d: DevisData): Promise<void> {
+  const jsPDF = await loadJsPDF()
   const doc = new jsPDF({ unit: 'pt', format: 'a4' })
   const W = doc.internal.pageSize.getWidth()
   const M = 56
