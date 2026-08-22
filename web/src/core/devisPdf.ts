@@ -93,7 +93,7 @@ export function downloadDevis(d: DevisData): void {
   // price table
   y += 40
   doc.setFillColor(247, 244, 238)
-  doc.roundedRect(M, y, W - M * 2, 128, 6, 6, 'F')
+  doc.roundedRect(M, y, W - M * 2, 108, 6, 6, 'F')
   y += 26
   const rowLabel = (t: string) => {
     doc.setFont('helvetica', 'normal')
@@ -109,20 +109,18 @@ export function downloadDevis(d: DevisData): void {
   }
   /** séparateur de milliers ASCII — l'espace unicode de toLocaleString casse Helvetica en jsPDF */
   const fmt = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  const toDT = (eur: number) => Math.round((eur * EUR_TND) / 10) * 10
   rowLabel(`Prix par personne (${d.nights} nuits, vols inclus)`)
-  rowValue(`${fmt(d.unitPriceEur)} EUR`)
+  rowValue(`${fmt(toDT(d.unitPriceEur))} DT`)
   y += 24
   rowLabel(`Voyageurs x ${d.travelers}`)
   rowValue(`${d.travelers}`)
   y += 30
   rowLabel('TOTAL DU DEVIS')
-  rowValue(`${fmt(d.totalEur)} EUR`, true)
-  y += 26
-  rowLabel('Equivalent dinars')
-  rowValue(`${fmt(Math.round((d.totalEur * EUR_TND) / 10) * 10)} DT`, true)
+  rowValue(`${fmt(toDT(d.totalEur))} DT`, true)
 
   // conditions
-  y += 66
+  y += 70
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8.5)
   doc.setTextColor(...MIST)
