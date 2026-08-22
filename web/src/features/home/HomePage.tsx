@@ -77,7 +77,7 @@ export function HomePage() {
       </section>
 
       {/* ══════════ DESTINATIONS ══════════ */}
-      <section className="py-24 lg:py-32">
+      <section className="bg-ivory py-24 lg:py-32">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -145,7 +145,7 @@ export function HomePage() {
       </section>
 
       {/* ══════════ CONCIERGE TEASER ══════════ */}
-      <section className="overflow-hidden py-24 lg:py-32">
+      <section className="bg-ivory overflow-hidden py-24 lg:py-32">
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-2 lg:px-8">
           <div>
             <p className="text-coral text-xs font-bold uppercase tracking-[0.35em]">{t('ct.kicker')}</p>

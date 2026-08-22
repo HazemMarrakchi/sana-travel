@@ -59,7 +59,8 @@ Principes : Simplicity First · domain-driven · pas de micro-fichiers · loggin
 
 ## [ORPHANS & PENDING]
 - [ ] Navbar liens morts : /concierge, /contact, /login, /booking (routes manquantes)
-- [ ] i18n FR/EN/AR (Context + RTL) — M2b
+- [x] ~~i18n FR/EN/AR~~ ✅ Context + dictionnaires (core/i18n/) + RTL auto + switcher navbar
+- [x] ~~Prix en dinar tunisien~~ ✅ core/money.ts — taux EUR_TND=3.4, arrondi 10 DT
 - [x] ~~Photos Unsplash vérifiées HTTP 200 (fallback gradient)~~ ✅ 6 URLs testées, en DB + fallback statique
 - [ ] Auth JWT (register/login/guard admin) — modules users/bookings non protégés
 - [ ] Page booking 3 étapes + génération devis PDF + envoi Resend
