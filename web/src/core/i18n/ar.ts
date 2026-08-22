@@ -165,6 +165,7 @@ export const ar: Dict = {
   'admin.noClients': 'لا يوجد زبائن بعد.',
   'admin.noEscal': 'لا أسئلة معلقة — الكونسيرج يتكفل بكل شيء.',
   'admin.emptyFilter': 'لا ملفات في هذا الفلتر.',
+  'admin.conversion': 'نسبة التحويل',
 
   'chat.open': 'تحدث مع الكونسيرج',
   'chat.title': 'سناء — كونسيرج افتراضي',
