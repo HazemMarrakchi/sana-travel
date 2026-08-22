@@ -58,24 +58,26 @@ sana-travel/
 Principes : Simplicity First · domain-driven · pas de micro-fichiers · logging simple console par niveau.
 
 ## [ORPHANS & PENDING]
-- [ ] Navbar liens morts : /concierge, /contact, /login, /booking (routes manquantes)
-- [x] ~~i18n FR/EN/AR~~ ✅ Context + dictionnaires (core/i18n/) + RTL auto + switcher navbar
-- [x] ~~Prix en dinar tunisien~~ ✅ core/money.ts — taux EUR_TND=3.4, arrondi 10 DT
-- [x] ~~Photos Unsplash vérifiées HTTP 200 (fallback gradient)~~ ✅ 6 URLs testées, en DB + fallback statique
-- [ ] Auth JWT (register/login/guard admin) — modules users/bookings non protégés
-- [ ] Page booking 3 étapes + génération devis PDF + envoi Resend
-- [ ] Espace client (mes réservations)
+- [ ] Navbar liens morts : /concierge, /contact, /login (routes manquantes)
+- [x] ~~i18n FR/EN/AR + prix TND~~ ✅ core/i18n (RTL auto) + core/money.ts
+- [x] ~~Photos Unsplash vérifiées~~ ✅ 6 URLs testées HTTP 200, en DB
+- [x] ~~Auth JWT (backend)~~ → reste à faire : login/register endpoints + guards (voir M4)
+- [ ] Auth JWT complète (register/login/guard admin) — M4
+- [x] ~~Booking 3 étapes + devis PDF + Resend~~ ✅ M3 : wizard invité, référence SNA-XXXXXX, total serveur, jsPDF, email Resend optionnel. E2E testé (SNA-BJE7BC, 2670€)
+- [ ] Espace client (mes réservations) — nécessite auth
 - [ ] Dashboard admin (stats + CRUD UI offres + gestion clients)
 - [ ] Concierge IA : endpoint /chat + KB admin + escalade humaine (WebSocket ou polling simple)
 - [ ] Déploiements (Render API + GitHub Pages front) + seed prod
 - [ ] Tests automatisés (API e2e minimal + web Vitest)
+- [ ] Lazy-load jspdf (bundle >500kB warning)
+- [ ] Compte Resend à créer par le propriétaire pour activer l'envoi email
 
 ## Milestones (verifiable goals)
 | # | Jalon | Critère de succès |
 |---|---|---|
 | M1 ✅ | Fondations | builds vert, DB connectée, 6 offres seedées |
-| M2 | Vitrine dynamique complète | toutes les routes navbar fonctionnelles avec données API/fallback |
-| M3 | Réservation + devis | un visiteur réserve et reçoit le devis PDF par email |
+| M2 ✅ | Vitrine dynamique complète | destinations/détail dynamiques, i18n 3 langues, TND, photos vérifiées |
+| M3 ✅ | Réservation + devis | wizard invité testé E2E ; email Resend en attente de clé (graceful skip) |
 | M4 | Comptes & espaces | client voit ses réservations ; admin gère offres/clients/stats |
 | M5 | Concierge IA | le bot répond sur les offres et escalade les questions inconnues |
 | M6 | En ligne | front Pages + API Render, seed prod, README |
