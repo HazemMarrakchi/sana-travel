@@ -1,0 +1,16 @@
+{
+  "name": "sana-travel",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SANA — Travel agency platform: immersive showcase, bookings, AI concierge",
+  "workspaces": [
+    "web",
+    "api"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w web",
+    "dev:api": "npm run start:dev -w api",
+    "build:web": "npm run build -w web",
+    "build:api": "npm run build -w api"
+  }
+}

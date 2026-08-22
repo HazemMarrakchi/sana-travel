@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── SANA brand palette ─────────────────────────── */
+  --color-ink: #0a1628;        /* deep navy — text & dark sections */
+  --color-deep: #071020;       /* darkest background */
+  --color-night: #101f38;      /* raised dark surface */
+  --color-ivory: #faf6ef;      /* warm light background */
+  --color-shell: #f1ead9;      /* deeper warm neutral */
+
+  --color-gold: #e2b04a;       /* primary accent */
+  --color-gold-soft: #f5d99b;
+  --color-coral: #ff7a59;      /* secondary accent, sparing use */
+  --color-lagoon: #2ec4b6;     /* tertiary — sea hint */
+
+  --color-mist: #8fa3bd;       /* muted text on dark */
+  --color-slate-soft: #5c6b80; /* muted text on light */
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ── Base ──────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-ivory);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ivory);
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-ink) 25%, transparent);
+  border-radius: 999px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
