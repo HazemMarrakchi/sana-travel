@@ -149,6 +149,19 @@ export const fr: Dict = {
   'admin.noBookings': 'Aucune réservation.',
   'admin.clientsList': 'Clients',
 
+  'admin.panel': 'Panneau de contrôle',
+  'admin.overview': 'Vue d’ensemble',
+  'admin.morning': 'Bonjour',
+  'admin.evening': 'Bonsoir',
+  'admin.logout': 'Déconnexion',
+  'admin.filterAll': 'Tous',
+  'admin.online': 'Opérationnel',
+  'admin.joined': 'Inscrit',
+  'admin.pax': 'voyageurs',
+  'admin.noClients': 'Aucun client inscrit pour le moment.',
+  'admin.noEscal': 'Aucune question en attente — le concierge gère tout.',
+  'admin.emptyFilter': 'Aucun dossier dans ce filtre.',
+
   'chat.open': 'Discuter avec notre concierge',
   'chat.title': 'Sana — Concierge virtuelle',
   'chat.welcome':
