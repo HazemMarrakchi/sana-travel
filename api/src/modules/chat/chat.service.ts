@@ -198,10 +198,10 @@ export class ChatService {
       }
     }
 
-    // fallback → escalation
+    // fallback → propose le catalogue puis escalade
+    const dests = facts.map((f) => `${f.city} (${f.country})`).join(' · ')
     return {
-      reply:
-        "Je n'ai pas la réponse exacte à cette question. Je transmets votre demande à un conseiller humain SANA Travel, il vous répondra très vite. 🙏",
+      reply: `Je n'ai pas d'offre correspondant exactement à votre demande. Nos destinations du moment : ${dests}. Je transmets également votre question à un conseiller humain SANA Travel. 🙏`,
       escalate: true,
       engine: 'rules',
     }

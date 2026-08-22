@@ -32,6 +32,10 @@ export class BookingsService {
     @InjectModel(Offer.name) private offerModel: Model<OfferDocument>,
   ) {}
 
+  async findAll(): Promise<Booking[]> {
+    return this.bookingModel.find().sort({ createdAt: -1 }).exec()
+  }
+
   async findAllForUser(userId: string): Promise<Booking[]> {
     return this.bookingModel.find({ userId }).sort({ createdAt: -1 }).exec()
   }

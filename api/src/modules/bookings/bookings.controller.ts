@@ -16,11 +16,11 @@ export class BookingsController {
     return this.bookingsService.create(data)
   }
 
-  /** Admin: all bookings */
+  /** Admin: all bookings (optional ?userId= filter) */
   @Get()
   @Roles('admin')
   findAll(@Query('userId') userId?: string): Promise<Booking[]> {
-    return this.bookingsService.findAllForUser(userId ?? '')
+    return userId ? this.bookingsService.findAllForUser(userId) : this.bookingsService.findAll()
   }
 
   /** Authenticated: my bookings (linked after account creation) */
