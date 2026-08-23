@@ -240,6 +240,7 @@ export const fr: Dict = {
   'vt.live': 'Prix temps réel',
   'vt.estimate': 'Tarifs indicatifs',
   'vt.loadingFlights': 'Recherche des vols…',
+  'vt.noResults': 'Aucun vol trouvé pour ces dates',
   'ab.kicker': 'Notre maison',
   'ab.title': 'L’agence qui fait voyager la Tunisie autrement',
   'ab.story': 'Née à Tunis, SANA Travel conçoit des voyages sur mesure depuis plus de 10 ans. Notre équipe connaît chaque hôtel, chaque transfert et chaque astuce locale que nous recommandons.',

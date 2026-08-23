@@ -239,6 +239,7 @@ export const en: Dict = {
   'vt.live': 'Live prices',
   'vt.estimate': 'Indicative fares',
   'vt.loadingFlights': 'Searching flights…',
+  'vt.noResults': 'No flights found for these dates',
   'ab.kicker': 'Our house',
   'ab.title': 'The agency that lets Tunisia travel differently',
   'ab.story': 'Born in Tunis, SANA Travel has crafted tailor-made journeys for over 10 years. Our team knows every hotel, transfer and local tip we recommend.',

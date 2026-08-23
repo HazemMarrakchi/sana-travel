@@ -149,16 +149,18 @@ export function CustomTripPage() {
       .catch(() => setOffers([]))
   }, [])
 
-  /** vols temps réel (Amadeus) dès que les clés sont configurées côté API */
+  /** vols temps réel (Travelpayouts) — toujours appelé si token configuré côté API */
   useEffect(() => {
     const to = IATA[country]
-    if (!to || !withFlight) return
+    if (!to || !withFlight) { setRealFlights([]); return }
     setRealFlights(null)
     const ctrl = new AbortController()
     const qs = `to=${to}&dep=${dep}${!oneWay && ret ? `&ret=${ret}` : ''}&adults=${travelers}`
     void fetch(`${API_BASE}/flights/search?${qs}`, { signal: ctrl.signal })
       .then((r) => r.json())
-      .then((d: { offers?: FlightProp[] }) => setRealFlights(d.offers ?? []))
+      .then((d: { source?: string; offers?: FlightProp[] }) => {
+        setRealFlights(d.offers ?? [])
+      })
       .catch(() => setRealFlights([]))
     return () => ctrl.abort()
   }, [country, dep, ret, oneWay, travelers, withFlight])
@@ -187,14 +189,10 @@ export function CustomTripPage() {
   const nightly = base ? base.priceEur / base.nights : 85
   const hotelTotal = oneWay ? 0 : Math.round(nightly * nights * travelers)
   const live = (realFlights ?? []).filter((f) => f.priceEur > 0)
-  const staticFlights = (FLIGHTS[country] ?? [])
-  const allFlights: FlightProp[] = live.length > 0 ? live : staticFlights
-  // prix indicatifs (statiques) = A/R → multiplier ×0.6 en aller simple
-  const flights = allFlights.map((f) => ({
-    ...f,
-    priceEur: live.length > 0 ? f.priceEur : (oneWay ? Math.round(f.priceEur * 0.6) : f.priceEur),
-  }))
-  const flightSource: 'live' | 'estimate' = live.length > 0 ? 'live' : 'estimate'
+  const hasApi = realFlights !== null // null = chargement, [] = API configurée mais vide, [...] = résultats
+  // fallback statique UNIQUEMENT si l'API est configurée et renvoie du vide
+  const flights: FlightProp[] = live.length > 0 ? live : (hasApi ? [] : (FLIGHTS[country] ?? []))
+  const flightSource: 'live' | 'estimate' | 'none' = live.length > 0 ? 'live' : (hasApi ? 'none' : 'estimate')
   const flight = withFlight && flights.length > 0 ? flights[Math.min(flightIdx, flights.length - 1)] : null
   const flightTotal = flight ? flight.priceEur * travelers : 0
   const total = hotelTotal + flightTotal
@@ -332,10 +330,12 @@ export function CustomTripPage() {
                 {withFlight && (
                   <>
                     <p className="text-mist mt-3 text-[11px] font-bold uppercase tracking-wider">
-                      {realFlights === null && IATA[country] ? (
+                      {realFlights === null ? (
                         <span className="animate-pulse">⏳ {t('vt.loadingFlights')}</span>
                       ) : flightSource === 'live' ? (
                         <span className="text-lagoon">● {t('vt.live')}</span>
+                      ) : flightSource === 'none' ? (
+                        <span className="text-amber-400">⚠ {t('vt.noResults')}</span>
                       ) : (
                         <span>○ {t('vt.estimate')}</span>
                       )}
