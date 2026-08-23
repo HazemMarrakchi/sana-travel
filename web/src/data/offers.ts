@@ -26,6 +26,7 @@ export const PHOTOS = {
   marrakech: U('1597212618440-806262de4f6b'),
   istanbul: U('1524231757912-21f4fe3a7200'),
   bali: U('1537996194471-e657df975ab4'),
+  dubai: U('1512453979798-5ea266f8880c'),
 }
 
 /** poster gradient per artKey — replaced by real photos later */
@@ -36,6 +37,7 @@ export const ART: Record<string, string> = {
   marrakech: 'from-amber-300 via-orange-500 to-red-600',
   istanbul: 'from-violet-400 via-fuchsia-500 to-rose-500',
   bali: 'from-lime-300 via-emerald-400 to-cyan-600',
+  dubai: 'from-yellow-200 via-amber-400 to-sky-600',
   aurora: 'from-gold via-coral to-lagoon',
 }
 
@@ -81,5 +83,12 @@ export const FALLBACK_OFFERS: Offer[] = [
     description: "Cinq nuits à Ubud entre rizières et temples, puis quatre nuits plage à Seminyak. Cours de cuisine balinaise, lever de soleil au Batur et massage traditionnel offert.",
     priceEur: 1780, nights: 9, hotelName: 'Emerald Sanctuary Resorts', rating: 4.8,
     artKey: 'bali', tags: ['nature', 'plage', 'aventure'], featured: true,
+  },
+  {
+    slug: 'dubai-futuriste', title: 'Dubaï futuriste', city: 'Dubaï', country: 'Émirats Arabes Unis',
+    summary: 'Burj Khalifa, désert en 4x4 et dîners panoramiques au sommet du monde.',
+    description: "Quatre jours dans la ville du futur : ascension du Burj Khalifa, safari dunes avec dîner bedouin, Dubai Mall et fontaines, croisière marina. Hôtel 5 étoiles, transferts privés inclus.",
+    priceEur: 1350, nights: 4, hotelName: 'Marina Sky Hotel', rating: 4.8,
+    artKey: 'dubai', tags: ['luxe', 'famille', 'city break'], featured: true,
   },
 ]

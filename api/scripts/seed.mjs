@@ -61,6 +61,14 @@ const OFFERS = [
     artKey: 'bali', tags: ['nature', 'plage', 'aventure'], featured: true,
     availableFrom: in90(), availableTo: in330(),
   },
+  {
+    slug: 'dubai-futuriste', title: 'Dubaï futuriste', city: 'Dubaï', country: 'Émirats Arabes Unis',
+    summary: 'Burj Khalifa, désert en 4x4 et dîners panoramiques au sommet du monde.',
+    description: "Quatre jours dans la ville du futur : ascension du Burj Khalifa au coucher du soleil, safari dune bashing dans le désert rouge avec dîner bedouin, Dubai Mall et fontaines, marina en dhow croisière et quartier futuristic Al Seef. Hôtel 5 étoiles près de la marina, transferts privés inclus.",
+    priceEur: 1350, nights: 4, hotelName: 'Marina Sky Hotel', rating: 4.8,
+    artKey: 'dubai', tags: ['luxe', 'famille', 'city break'], featured: true,
+    availableFrom: in90(), availableTo: in330(),
+  },
 ]
 
 /** Unsplash IDs vérifiés HTTP 200 le 2026-08-22 */
@@ -72,6 +80,7 @@ const PHOTOS = {
   marrakech: U('1597212618440-806262de4f6b'),
   istanbul: U('1524231757912-21f4fe3a7200'),
   bali: U('1537996194471-e657df975ab4'),
+  dubai: U('1512453979798-5ea266f8880c'),
 }
 
 try {
