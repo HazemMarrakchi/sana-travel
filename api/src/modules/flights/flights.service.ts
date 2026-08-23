@@ -21,17 +21,31 @@ const AIRLINE_NAMES: Record<string, string> = {
   TO: 'Transavia',
   LH: 'Lufthansa',
   U2: 'easyJet',
+  FR: 'Ryanair',
+  W6: 'Wizz Air',
+  V7: 'Volotea',
+  AH: 'Air Algérie',
+  LN: 'Libyan Airlines',
+  RJ: 'Royal Jordanian',
+  SV: 'Saudia',
+  KU: 'Kuwait Airways',
+  GF: 'Gulf Air',
+  ET: 'Ethiopian',
+  OS: 'Austrian',
+  SN: 'Brussels Airlines',
 }
 
 const TEST_HOST = 'https://test.api.amadeus.com'
+const TP_HOST = 'https://api.travelpayouts.com'
 
 interface CachedOffers {
   exp: number
   data: FlightProp[]
 }
 
-/** recherche de vols via Amadeus Self-Service (tier gratuit).
- *  Sans identifiants configurés, renvoie une liste vide — le front retombe sur son catalogue indicatif. */
+/** recherche de vols — Amadeus Self-Service OU Travelpayouts (prix réels des dernières
+ *  48 h, inscription par simple email). Sans identifiants, renvoie [] : le front
+ *  retombe sur son catalogue indicatif. */
 @Injectable()
 export class FlightsService {
   private token = ''
@@ -69,8 +83,66 @@ export class FlightsService {
 
   async search(q: { to: string; dep: string; ret?: string; adults: number }): Promise<FlightProp[]> {
     const { id, secret } = this.creds()
-    if (!id || !secret) return []
+    const tpToken = this.config.get<string>('TRAVELPAYOUTS_TOKEN')
+    if (id && secret) return this.searchAmadeus(q)
+    if (tpToken) return this.searchTravelpayouts(q, tpToken)
+    return []
+  }
 
+  /** Travelpayouts / Aviasales v3 — prix réels trouvés ces dernières 48 h */
+  private async searchTravelpayouts(
+    q: { to: string; dep: string; ret?: string; adults: number },
+    token: string,
+  ): Promise<FlightProp[]> {
+    const key = `tp|${q.to}|${q.dep}|${q.ret ?? ''}|${q.adults}`
+    const hit = this.cache.get(key)
+    if (hit && hit.exp > Date.now()) return hit.data
+
+    try {
+      const params = new URLSearchParams({
+        origin: 'TUN',
+        destination: q.to,
+        departure_at: q.dep,
+        sorting: 'price',
+        direct: 'false',
+        currency: 'eur',
+        limit: '6',
+        one_way: q.ret ? 'false' : 'true',
+      })
+      if (q.ret) params.set('return_at', q.ret)
+
+      const res = await fetch(`${TP_HOST}/aviasales/v3/prices_for_dates?${params}`, {
+        headers: { 'X-Access-Token': token },
+      })
+      if (!res.ok) throw new Error(`TP ${res.status}`)
+      const d = (await res.json()) as {
+        data?: { airline?: string; price?: number; transfers?: number }[]
+      }
+
+      const seen = new Set<string>()
+      const offers: FlightProp[] = []
+      for (const o of d.data ?? []) {
+        const price = Number(o.price)
+        if (!o.airline || !Number.isFinite(price)) continue
+        if (seen.has(o.airline)) continue
+        seen.add(o.airline)
+        offers.push({
+          airline: AIRLINE_NAMES[o.airline] ?? o.airline,
+          // prix Aviasales = 1 adulte ; on affiche par personne
+          priceEur: Math.round(price),
+          stops: o.transfers ?? 0,
+        })
+      }
+      offers.sort((a, b) => a.priceEur - b.priceEur)
+
+      this.cache.set(key, { exp: Date.now() + 15 * 60_000, data: offers })
+      return offers
+    } catch {
+      return []
+    }
+  }
+
+  private async searchAmadeus(q: { to: string; dep: string; ret?: string; adults: number }): Promise<FlightProp[]> {
     const key = `${q.to}|${q.dep}|${q.ret ?? ''}|${q.adults}`
     const hit = this.cache.get(key)
     if (hit && hit.exp > Date.now()) return hit.data

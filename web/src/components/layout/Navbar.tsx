@@ -32,17 +32,17 @@ export function Navbar() {
         onDarkHero ? 'bg-transparent text-white' : 'bg-ivory/85 text-ink shadow-sm backdrop-blur-md'
       }`}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-        <Link to="/" className="flex items-baseline gap-1">
+      <nav className="mx-auto flex h-[72px] w-full max-w-[92rem] items-center justify-between gap-x-6 px-4 sm:px-5 lg:px-8">
+        <Link to="/" className="flex shrink-0 items-baseline gap-1 whitespace-nowrap">
           <span className="font-display text-3xl font-black tracking-tight">SANA</span>
           <span className={`text-[10px] font-bold uppercase tracking-[0.25em] ${onDarkHero ? 'text-gold' : 'text-coral'}`}>
             travel
           </span>
         </Link>
 
-        <ul className="hidden items-center gap-8 md:flex">
+        <ul className="hidden min-w-0 items-center gap-x-5 md:flex lg:gap-x-7 xl:gap-x-8">
           {LINK_KEYS.map((l) => (
-            <li key={l.to}>
+            <li key={l.to} className="whitespace-nowrap">
               <Link to={l.to} className="text-sm font-semibold transition-opacity hover:opacity-70">
                 {t(l.key)}
               </Link>
@@ -50,8 +50,9 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center rounded-full border p-1 text-xs font-bold"
+        <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
+          <div
+            className="flex items-center rounded-full border p-1 text-xs font-bold"
             style={{ borderColor: onDarkHero ? 'rgba(255,255,255,.25)' : 'rgba(10,22,40,.15)' }}
           >
             {LANGS.map((l) => (
@@ -68,11 +69,12 @@ export function Navbar() {
               </button>
             ))}
           </div>
+
           {user ? (
             <>
               <Link
                 to={user.role === 'admin' ? '/admin' : '/account'}
-                className={`hidden rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors sm:block ${
+                className={`hidden max-w-[11rem] truncate whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors sm:block ${
                   onDarkHero
                     ? 'border-white/30 hover:bg-white/10'
                     : 'border-gold text-ink'
@@ -82,12 +84,10 @@ export function Navbar() {
               </Link>
               <button
                 onClick={logout}
-                className={`hidden rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors sm:block ${
-                  onDarkHero
-                    ? 'border-white/30 hover:bg-white/10'
-                    : 'border-ink/20 hover:border-ink/50'
-                }`}
                 title={t('auth.logout')}
+                className={`hidden h-10 w-10 place-items-center rounded-full border text-base transition-colors sm:grid ${
+                  onDarkHero ? 'border-white/30 hover:bg-white/10' : 'border-ink/20 hover:border-ink/50'
+                }`}
               >
                 ⏻
               </button>
@@ -95,23 +95,32 @@ export function Navbar() {
           ) : (
             <Link
               to="/login"
-              className={`hidden rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors sm:block ${
-                onDarkHero
-                  ? 'border-white/30 hover:bg-white/10'
-                  : 'border-ink/20 hover:border-ink/50'
+              className={`hidden whitespace-nowrap rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors sm:block ${
+                onDarkHero ? 'border-white/30 hover:bg-white/10' : 'border-ink/20 hover:border-ink/50'
               }`}
             >
               {t('nav.login')}
             </Link>
           )}
+
           <Link
             to="/booking"
-            className="from-gold to-gold-soft hover:shadow-lg hover:shadow-gold/40 rounded-full bg-gradient-to-r px-5 py-2.5 text-sm font-bold text-ink shadow-md transition-shadow"
+            className="from-gold to-gold-soft hover:shadow-lg hover:shadow-gold/40 hidden whitespace-nowrap rounded-full bg-gradient-to-r px-6 py-2.5 text-sm font-bold text-ink shadow-md transition-shadow md:block"
           >
             {t('nav.cta')}
           </Link>
         </div>
       </nav>
+
+      {/* barre d'actions secondaire mobile — garde le CTA accessible */}
+      <div className="flex items-center justify-end gap-3 border-t border-white/10 px-5 pb-3 pt-2 text-mist md:hidden">
+        <Link
+          to="/booking"
+          className="from-gold to-gold-soft rounded-full bg-gradient-to-r px-5 py-2 text-xs font-bold text-ink shadow-md"
+        >
+          {t('nav.cta')}
+        </Link>
+      </div>
     </header>
   )
 }
