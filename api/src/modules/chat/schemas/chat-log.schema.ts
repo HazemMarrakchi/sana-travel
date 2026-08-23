@@ -15,6 +15,10 @@ export class ChatLog {
 
   @Prop({ default: 'rules' })
   engine!: 'groq' | 'rules'
+
+  /** question escalée traitée par l'équipe */
+  @Prop({ default: false })
+  handled!: boolean
 }
 
 export type ChatLogDocument = HydratedDocument<ChatLog>

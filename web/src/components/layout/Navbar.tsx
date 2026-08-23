@@ -6,6 +6,8 @@ import { useAuth } from '../../core/auth'
 const LINK_KEYS = [
   { to: '/destinations', key: 'nav.destinations' },
   { to: '/offres', key: 'nav.offers' },
+  { to: '/voyage-libre', key: 'nav.custom' },
+  { to: '/agence', key: 'nav.agency' },
   { to: '/concierge', key: 'nav.concierge' },
   { to: '/contact', key: 'nav.contact' },
 ]

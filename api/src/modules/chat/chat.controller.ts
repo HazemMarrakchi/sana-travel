@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import { ChatService, ChatMessage } from './chat.service'
 import { JwtAuthGuard, Roles } from '../auth/jwt-auth.guard'
 
@@ -28,5 +28,13 @@ export class ChatController {
   @Roles('admin')
   escalations() {
     return this.chatService.escalatedLogs()
+  }
+
+  /** admin marque une escalation comme traitée */
+  @Patch('escalations/:id')
+  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
+  markHandled(@Param('id') id: string) {
+    return this.chatService.markHandled(id)
   }
 }

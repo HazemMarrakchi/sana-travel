@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post, Query, Req, UnauthorizedException, UseGuards } from '@nestjs/common'
 import { BookingsService } from './bookings.service'
 import { Booking } from './schemas/booking.schema'
 import { JwtAuthGuard, Roles } from '../auth/jwt-auth.guard'
@@ -41,5 +41,19 @@ export class BookingsController {
   @Roles('admin')
   updateStatus(@Param('id') id: string, @Body('status') status: BookingStatus): Promise<Booking> {
     return this.bookingsService.updateStatus(id, status)
+  }
+
+  /** Client propriétaire (ou admin): demande d'annulation */
+  @Patch(':id/cancel')
+  @Roles('client', 'admin')
+  async cancelOwn(@Req() req: Request & { user?: RequestUser }, @Param('id') id: string): Promise<Booking> {
+    const booking = await this.bookingsService.findById(id)
+    if (!booking) throw new NotFoundException(`Booking ${id} introuvable`)
+    const isOwner = !!booking.userId && String(booking.userId) === req.user!.sub
+    if (!isOwner && req.user!.role !== 'admin') throw new UnauthorizedException('Dossier non rattaché à ce compte')
+    if (booking.status === 'cancelled' || booking.status === 'confirmed') {
+      throw new BadRequestException(`Impossible d'annuler une réservation ${booking.status}`)
+    }
+    return this.bookingsService.updateStatus(id, 'cancelled')
   }
 }

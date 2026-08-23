@@ -86,6 +86,7 @@ interface Escalation {
   _id: string
   question: string
   createdAt: string
+  handled?: boolean
 }
 
 type Filter = 'all' | 'quote_sent' | 'confirmed' | 'draft' | 'cancelled'
@@ -427,8 +428,16 @@ export function AdminPage() {
     }
   }
 
-  function exportCsv() {
-    const rows = [
+  async function markHandled(id: string) {
+    try {
+      await apiAuth(`/chat/escalations/${id}`, token!, { method: 'PATCH' })
+      setEscal((es) => es.map((e) => (e._id === id ? { ...e, handled: true } : e)))
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function exportCsv() {    const rows = [
       ['reference', 'offre', 'client', 'email', 'voyageurs', 'depart', 'statut', 'total_eur'],
       ...(bookings ?? []).map((b) => [
         b.reference, b.offerSlug, b.contactName, b.contactEmail,
@@ -915,8 +924,22 @@ export function AdminPage() {
                 ) : (
                   <ul className="max-h-64 space-y-3 overflow-y-auto pr-1">
                     {escal.map((e) => (
-                      <li key={e._id} className="border-coral/20 rounded-xl border-l-2 bg-coral/[0.06] p-3">
-                        <p className="line-clamp-2 text-xs leading-relaxed">« {e.question} »</p>
+                      <li
+                        key={e._id}
+                        className={`rounded-xl border-l-2 bg-coral/[0.06] p-3 ${e.handled ? 'border-white/10 opacity-50' : 'border-coral/20'}`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <p className={`line-clamp-2 text-xs leading-relaxed ${e.handled ? 'line-through' : ''}`}>❝ {e.question} ❞</p>
+                          {!e.handled && (
+                            <button
+                              onClick={() => void markHandled(e._id)}
+                              title={t('admin.handled')}
+                              className="text-lagoon hover:border-lagoon/60 shrink-0 rounded-full border border-white/15 px-2 py-0.5 text-[10px] font-bold transition"
+                            >
+                              ✓ {t('admin.handled')}
+                            </button>
+                          )}
+                        </div>
                         <p className="text-mist mt-1.5 text-[10px]">
                           {new Date(e.createdAt).toLocaleString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </p>

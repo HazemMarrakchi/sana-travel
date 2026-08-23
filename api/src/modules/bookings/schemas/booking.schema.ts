@@ -34,6 +34,14 @@ export class Booking {
   @Prop({ type: Date, required: true })
   startDate!: Date
 
+  /** retour — voyages libres sur mesure */
+  @Prop({ type: Date })
+  endDate?: Date
+
+  /** résumé libre (voyage personnalisé : vol choisi, options…) */
+  @Prop()
+  note?: string
+
   @Prop({ enum: ['draft', 'quote_sent', 'confirmed', 'cancelled'], default: 'draft' })
   status!: BookingStatus
 

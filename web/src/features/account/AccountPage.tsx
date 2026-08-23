@@ -10,6 +10,8 @@ interface MyBooking {
   offerSlug: string
   travelers: number
   startDate: string
+  endDate?: string
+  note?: string
   status: 'draft' | 'quote_sent' | 'confirmed' | 'cancelled'
   totalEur: number
   createdAt: string
@@ -26,6 +28,7 @@ export function AccountPage() {
   const { token, user, logout } = useAuth()
   const { t, lang } = useT()
   const [bookings, setBookings] = useState<MyBooking[] | null>(null)
+  const [open, setOpen] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -34,6 +37,17 @@ export function AccountPage() {
       .then((d) => setBookings(d as MyBooking[]))
       .catch((e: Error) => setError(e.message))
   }, [token])
+
+  async function cancelBooking(id: string) {
+    if (!window.confirm(t('acct.cancel') + ' ?')) return
+    try {
+      await apiAuth(`/bookings/${id}/cancel`, token!, { method: 'PATCH' })
+      setBookings((bs) => bs?.map((b) => (b._id === id ? { ...b, status: 'cancelled' as const } : b)) ?? null)
+      setOpen(null)
+    } catch {
+      setError(t('bk.serverError'))
+    }
+  }
 
   if (!user) {
     return (
@@ -87,18 +101,62 @@ export function AccountPage() {
 
         <div className="grid gap-4">
           {bookings?.map((b) => (
-            <div key={b._id} className="bg-night flex flex-wrap items-center justify-between gap-4 rounded-2xl p-6">
-              <div>
-                <p className="font-display text-lg font-black tracking-wide text-gold">{b.reference}</p>
-                <p className="text-mist mt-1 text-xs">
-                  {new Date(b.startDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR')} ·{' '}
-                  {b.travelers} × {t('od.perPerson')}
-                </p>
-              </div>
-              <span className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${STATUS_STYLES[b.status]}`}>
-                {t(`st.${b.status}`)}
-              </span>
-              <p className="font-display text-2xl font-black text-white">{formatPrice(b.totalEur, lang)}</p>
+            <div key={b._id} className="bg-night rounded-2xl p-6">
+              <button
+                onClick={() => setOpen(open === b._id ? null : b._id)}
+                className="flex w-full flex-wrap items-center justify-between gap-4 text-start"
+              >
+                <div>
+                  <p className="font-display text-lg font-black tracking-wide text-gold">{b.reference}</p>
+                  <p className="text-mist mt-1 text-xs">
+                    {new Date(b.startDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR')}
+                    {b.endDate && ` → ${new Date(b.endDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR')}`} ·{' '}
+                    {b.travelers} × {t('od.perPerson')}
+                  </p>
+                </div>
+                <span className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${STATUS_STYLES[b.status]}`}>
+                  {t(`st.${b.status}`)}
+                </span>
+                <p className="font-display text-2xl font-black text-white">{formatPrice(b.totalEur, lang)}</p>
+                <span className="text-gold text-lg">{open === b._id ? '▾' : '▸'}</span>
+              </button>
+
+              {open === b._id && (
+                <div className="mt-5 border-t border-white/10 pt-5">
+                  <div className="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+                    <p className="text-mist">
+                      📄 {t('acct.details')} · <span className="text-white font-semibold">{b.offerSlug}</span>
+                    </p>
+                    <p className="text-mist">
+                      🗓️ {new Date(b.startDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR', { dateStyle: 'long' })}
+                      {b.endDate && ` → ${new Date(b.endDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR', { dateStyle: 'long' })}`}
+                    </p>
+                    <p className="text-mist">
+                      📅 {new Date(b.createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR')}
+                    </p>
+                    {b.note && (() => {
+                      try {
+                        const n = JSON.parse(b.note) as { pays?: string; ville?: string; vol?: string; nuits?: number }
+                        return (
+                          <p className="text-mist sm:col-span-2">
+                            🧾 {[n.ville, n.pays].filter(Boolean).join(', ')} · {n.nuits} {t('vt.nights')} · ✈️ {n.vol ?? t('vt.noFlight')}
+                          </p>
+                        )
+                      } catch {
+                        return null
+                      }
+                    })()}
+                  </div>
+                  {(b.status === 'draft' || b.status === 'quote_sent') && (
+                    <button
+                      onClick={() => void cancelBooking(b._id)}
+                      className="text-coral border-coral/50 hover:bg-coral/10 mt-5 rounded-full border px-6 py-2.5 text-xs font-bold transition"
+                    >
+                      ✕ {t('acct.cancel')}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -81,8 +81,12 @@ export class BookingsService {
 
   async updateStatus(id: string, status: Booking['status']): Promise<Booking> {
     const booking = await this.bookingModel.findByIdAndUpdate(id, { status }, { new: true }).exec()
-    if (!booking) throw new NotFoundException(`Booking ${id} not found`)
+    if (!booking) throw new NotFoundException(`Booking ${id} introuvable`)
     return booking
+  }
+
+  async findById(id: string): Promise<Booking | null> {
+    return this.bookingModel.findById(id).exec()
   }
 
   /** Fire-and-forget quote email via Resend REST API. Silently skipped without RESEND_API_KEY. */

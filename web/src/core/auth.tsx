@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+﻿import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
 export interface AuthUser {
   id: string
@@ -34,7 +34,7 @@ const Ctx = createContext<AuthCtx>({
   logout: () => {},
 })
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api'
+export const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api'
 
 async function authCall(path: string, body: Record<string, unknown>): Promise<AuthState> {
   const res = await fetch(`${API_BASE}/auth/${path}`, {

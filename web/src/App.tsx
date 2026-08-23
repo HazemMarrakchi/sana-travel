@@ -11,6 +11,8 @@ import { AccountPage } from './features/account/AccountPage'
 import { AdminPage } from './features/admin/AdminPage'
 import { ChatWidget } from './features/concierge/ChatWidget'
 import { ConciergePage } from './features/concierge/ConciergePage'
+import { CustomTripPage } from './features/custom/CustomTripPage'
+import { AboutPage } from './features/about/AboutPage'
 import { ContactPage } from './features/contact/ContactPage'
 
 const TITLES: Record<string, string> = {
@@ -18,6 +20,8 @@ const TITLES: Record<string, string> = {
   '/destinations': 'Destinations',
   '/offres': 'Offre',
   '/booking': 'Réservation',
+  '/voyage-libre': 'Voyage libre',
+  '/agence': 'L’agence',
   '/concierge': 'Concierge IA',
   '/contact': 'Contact',
   '/login': 'Connexion',
@@ -59,10 +63,12 @@ export default function App() {
         <Route path="/destinations" element={<DestinationsPage />} />
         <Route path="/offres/:slug" element={<OfferDetailPage />} />
         <Route path="/booking" element={<BookingPage />} />
+      <Route path="/voyage-libre" element={<CustomTripPage />} />
         <Route path="/concierge" element={<ConciergePage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/account" element={<AccountPage />} />
+      <Route path="/agence" element={<AboutPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route
           path="*"

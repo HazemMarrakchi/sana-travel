@@ -207,7 +207,12 @@ export class ChatService {
     }
   }
 
-  async escalatedLogs(limit = 20) {
-    return this.chatLogModel.find({ escalated: true }).sort({ createdAt: -1 }).limit(limit).lean().exec()
+  async escalatedLogs(limit = 30) {
+    return this.chatLogModel.find({ escalated: true }).sort({ handled: 1, createdAt: -1 }).limit(limit).lean().exec()
+  }
+
+  /** admin traite une question escalée */
+  async markHandled(id: string) {
+    return this.chatLogModel.findByIdAndUpdate(id, { handled: true }, { new: true }).lean().exec()
   }
 }

@@ -1,8 +1,26 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useT } from '../../core/i18n'
 
 export function Footer() {
   const { t } = useT()
+  const [email, setEmail] = useState('')
+  const [done, setDone] = useState(false)
+
+  async function subscribe() {
+    if (!/.+@.+\..+/.test(email)) return
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/newsletter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      setDone(true)
+    } catch {
+      setDone(true)
+    }
+  }
+
   return (
     <footer className="bg-deep text-white">
       <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
@@ -28,16 +46,51 @@ export function Footer() {
 
           <FooterCol
             title={t('footer.explorer')}
-            items={[t('footer.fe1'), t('footer.fe2'), t('footer.fe3'), t('footer.fe4')]}
+            items={[
+              { label: t('nav.destinations'), to: '/destinations' },
+              { label: t('nav.offers'), to: '/offres' },
+              { label: t('nav.custom'), to: '/voyage-libre' },
+              { label: t('nav.concierge'), to: '/concierge' },
+            ]}
           />
           <FooterCol
             title={t('footer.agency')}
-            items={[t('footer.fa1'), t('footer.fa2'), t('footer.fa3'), t('footer.fa4')]}
+            items={[
+              { label: t('nav.agency'), to: '/agence' },
+              { label: t('nav.contact'), to: '/contact' },
+              { label: t('acct.myBookings'), to: '/account' },
+              { label: t('nav.login'), to: '/login' },
+            ]}
           />
-          <FooterCol
-            title={t('footer.legal')}
-            items={[t('footer.fl1'), t('footer.fl2'), t('footer.fl3'), t('footer.fl4')]}
-          />
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold">{t('nl.title')}</p>
+            {done ? (
+              <p className="text-lagoon mt-4 text-sm font-semibold">✓ {t('nl.done')}</p>
+            ) : (
+              <div className="mt-4 flex gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t('nl.ph')}
+                  className="border-white/15 bg-white/[0.05] focus:border-gold/60 w-full min-w-0 rounded-full border px-4 py-2.5 text-sm outline-none transition"
+                />
+                <button
+                  onClick={() => void subscribe()}
+                  className="from-gold to-gold-soft shrink-0 rounded-full bg-gradient-to-r px-5 py-2.5 text-xs font-bold text-ink transition-transform hover:scale-[1.03]"
+                >
+                  {t('nl.cta')}
+                </button>
+              </div>
+            )}
+            <ul className="mt-6 space-y-2.5">
+              {[t('footer.fl1'), t('footer.fl2')].map((it) => (
+                <li key={it} className="text-mist text-sm">
+                  {it}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div className="border-white/10 mt-14 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row">
@@ -59,16 +112,22 @@ export function Footer() {
   )
 }
 
-function FooterCol({ title, items }: { title: string; items: string[] }) {
+function FooterCol({
+  title,
+  items,
+}: {
+  title: string
+  items: { label: string; to: string }[]
+}) {
   return (
     <div>
       <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold">{title}</p>
       <ul className="mt-4 space-y-2.5">
         {items.map((it) => (
-          <li key={it}>
-            <a href="#" className="text-mist hover:text-white text-sm transition-colors">
-              {it}
-            </a>
+          <li key={it.label}>
+            <Link to={it.to} className="text-mist hover:text-white text-sm transition-colors">
+              {it.label}
+            </Link>
           </li>
         ))}
       </ul>
