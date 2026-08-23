@@ -214,4 +214,8 @@ export const ar: Dict = {
   'f.tags': 'الوسوم (مفصولة بفواصل)',
   'f.image': 'رابط الصورة',
   'f.featured': 'مميزة',
+  'fs.geo': 'الوجهة',
+  'fs.content': 'محتوى العرض',
+  'fs.pricing': 'السعر والمدة',
+  'fs.media': 'الصورة والتمييز',
 }

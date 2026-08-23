@@ -47,6 +47,20 @@ function slugify(s: string): string {
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }
 
+/** catalogue géographique — sélection en cascade pays → ville */
+const GEO: Record<string, string[]> = {
+  'Turquie': ['Istanbul', 'Cappadoce', 'Antalya', 'Bodrum'],
+  'Grèce': ['Santorin', 'Athènes', 'Mykonos', 'Crète'],
+  'Maldives': ['Malé Atoll'],
+  'Maroc': ['Marrakech', 'Casablanca', 'Agadir', 'Fès'],
+  'Indonésie': ['Ubud', 'Seminyak'],
+  'Émirats Arabes Unis': ['Dubaï', 'Abu Dhabi'],
+  'Égypte': ['Le Caire', 'Hurghada', 'Sharm El Sheikh'],
+  'Thaïlande': ['Bangkok', 'Phuket'],
+  'Tunisie': ['Djerba', 'Hammamet', 'Sousse', 'Tozeur'],
+}
+const OTHER = '__other__'
+
 interface AdminBooking {
   _id: string
   reference: string
@@ -228,6 +242,18 @@ function NavIcon({ path }: { path: string }) {
   )
 }
 
+/** en-tête de section dans le formulaire d'offre */
+function FormSection({ icon, title }: { icon: string; title: string }) {
+  return (
+    <div className="mt-2 sm:col-span-2 first:mt-0">
+      <p className="text-gold mb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.25em]">
+        <span className="text-sm">{icon}</span> {title}
+      </p>
+      <div className="h-px bg-white/[0.07]" />
+    </div>
+  )
+}
+
 export function AdminPage() {
   const { token, user, logout } = useAuth()
   const { t, lang } = useT()
@@ -240,6 +266,8 @@ export function AdminPage() {
   const [saving, setSaving] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
   const [query, setQuery] = useState('')
+  const [offerFilter, setOfferFilter] = useState('all')
+  const [offerQuery, setOfferQuery] = useState('')
   const [waking, setWaking] = useState(false)
   const [activeSection, setActiveSection] = useState('overview')
   const searchRef = useRef<HTMLInputElement>(null)
@@ -309,6 +337,15 @@ export function AdminPage() {
     }),
     [bookings],
   )
+
+  const offerCountries = useMemo(() => Array.from(new Set(offers.map((o) => o.country))).sort(), [offers])
+  const shownOffers = useMemo(() => {
+    let list = offers
+    if (offerFilter !== 'all') list = list.filter((o) => o.country === offerFilter)
+    const q = foldStr(offerQuery.trim())
+    if (q) list = list.filter((o) => foldStr(`${o.title} ${o.city} ${o.country}`).includes(q))
+    return list
+  }, [offers, offerFilter, offerQuery])
 
   const visible = useMemo(() => {
     let list = bookings ?? []
@@ -390,6 +427,23 @@ export function AdminPage() {
     }
   }
 
+  function exportCsv() {
+    const rows = [
+      ['reference', 'offre', 'client', 'email', 'voyageurs', 'depart', 'statut', 'total_eur'],
+      ...(bookings ?? []).map((b) => [
+        b.reference, b.offerSlug, b.contactName, b.contactEmail,
+        String(b.travelers), b.startDate.slice(0, 10), b.status, String(b.totalEur),
+      ]),
+    ]
+    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n')
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `sana-reservations-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(a.href)
+  }
+
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       const tag = (document.activeElement as HTMLElement)?.tagName
@@ -456,6 +510,13 @@ export function AdminPage() {
     { label: t('st.draft'), value: counts.draft, color: '#8fa3bd' },
     { label: t('st.cancelled'), value: counts.cancelled, color: '#ff7a59' },
   ]
+
+  const inp = 'focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition'
+  const lab = 'mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40'
+  const countryKnown = Object.keys(GEO).includes(draft.country)
+  const cityOptions = GEO[draft.country] ?? []
+  const cityKnown = cityOptions.includes(draft.city)
+  const set = (k: keyof OfferDraft, v: string | number | boolean) => setDraft((d) => ({ ...d, [k]: v }))
 
   return (
     <div className="relative min-h-screen bg-[#050d1a] text-white">
@@ -604,7 +665,7 @@ export function AdminPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="font-display text-2xl font-black">
                 {t('nav.offers')}{' '}
-                <span className="text-mist text-base font-normal tabular-nums">({offers.length})</span>
+                <span className="text-mist text-base font-normal tabular-nums">({shownOffers.length}/{offers.length})</span>
               </h2>
               <button
                 onClick={openCreate}
@@ -614,8 +675,51 @@ export function AdminPage() {
               </button>
             </div>
 
+            {/* recherche + filtres pays */}
+            <div className="mt-5 space-y-3">
+              <div className="group relative max-w-md">
+                <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-white/35 transition group-focus-within:text-gold">
+                  <NavIcon path={ICONS.search} />
+                </span>
+                <input
+                  value={offerQuery}
+                  onChange={(e) => setOfferQuery(e.target.value)}
+                  placeholder={t('ts.destination')}
+                  className="focus:border-gold/50 w-full rounded-2xl border border-white/[0.09] bg-white/[0.04] py-3 pr-4 pl-11 text-sm outline-none transition placeholder:text-white/30"
+                />
+              </div>
+              {offerCountries.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setOfferFilter('all')}
+                    className={`rounded-full border px-4 py-1.5 text-xs font-bold transition ${
+                      offerFilter === 'all'
+                        ? 'border-lagoon/60 bg-lagoon/15 text-lagoon'
+                        : 'border-white/10 text-mist hover:border-white/25 hover:text-white'
+                    }`}
+                  >
+                    {t('admin.filterAll')} <span className="ml-1.5 tabular-nums opacity-60">{offers.length}</span>
+                  </button>
+                  {offerCountries.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setOfferFilter(offerFilter === c ? 'all' : c)}
+                      className={`rounded-full border px-4 py-1.5 text-xs font-bold transition ${
+                        offerFilter === c
+                          ? 'border-lagoon/60 bg-lagoon/15 text-lagoon'
+                          : 'border-white/10 text-mist hover:border-white/25 hover:text-white'
+                      }`}
+                    >
+                      {c}{' '}
+                      <span className="ml-1.5 tabular-nums opacity-60">{offers.filter((o) => o.country === c).length}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {offers.map((o) => (
+              {shownOffers.map((o) => (
                 <article
                   key={o.slug}
                   className="hover:border-gold/25 group overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.03] transition-all duration-300 hover:-translate-y-1"
@@ -670,11 +774,17 @@ export function AdminPage() {
           <div className="mt-12 grid gap-8 xl:grid-cols-[minmax(0,1fr)_330px]">
             {/* ── Réservations ── */}
             <section id="bookings" className="scroll-mt-24">
-              <div className="flex flex-wrap items-end justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-display text-2xl font-black">
                   {t('admin.bookings')}{' '}
                   <span className="text-mist text-base font-normal tabular-nums">({visible.length})</span>
                 </h2>
+                <button
+                  onClick={exportCsv}
+                  className="hover:border-lagoon/60 hover:text-lagoon rounded-full border border-white/15 px-5 py-2 text-xs font-bold text-mist transition"
+                >
+                  ⬇ Excel / CSV
+                </button>
               </div>
 
               {/* recherche + filtres */}
@@ -874,89 +984,121 @@ export function AdminPage() {
               {modal.mode === 'create' ? t('admin.newOffer') : `${t('admin.edit')} · ${modal.slug}`}
             </h3>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {([
-                ['title', 'f.title', true],
-                ['city', 'f.city', false],
-                ['country', 'f.country', false],
-                ['hotelName', 'f.hotel', false],
-              ] as const).map(([k, lk, req]) => (
-                <div key={k}>
-                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t(lk)}</label>
-                  <input
-                    value={draft[k]}
-                    required={req}
-                    onChange={(e) => setDraft((d) => ({ ...d, [k]: e.target.value }))}
-                    className="focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
-                  />
-                </div>
-              ))}
+              <FormSection icon="📍" title={t('fs.geo')} />
               <div>
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t('f.summary')}</label>
-                <textarea
-                  rows={2}
-                  value={draft.summary}
-                  onChange={(e) => setDraft((d) => ({ ...d, summary: e.target.value }))}
-                  className="focus:border-gold/60 w-full resize-none rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
-                />
+                <label className={lab}>{t('f.country')}</label>
+                <select
+                  value={countryKnown ? draft.country : OTHER}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    if (v === OTHER) set('country', '')
+                    else {
+                      set('country', v)
+                      set('city', '')
+                    }
+                  }}
+                  className={inp}
+                >
+                  {Object.keys(GEO).map((c) => (
+                    <option key={c} value={c} className="bg-[#0d1b30]">{c}</option>
+                  ))}
+                  <option value={OTHER} className="bg-[#0d1b30]">Autre…</option>
+                </select>
               </div>
+              {!countryKnown && (
+                <div>
+                  <label className={lab}>{t('f.country')}</label>
+                  <input value={draft.country} onChange={(e) => set('country', e.target.value)} className={inp} />
+                </div>
+              )}
+              {countryKnown ? (
+                <div>
+                  <label className={lab}>{t('f.city')}</label>
+                  <select
+                    value={cityKnown ? draft.city : OTHER}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      if (v === OTHER) set('city', '')
+                      else set('city', v)
+                    }}
+                    className={inp}
+                  >
+                    {cityOptions.map((c) => (
+                      <option key={c} value={c} className="bg-[#0d1b30]">{c}</option>
+                    ))}
+                    <option value={OTHER} className="bg-[#0d1b30]">Autre…</option>
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label className={lab}>{t('f.city')}</label>
+                  <input value={draft.city} onChange={(e) => set('city', e.target.value)} className={inp} />
+                </div>
+              )}
+              {!cityKnown && countryKnown && (
+                <div>
+                  <label className={lab}>{t('f.city')}</label>
+                  <input value={draft.city} onChange={(e) => set('city', e.target.value)} className={inp} />
+                </div>
+              )}
               <div>
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t('f.image')}</label>
+                <label className={lab}>{t('f.hotel')}</label>
+                <input value={draft.hotelName} onChange={(e) => set('hotelName', e.target.value)} className={inp} />
+              </div>
+
+              <FormSection icon="📝" title={t('fs.content')} />
+              <div className="sm:col-span-2">
+                <label className={lab}>{t('f.title')} *</label>
+                <input required value={draft.title} onChange={(e) => set('title', e.target.value)} className={inp} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className={lab}>{t('f.summary')}</label>
+                <textarea rows={2} value={draft.summary} onChange={(e) => set('summary', e.target.value)} className={`${inp} resize-none`} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className={lab}>{t('f.desc')}</label>
+                <textarea rows={4} value={draft.description} onChange={(e) => set('description', e.target.value)} className={`${inp} resize-none`} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className={lab}>{t('f.tags')}</label>
+                <input value={draft.tags} onChange={(e) => set('tags', e.target.value)} className={inp} />
+              </div>
+
+              <FormSection icon="💰" title={t('fs.pricing')} />
+              <div className="grid grid-cols-3 gap-3 sm:col-span-2">
+                {([
+                  ['priceEur', 'f.price'],
+                  ['nights', 'f.nights'],
+                  ['rating', '★'],
+                ] as const).map(([k, lk]) => (
+                  <div key={k}>
+                    <label className={lab}>{lk === '★' ? '★' : t(lk)}</label>
+                    <input
+                      type="number"
+                      step={k === 'rating' ? '0.1' : '1'}
+                      min={k === 'nights' ? 1 : 0}
+                      value={draft[k]}
+                      onChange={(e) => set(k, Number(e.target.value))}
+                      className={inp}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <FormSection icon="🖼️" title={t('fs.media')} />
+              <div className="sm:col-span-2">
+                <label className={lab}>{t('f.image')}</label>
                 <input
                   value={draft.images}
                   placeholder="https://images.unsplash.com/…"
-                  onChange={(e) => setDraft((d) => ({ ...d, images: e.target.value }))}
-                  className="focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
+                  onChange={(e) => set('images', e.target.value)}
+                  className={inp}
                 />
               </div>
-              <div>
-                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t('f.desc')}</label>
-                <textarea
-                  rows={4}
-                  value={draft.description}
-                  onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
-                  className="focus:border-gold/60 h-full w-full resize-none rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
-                />
-              </div>
-              <div className="grid content-start gap-4">
-                <div className="grid grid-cols-3 gap-3">
-                  {([
-                    ['priceEur', 'f.price'],
-                    ['nights', 'f.nights'],
-                    ['rating', '★'],
-                  ] as const).map(([k, lk]) => (
-                    <div key={k}>
-                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">
-                        {lk === '★' ? '★' : t(lk)}
-                      </label>
-                      <input
-                        type="number"
-                        step={k === 'rating' ? '0.1' : '1'}
-                        min={k === 'nights' ? 1 : 0}
-                        value={draft[k]}
-                        onChange={(e) => setDraft((dr) => ({ ...dr, [k]: Number(e.target.value) }))}
-                        className="focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-3 text-sm outline-none transition"
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t('f.tags')}</label>
-                  <input
-                    value={draft.tags}
-                    onChange={(e) => setDraft((d) => ({ ...d, tags: e.target.value }))}
-                    className="focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
-                  />
-                </div>
-                <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold">
-                  <input
-                    type="checkbox"
-                    checked={draft.featured}
-                    onChange={(e) => setDraft((d) => ({ ...d, featured: e.target.checked }))}
-                    className="accent-gold h-4 w-4"
-                  />
-                  ★ {t('f.featured')}
-                </label>
-              </div>
+              <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold sm:col-span-2">
+                <input type="checkbox" checked={draft.featured} onChange={(e) => set('featured', e.target.checked)} className="accent-gold h-4 w-4" />
+                ★ {t('f.featured')}
+              </label>
             </div>
             <div className="mt-7 flex justify-end gap-3">
               <button

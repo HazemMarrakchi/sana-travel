@@ -216,4 +216,8 @@ export const fr: Dict = {
   'f.tags': 'Tags (séparés par des virgules)',
   'f.image': "URL de l'image",
   'f.featured': 'Mise en avant',
+  'fs.geo': 'Destination',
+  'fs.content': 'Contenu de l’offre',
+  'fs.pricing': 'Tarif & durée',
+  'fs.media': 'Image & visibilité',
 }

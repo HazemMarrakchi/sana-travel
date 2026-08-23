@@ -215,4 +215,8 @@ export const en: Dict = {
   'f.tags': 'Tags (comma-separated)',
   'f.image': 'Image URL',
   'f.featured': 'Featured',
+  'fs.geo': 'Destination',
+  'fs.content': 'Offer content',
+  'fs.pricing': 'Pricing & duration',
+  'fs.media': 'Image & visibility',
 }

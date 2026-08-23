@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { HomePage } from './features/home/HomePage'
@@ -12,7 +13,44 @@ import { ChatWidget } from './features/concierge/ChatWidget'
 import { ConciergePage } from './features/concierge/ConciergePage'
 import { ContactPage } from './features/contact/ContactPage'
 
+const TITLES: Record<string, string> = {
+  '/': 'Voyages sur mesure',
+  '/destinations': 'Destinations',
+  '/offres': 'Offre',
+  '/booking': 'Réservation',
+  '/concierge': 'Concierge IA',
+  '/contact': 'Contact',
+  '/login': 'Connexion',
+  '/account': 'Mon compte',
+  '/admin': 'Administration',
+}
+
+const WHATSAPP = import.meta.env.VITE_WHATSAPP ?? ''
+
+/** bulle WhatsApp — visible uniquement si VITE_WHATSAPP est configuré */
+function WhatsappFloat() {
+  if (!WHATSAPP) return null
+  return (
+    <a
+      href={`https://wa.me/${WHATSAPP}`}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="WhatsApp"
+      className="fixed bottom-24 end-5 z-40 grid h-13 w-13 place-items-center rounded-full bg-[#25D366] text-2xl shadow-xl shadow-[#25D366]/40 transition-transform hover:scale-110"
+    >
+      💬
+    </a>
+  )
+}
+
 export default function App() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    const p = '/' + (pathname.split('/')[1] ?? '')
+    document.title = `${TITLES[p] ?? 'Bienvenue'} · SANA Travel`
+  }, [pathname])
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -40,6 +78,7 @@ export default function App() {
       </Routes>
       <Footer />
       <ChatWidget />
+      <WhatsappFloat />
     </div>
   )
 }
