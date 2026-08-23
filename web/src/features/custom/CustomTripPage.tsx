@@ -5,42 +5,42 @@ import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
 
 /** propositions vols aller-retour au départ de Tunis (tarifs indicatifs) */
-const FLIGHTS: Record<string, { airline: string; airlineCode: string; priceEur: number; stops: number; origin: string; destination: string }[]> = {
+const FLIGHTS: Record<string, { airline: string; airlineCode: string; priceEur: number; stops: number; origin: string; destination: string; duration: string }[]> = {
   Turquie: [
-    { airline: 'Nouvelair', airlineCode: 'BJ', priceEur: 290, stops: 0, origin: 'TUN', destination: 'IST' },
-    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 320, stops: 0, origin: 'TUN', destination: 'IST' },
-    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 350, stops: 0, origin: 'TUN', destination: 'IST' },
+    { airline: 'Nouvelair', airlineCode: 'BJ', priceEur: 290, stops: 0, origin: 'TUN', destination: 'IST', duration: '3h 15min' },
+    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 320, stops: 0, origin: 'TUN', destination: 'IST', duration: '3h 15min' },
+    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 350, stops: 0, origin: 'TUN', destination: 'IST', duration: '3h 15min' },
   ],
   Grèce: [
-    { airline: 'Transavia', airlineCode: 'TO', priceEur: 260, stops: 0, origin: 'TUN', destination: 'ATH' },
-    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 285, stops: 0, origin: 'TUN', destination: 'ATH' },
+    { airline: 'Transavia', airlineCode: 'TO', priceEur: 260, stops: 0, origin: 'TUN', destination: 'ATH', duration: '2h 55min' },
+    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 285, stops: 0, origin: 'TUN', destination: 'ATH', duration: '2h 55min' },
   ],
   Maldives: [
-    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 720, stops: 1, origin: 'TUN', destination: 'MLE' },
-    { airline: 'Qatar Airways', airlineCode: 'QR', priceEur: 755, stops: 1, origin: 'TUN', destination: 'MLE' },
-    { airline: 'Emirates', airlineCode: 'EK', priceEur: 785, stops: 1, origin: 'TUN', destination: 'MLE' },
+    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 720, stops: 1, origin: 'TUN', destination: 'MLE', duration: '11h 30min (1 escale)' },
+    { airline: 'Qatar Airways', airlineCode: 'QR', priceEur: 755, stops: 1, origin: 'TUN', destination: 'MLE', duration: '11h 30min (1 escale)' },
+    { airline: 'Emirates', airlineCode: 'EK', priceEur: 785, stops: 1, origin: 'TUN', destination: 'MLE', duration: '11h 30min (1 escale)' },
   ],
   Maroc: [
-    { airline: 'Royal Air Maroc', airlineCode: 'AT', priceEur: 235, stops: 0, origin: 'TUN', destination: 'CMN' },
-    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 250, stops: 0, origin: 'TUN', destination: 'CMN' },
+    { airline: 'Royal Air Maroc', airlineCode: 'AT', priceEur: 235, stops: 0, origin: 'TUN', destination: 'CMN', duration: '2h 40min' },
+    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 250, stops: 0, origin: 'TUN', destination: 'CMN', duration: '2h 40min' },
   ],
   Indonésie: [
-    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 805, stops: 1, origin: 'TUN', destination: 'DPS' },
-    { airline: 'Qatar Airways', airlineCode: 'QR', priceEur: 825, stops: 1, origin: 'TUN', destination: 'DPS' },
-    { airline: 'Emirates', airlineCode: 'EK', priceEur: 855, stops: 1, origin: 'TUN', destination: 'DPS' },
+    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 805, stops: 1, origin: 'TUN', destination: 'DPS', duration: '18h (1 escale)' },
+    { airline: 'Qatar Airways', airlineCode: 'QR', priceEur: 825, stops: 1, origin: 'TUN', destination: 'DPS', duration: '18h (1 escale)' },
+    { airline: 'Emirates', airlineCode: 'EK', priceEur: 855, stops: 1, origin: 'TUN', destination: 'DPS', duration: '18h (1 escale)' },
   ],
   'Émirats Arabes Unis': [
-    { airline: 'flydubai', airlineCode: 'FZ', priceEur: 385, stops: 0, origin: 'TUN', destination: 'DXB' },
-    { airline: 'Emirates', airlineCode: 'EK', priceEur: 430, stops: 0, origin: 'TUN', destination: 'DXB' },
-    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 455, stops: 1, origin: 'TUN', destination: 'DXB' },
+    { airline: 'flydubai', airlineCode: 'FZ', priceEur: 385, stops: 0, origin: 'TUN', destination: 'DXB', duration: '6h 10min' },
+    { airline: 'Emirates', airlineCode: 'EK', priceEur: 430, stops: 0, origin: 'TUN', destination: 'DXB', duration: '6h 10min' },
+    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 455, stops: 1, origin: 'TUN', destination: 'DXB', duration: '6h 10min' },
   ],
   Égypte: [
-    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 295, stops: 0, origin: 'TUN', destination: 'CAI' },
-    { airline: 'EgyptAir', airlineCode: 'MS', priceEur: 315, stops: 0, origin: 'TUN', destination: 'CAI' },
+    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 295, stops: 0, origin: 'TUN', destination: 'CAI', duration: '3h 00min' },
+    { airline: 'EgyptAir', airlineCode: 'MS', priceEur: 315, stops: 0, origin: 'TUN', destination: 'CAI', duration: '3h 00min' },
   ],
   Thaïlande: [
-    { airline: 'Qatar Airways', airlineCode: 'QR', priceEur: 745, stops: 1, origin: 'TUN', destination: 'BKK' },
-    { airline: 'Emirates', airlineCode: 'EK', priceEur: 770, stops: 1, origin: 'TUN', destination: 'BKK' },
+    { airline: 'Qatar Airways', airlineCode: 'QR', priceEur: 745, stops: 1, origin: 'TUN', destination: 'BKK', duration: '12h (1 escale)' },
+    { airline: 'Emirates', airlineCode: 'EK', priceEur: 770, stops: 1, origin: 'TUN', destination: 'BKK', duration: '12h (1 escale)' },
   ],
 }
 
@@ -79,6 +79,17 @@ const AIRPORT_LABEL: Record<string, string> = {
   DXB: 'Dubaï',
   CAI: 'Le Caire',
   BKK: 'Bangkok',
+}
+
+const ROUTE_DURATION: Record<string, string> = {
+  IST: '3h 15min', SAW: '3h 15min',
+  ATH: '2h 55min',
+  MLE: '11h 30min (1 escale)',
+  CMN: '2h 40min',
+  DPS: '18h (1 escale)',
+  DXB: '6h 10min',
+  CAI: '3h 00min',
+  BKK: '12h (1 escale)',
 }
 
 const AIRLINE_LOGO: Record<string, string> = {
@@ -308,6 +319,14 @@ export function CustomTripPage() {
                         const oLabel = AIRPORT_LABEL[f.origin] ?? f.origin
                         const dLabel = AIRPORT_LABEL[f.destination] ?? f.destination
                         const code = f.airlineCode ?? ''
+                        // heures estimées quand l'API n'a pas d'horaire précis
+                        const depLabel = f.departureAt
+                          ? fmtFlightDT(f.departureAt, lang)
+                          : dep ? fmtFlightDT(`${dep}T08:30:00`, lang) + ' *' : '—'
+                        const retLabel = f.returnAt
+                          ? fmtFlightDT(f.returnAt, lang)
+                          : ret ? fmtFlightDT(`${ret}T17:15:00`, lang) + ' *' : '—'
+                        const durLabel = f.duration ?? ROUTE_DURATION[f.destination] ?? '—'
                         return (
                           <button
                             key={`${f.airline}-${code}-${i}`}
@@ -330,27 +349,25 @@ export function CustomTripPage() {
                                 {f.stops === 0 ? 'Direct' : `${f.stops} escale${f.stops > 1 ? 's' : ''}`} · A/R
                               </span>
                               <span className="text-mist font-normal"> · {oLabel} ⇄ {dLabel}</span>
-                              {f.duration && (
-                                <span className="text-mist font-normal"> · ⏱ {f.duration}</span>
-                              )}
+                              <span className="text-mist font-normal"> · ⏱ {durLabel}</span>
                             </p>
                             <div className="mt-2 space-y-1.5 border-t border-white/10 pt-2.5 text-[11px] leading-relaxed">
                               <p>
                                 <span className="text-mist font-bold uppercase tracking-wider">Aller</span>{' '}
-                                <span className="text-white/90">{fmtFlightDT(f.departureAt, lang)}</span>
+                                <span className="text-white/90">{depLabel}</span>
+                                {!f.departureAt && <span className="text-mist text-[10px]"> (heure indicative)</span>}
                                 <br />
                                 <span className="text-mist">{f.origin}</span> →{' '}
                                 <span className="text-mist">{f.destination}</span>
                               </p>
-                              {f.returnAt && (
-                                <p>
-                                  <span className="text-mist font-bold uppercase tracking-wider">Retour</span>{' '}
-                                  <span className="text-white/90">{fmtFlightDT(f.returnAt, lang)}</span>
-                                  <br />
-                                  <span className="text-mist">{f.destination}</span> →{' '}
-                                  <span className="text-mist">{f.origin}</span>
-                                </p>
-                              )}
+                              <p>
+                                <span className="text-mist font-bold uppercase tracking-wider">Retour</span>{' '}
+                                <span className="text-white/90">{retLabel}</span>
+                                {!f.returnAt && <span className="text-mist text-[10px]"> (heure indicative)</span>}
+                                <br />
+                                <span className="text-mist">{f.destination}</span> →{' '}
+                                <span className="text-mist">{f.origin}</span>
+                              </p>
                             </div>
                             <p className="font-display mt-3 text-lg font-black leading-none">
                               {formatPrice(f.priceEur, lang)}{' '}
