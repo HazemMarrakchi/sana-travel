@@ -3,8 +3,28 @@ import { ConfigService } from '@nestjs/config'
 
 export interface FlightProp {
   airline: string
+  airlineCode: string
   priceEur: number
   stops: number
+  flightNumber?: string
+  departureAt?: string
+  returnAt?: string
+  origin: string
+  destination: string
+  link?: string
+}
+
+const AIRPORT_NAMES: Record<string, string> = {
+  TUN: 'Tunis-Carthage',
+  IST: 'Istanbul',
+  SAW: 'Istanbul-Sabiha',
+  ATH: 'Athènes',
+  MLE: 'Malé',
+  CMN: 'Casablanca',
+  DPS: 'Denpasar-Bali',
+  DXB: 'Dubaï',
+  CAI: 'Le Caire',
+  BKK: 'Bangkok',
 }
 
 const AIRLINE_NAMES: Record<string, string> = {
@@ -34,6 +54,8 @@ const AIRLINE_NAMES: Record<string, string> = {
   OS: 'Austrian',
   SN: 'Brussels Airlines',
 }
+
+export { AIRPORT_NAMES }
 
 const TEST_HOST = 'https://test.api.amadeus.com'
 const TP_HOST = 'https://api.travelpayouts.com'
@@ -129,7 +151,17 @@ export class FlightsService {
       })
       if (!res.ok) throw new Error(`TP ${res.status}`)
       const d = (await res.json()) as {
-        data?: { airline?: string; price?: number; transfers?: number }[]
+        data?: {
+          airline?: string
+          price?: number
+          transfers?: number
+          flight_number?: string | number
+          departure_at?: string
+          return_at?: string
+          origin?: string
+          destination?: string
+          link?: string
+        }[]
       }
 
       const seen = new Set<string>()
@@ -141,9 +173,15 @@ export class FlightsService {
         seen.add(o.airline)
         offers.push({
           airline: AIRLINE_NAMES[o.airline] ?? o.airline,
-          // prix Aviasales = 1 adulte ; on affiche par personne
+          airlineCode: o.airline,
           priceEur: Math.round(price),
           stops: o.transfers ?? 0,
+          flightNumber: String(o.flight_number ?? ''),
+          departureAt: o.departure_at,
+          returnAt: o.return_at,
+          origin: o.origin ?? 'TUN',
+          destination: o.destination ?? q.to,
+          link: o.link,
         })
       }
       offers.sort((a, b) => a.priceEur - b.priceEur)
@@ -192,10 +230,17 @@ export class FlightsService {
         const code = o.validatingAirlineCodes?.[0] ?? '—'
         if (seen.has(code)) continue
         seen.add(code)
+        const segs0 = (o.itineraries?.[0]?.segments ?? []) as { departure?: { at?: string; iataCode?: string }; arrival?: { iataCode?: string } }[]
+        const segs1 = (o.itineraries?.[1]?.segments ?? []) as { departure?: { at?: string } }[]
         offers.push({
           airline: AIRLINE_NAMES[code] ?? code,
+          airlineCode: code,
           priceEur: Math.round(total / q.adults),
-          stops: Math.max(0, (o.itineraries?.[0]?.segments?.length ?? 1) - 1),
+          stops: Math.max(0, segs0.length - 1),
+          departureAt: segs0[0]?.departure?.at,
+          returnAt: segs1[0]?.departure?.at,
+          origin: segs0[0]?.departure?.iataCode ?? 'TUN',
+          destination: segs0[segs0.length - 1]?.arrival?.iataCode ?? q.to,
         })
       }
       offers.sort((a, b) => a.priceEur - b.priceEur)

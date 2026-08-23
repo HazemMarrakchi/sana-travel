@@ -5,42 +5,42 @@ import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
 
 /** propositions vols aller-retour au départ de Tunis (tarifs indicatifs) */
-const FLIGHTS: Record<string, { airline: string; priceEur: number; stops: number }[]> = {
+const FLIGHTS: Record<string, { airline: string; airlineCode: string; priceEur: number; stops: number; origin: string; destination: string }[]> = {
   Turquie: [
-    { airline: 'Nouvelair', priceEur: 290, stops: 0 },
-    { airline: 'Tunisair', priceEur: 320, stops: 0 },
-    { airline: 'Turkish Airlines', priceEur: 350, stops: 0 },
+    { airline: 'Nouvelair', airlineCode: 'BJ', priceEur: 290, stops: 0, origin: 'TUN', destination: 'IST' },
+    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 320, stops: 0, origin: 'TUN', destination: 'IST' },
+    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 350, stops: 0, origin: 'TUN', destination: 'IST' },
   ],
   Grèce: [
-    { airline: 'Transavia', priceEur: 260, stops: 0 },
-    { airline: 'Tunisair', priceEur: 285, stops: 0 },
+    { airline: 'Transavia', airlineCode: 'TO', priceEur: 260, stops: 0, origin: 'TUN', destination: 'ATH' },
+    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 285, stops: 0, origin: 'TUN', destination: 'ATH' },
   ],
   Maldives: [
-    { airline: 'Turkish Airlines', priceEur: 720, stops: 1 },
-    { airline: 'Qatar Airways', priceEur: 755, stops: 1 },
-    { airline: 'Emirates', priceEur: 785, stops: 1 },
+    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 720, stops: 1, origin: 'TUN', destination: 'MLE' },
+    { airline: 'Qatar Airways', airlineCode: 'QR', priceEur: 755, stops: 1, origin: 'TUN', destination: 'MLE' },
+    { airline: 'Emirates', airlineCode: 'EK', priceEur: 785, stops: 1, origin: 'TUN', destination: 'MLE' },
   ],
   Maroc: [
-    { airline: 'Royal Air Maroc', priceEur: 235, stops: 0 },
-    { airline: 'Tunisair', priceEur: 250, stops: 0 },
+    { airline: 'Royal Air Maroc', airlineCode: 'AT', priceEur: 235, stops: 0, origin: 'TUN', destination: 'CMN' },
+    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 250, stops: 0, origin: 'TUN', destination: 'CMN' },
   ],
   Indonésie: [
-    { airline: 'Turkish Airlines', priceEur: 805, stops: 1 },
-    { airline: 'Qatar Airways', priceEur: 825, stops: 1 },
-    { airline: 'Emirates', priceEur: 855, stops: 1 },
+    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 805, stops: 1, origin: 'TUN', destination: 'DPS' },
+    { airline: 'Qatar Airways', airlineCode: 'QR', priceEur: 825, stops: 1, origin: 'TUN', destination: 'DPS' },
+    { airline: 'Emirates', airlineCode: 'EK', priceEur: 855, stops: 1, origin: 'TUN', destination: 'DPS' },
   ],
   'Émirats Arabes Unis': [
-    { airline: 'flydubai', priceEur: 385, stops: 0 },
-    { airline: 'Emirates', priceEur: 430, stops: 0 },
-    { airline: 'Turkish Airlines', priceEur: 455, stops: 1 },
+    { airline: 'flydubai', airlineCode: 'FZ', priceEur: 385, stops: 0, origin: 'TUN', destination: 'DXB' },
+    { airline: 'Emirates', airlineCode: 'EK', priceEur: 430, stops: 0, origin: 'TUN', destination: 'DXB' },
+    { airline: 'Turkish Airlines', airlineCode: 'TK', priceEur: 455, stops: 1, origin: 'TUN', destination: 'DXB' },
   ],
   Égypte: [
-    { airline: 'Tunisair', priceEur: 295, stops: 0 },
-    { airline: 'EgyptAir', priceEur: 315, stops: 0 },
+    { airline: 'Tunisair', airlineCode: 'TU', priceEur: 295, stops: 0, origin: 'TUN', destination: 'CAI' },
+    { airline: 'EgyptAir', airlineCode: 'MS', priceEur: 315, stops: 0, origin: 'TUN', destination: 'CAI' },
   ],
   Thaïlande: [
-    { airline: 'Qatar Airways', priceEur: 745, stops: 1 },
-    { airline: 'Emirates', priceEur: 770, stops: 1 },
+    { airline: 'Qatar Airways', airlineCode: 'QR', priceEur: 745, stops: 1, origin: 'TUN', destination: 'BKK' },
+    { airline: 'Emirates', airlineCode: 'EK', priceEur: 770, stops: 1, origin: 'TUN', destination: 'BKK' },
   ],
 }
 
@@ -56,8 +56,44 @@ interface OfferLite {
 
 interface FlightProp {
   airline: string
+  airlineCode?: string
   priceEur: number
   stops: number
+  flightNumber?: string
+  departureAt?: string
+  returnAt?: string
+  origin: string
+  destination: string
+  link?: string
+}
+
+const AIRPORT_LABEL: Record<string, string> = {
+  TUN: 'Tunis-Carthage',
+  IST: 'Istanbul',
+  SAW: 'Istanbul-Sabiha',
+  ATH: 'Athènes',
+  MLE: 'Malé',
+  CMN: 'Casablanca',
+  DPS: 'Bali',
+  DXB: 'Dubaï',
+  CAI: 'Le Caire',
+  BKK: 'Bangkok',
+}
+
+const AIRLINE_LOGO: Record<string, string> = {
+  TU: '🇹🇳', BJ: '🇹🇳', TK: '🇹🇷', EK: '🇦🇪', QR: '🇶🇦', AF: '🇫🇷',
+  MS: '🇪🇬', AT: '🇲🇦', PC: '🇹🇷', FZ: '🇦🇪', TO: '🇫🇷', LH: '🇩🇪',
+  U2: '🇬🇧', FR: '🇮🇪', W6: '🇭🇺',
+}
+
+function fmtFlightDT(iso: string | undefined, locale: string) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso.slice(0, 16).replace('T', ' ')
+  return d.toLocaleString(locale === 'en' ? 'en-GB' : 'fr-FR', {
+    weekday: 'short', day: '2-digit', month: 'short',
+    hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Tunis',
+  })
 }
 
 /** aéroport principal par pays (départ toujours TUN) */
@@ -266,25 +302,59 @@ export function CustomTripPage() {
                         <span>○ {t('vt.estimate')}</span>
                       )}
                     </p>
-                    <div className="mt-2 grid gap-3 sm:grid-cols-3">
-                      {flights.map((f, i) => (
-                      <button
-                        key={f.airline}
-                        onClick={() => setFlightIdx(i)}
-                        className={`rounded-2xl border p-4 text-start transition ${
-                          flightIdx === i
-                            ? 'border-gold bg-gold/10 shadow-lg shadow-gold/10'
-                            : 'border-white/10 hover:border-white/30'
-                        }`}
-                      >
-                        <p className="text-sm font-bold">🛫 {f.airline}</p>
-                        <p className="text-mist mt-1 text-[11px]">
-                          {f.stops === 0 ? 'Direct' : `${f.stops} escale${f.stops > 1 ? 's' : ''}`} · A/R
-                        </p>
-                        <p className="font-display mt-2 text-lg font-black">{formatPrice(f.priceEur, lang)}</p>
-                        <p className="text-mist text-[10px]">/ pers.</p>
-                      </button>
-                    ))}
+                    <div className="mt-2 grid gap-3 sm:grid-cols-1 lg:grid-cols-2">
+                      {flights.map((f, i) => {
+                        const oLabel = AIRPORT_LABEL[f.origin] ?? f.origin
+                        const dLabel = AIRPORT_LABEL[f.destination] ?? f.destination
+                        const code = f.airlineCode ?? ''
+                        return (
+                          <button
+                            key={`${f.airline}-${code}-${i}`}
+                            onClick={() => setFlightIdx(i)}
+                            className={`rounded-2xl border p-4 text-start transition ${
+                              flightIdx === i
+                                ? 'border-gold bg-gold/10 shadow-lg shadow-gold/10'
+                                : 'border-white/10 hover:border-white/25'
+                            }`}
+                          >
+                            <p className="flex items-center gap-2 text-sm font-bold leading-none">
+                              <span className="text-base leading-none">{AIRLINE_LOGO[code] ?? '✈️'}</span>
+                              <span>{f.airline}</span>
+                              {f.flightNumber && (
+                                <span className="text-mist text-[11px] font-normal">· {f.flightNumber}</span>
+                              )}
+                            </p>
+                            <p className="mt-1.5 text-[11px] font-semibold">
+                              <span className={f.stops === 0 ? 'text-lagoon' : 'text-amber-300'}>
+                                {f.stops === 0 ? 'Direct' : `${f.stops} escale${f.stops > 1 ? 's' : ''}`} · A/R
+                              </span>
+                              <span className="text-mist font-normal"> · {oLabel} ⇄ {dLabel}</span>
+                            </p>
+                            <div className="mt-2 space-y-1.5 border-t border-white/10 pt-2.5 text-[11px] leading-relaxed">
+                              <p>
+                                <span className="text-mist font-bold uppercase tracking-wider">Aller</span>{' '}
+                                <span className="text-white/90">{fmtFlightDT(f.departureAt, lang)}</span>
+                                <br />
+                                <span className="text-mist">{f.origin}</span> →{' '}
+                                <span className="text-mist">{f.destination}</span>
+                              </p>
+                              {f.returnAt && (
+                                <p>
+                                  <span className="text-mist font-bold uppercase tracking-wider">Retour</span>{' '}
+                                  <span className="text-white/90">{fmtFlightDT(f.returnAt, lang)}</span>
+                                  <br />
+                                  <span className="text-mist">{f.destination}</span> →{' '}
+                                  <span className="text-mist">{f.origin}</span>
+                                </p>
+                              )}
+                            </div>
+                            <p className="font-display mt-3 text-lg font-black leading-none">
+                              {formatPrice(f.priceEur, lang)}{' '}
+                              <span className="text-mist text-[10px] font-normal tracking-wide">/ pers.</span>
+                            </p>
+                          </button>
+                        )
+                      })}
                     </div>
                   </>
                 )}
@@ -333,7 +403,7 @@ export function CustomTripPage() {
             >
               {sending ? '…' : `${t('vt.cta')} →`}
             </button>
-            <p className="text-mist mt-4 text-[11px] leading-relaxed text-center">{t('bk.disclaimer')}</p>
+            <p className="text-mist mt-4 text-[11px] leading-relaxed text-center">{t('od.devis')}</p>
           </aside>
         </div>
       </div>
