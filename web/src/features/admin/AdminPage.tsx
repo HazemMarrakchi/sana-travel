@@ -72,6 +72,8 @@ interface AdminBooking {
   status: 'draft' | 'quote_sent' | 'confirmed' | 'cancelled'
   totalEur: number
   createdAt: string
+  note?: string
+  endDate?: string
 }
 
 interface AdminUser {
@@ -896,6 +898,25 @@ export function AdminPage() {
                             ))}
                           </select>
                         </div>
+                        {b.note && (() => {
+                          let n: Record<string, unknown> = {}
+                          try { n = JSON.parse(b.note) } catch { /* note libre */ }
+                          const rows: string[] = []
+                          const add = (k: string, v: unknown) => { if (v) rows.push(`${k}: ${v}`) }
+                          add('Trajet', n.trajet)
+                          add('Destination', n.destination)
+                          add('Départ', n.depart)
+                          add('Retour', n.retour)
+                          add('Nuits', n.nuits)
+                          add('Vol', n.vol && typeof n.vol === 'object' ? `${(n.vol as { airline?: string }).airline} (${(n.vol as { priceEur?: number }).priceEur} €)` : n.vol)
+                          add('Hôtel', n.hotel)
+                          if (!n.trajet && b.note) rows.push(b.note)
+                          return (
+                            <div className="mt-3 space-y-1 border-t border-white/10 pt-3 text-[11px] leading-relaxed text-white/80">
+                              {rows.map((r, i) => <p key={i} className="truncate"><span className="text-mist">{r.split(': ')[0]}:</span> {r.split(': ').slice(1).join(': ')}</p>)}
+                            </div>
+                          )
+                        })()}
                       </article>
                     ))}
                 {bookings !== null && visible.length === 0 && (
