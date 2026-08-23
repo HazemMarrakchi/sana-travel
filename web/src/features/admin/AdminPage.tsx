@@ -295,8 +295,14 @@ export function AdminPage() {
           setEscal(Array.isArray(e) ? (e as Escalation[]) : [])
           setOffers(Array.isArray(of) ? (of as AdminOffer[]) : [])
           return
-        } catch {
+        } catch (err) {
           if (!alive) return
+          const msg = (err as Error)?.message ?? ''
+          if (msg.includes('401') || msg.toLowerCase().includes('unauthorized')) {
+            setWaking(false)
+            logout()
+            return
+          }
           if (attempt === 4) {
             setWaking(false)
             setBookings([])
