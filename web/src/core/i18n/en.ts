@@ -167,6 +167,9 @@ export const en: Dict = {
   'admin.noEscal': 'Nothing pending — the concierge handles it all.',
   'admin.emptyFilter': 'No bookings in this filter.',
   'admin.conversion': 'conversion rate',
+  'admin.search': 'Search (ref, client, email, offer)…',
+  'admin.noResults': 'No results for',
+  'admin.waking': 'Waking up the free server (~40 s max)…',
 
   'chat.open': 'Chat with our concierge',
   'chat.title': 'Sana — Virtual concierge',

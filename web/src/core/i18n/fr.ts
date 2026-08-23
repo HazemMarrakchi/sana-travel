@@ -167,6 +167,9 @@ export const fr: Dict = {
   'admin.noEscal': 'Aucune question en attente — le concierge gère tout.',
   'admin.emptyFilter': 'Aucun dossier dans ce filtre.',
   'admin.conversion': 'de conversion',
+  'admin.search': 'Rechercher (réf, client, email, offre)…',
+  'admin.noResults': 'Aucun résultat pour',
+  'admin.waking': 'Réveil du serveur gratuit (~40 s max)…',
 
   'chat.open': 'Discuter avec notre concierge',
   'chat.title': 'Sana — Concierge virtuelle',

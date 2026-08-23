@@ -166,6 +166,9 @@ export const ar: Dict = {
   'admin.noEscal': 'لا أسئلة معلقة — الكونسيرج يتكفل بكل شيء.',
   'admin.emptyFilter': 'لا ملفات في هذا الفلتر.',
   'admin.conversion': 'نسبة التحويل',
+  'admin.search': 'ابحث (مرجع، زبون، بريد، عرض)…',
+  'admin.noResults': 'لا نتائج لـ',
+  'admin.waking': 'جاري إيقاظ الخادم المجاني (~40 ثانية كحد أقصى)…',
 
   'chat.open': 'تحدث مع الكونسيرج',
   'chat.title': 'سناء — كونسيرج افتراضي',
