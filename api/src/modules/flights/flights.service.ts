@@ -89,12 +89,25 @@ export class FlightsService {
     return []
   }
 
-  /** Travelpayouts / Aviasales v3 — prix réels trouvés ces dernières 48 h */
+  /** Travelpayouts / Aviasales v3 — prix réels trouvés ces dernières 48 h.
+   *  Stratégie : dates exactes, puis repli sur le mois entier si le cache est vide. */
   private async searchTravelpayouts(
     q: { to: string; dep: string; ret?: string; adults: number },
     token: string,
   ): Promise<FlightProp[]> {
-    const key = `tp|${q.to}|${q.dep}|${q.ret ?? ''}|${q.adults}`
+    const exact = await this.tpAttempt(q, token, q.dep, q.ret)
+    if (exact.length > 0) return exact
+    // repli : mois de départ sans date de retour précise (cache plus dense)
+    return this.tpAttempt(q, token, q.dep.slice(0, 7), undefined)
+  }
+
+  private async tpAttempt(
+    q: { to: string; dep: string; ret?: string; adults: number },
+    token: string,
+    departureAt: string,
+    returnAt?: string,
+  ): Promise<FlightProp[]> {
+    const key = `tp|${q.to}|${departureAt}|${returnAt ?? ''}|${q.adults}`
     const hit = this.cache.get(key)
     if (hit && hit.exp > Date.now()) return hit.data
 
@@ -102,14 +115,14 @@ export class FlightsService {
       const params = new URLSearchParams({
         origin: 'TUN',
         destination: q.to,
-        departure_at: q.dep,
+        departure_at: departureAt,
         sorting: 'price',
         direct: 'false',
         currency: 'eur',
         limit: '6',
-        one_way: q.ret ? 'false' : 'true',
+        one_way: returnAt ? 'false' : 'true',
       })
-      if (q.ret) params.set('return_at', q.ret)
+      if (returnAt) params.set('return_at', returnAt)
 
       const res = await fetch(`${TP_HOST}/aviasales/v3/prices_for_dates?${params}`, {
         headers: { 'X-Access-Token': token },
