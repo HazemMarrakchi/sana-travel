@@ -353,15 +353,15 @@ export function CustomTripPage() {
                           : ret ? fmtFlightDT(`${ret}T17:15:00`, lang) + ' *' : '—'
                         const durLabel = f.duration ?? ROUTE_DURATION[f.destination] ?? '—'
                         return (
-                          <button
-                            key={`${f.airline}-${code}-${i}`}
-                            onClick={() => setFlightIdx(i)}
-                            className={`rounded-2xl border p-4 text-start transition ${
-                              flightIdx === i
-                                ? 'border-gold bg-gold/10 shadow-lg shadow-gold/10'
-                                : 'border-white/10 hover:border-white/25'
-                            }`}
-                          >
+                          <div key={`${f.airline}-${code}-${i}`}>
+                            <button
+                              onClick={() => setFlightIdx(i)}
+                              className={`w-full rounded-2xl border p-4 text-start transition ${
+                                flightIdx === i
+                                  ? 'border-gold bg-gold/10 shadow-lg shadow-gold/10'
+                                  : 'border-white/10 hover:border-white/25'
+                              }`}
+                            >
                             <p className="flex items-center gap-2 text-sm font-bold leading-none">
                               <span className="text-base leading-none">{AIRLINE_LOGO[code] ?? '✈️'}</span>
                               <span>{f.airline}</span>
@@ -401,6 +401,17 @@ export function CustomTripPage() {
                               <span className="text-mist text-[10px] font-normal tracking-wide">/ pers.</span>
                             </p>
                           </button>
+                          {f.link && (
+                            <a
+                              href={`https://www.aviasales.com${f.link}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gold mt-2 inline-block text-[11px] font-bold underline"
+                            >
+                              {t('vt.bookFlight')} ↗
+                            </a>
+                          )}
+                        </div>
                         )
                       })}
                     </div>

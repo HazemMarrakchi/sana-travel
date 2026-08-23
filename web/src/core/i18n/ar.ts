@@ -237,6 +237,7 @@ export const ar: Dict = {
   'vt.email': 'البريد الإلكتروني',
   'vt.done': 'تم إرسال الطلب!',
   'vt.live': 'أسعار حية',
+  'vt.bookFlight': 'احجز هذه الرحلة',
   'vt.estimate': 'أسعار تقديرية',
   'vt.loadingFlights': 'جارٍ البحث عن الرحلات…',
   'vt.noResults': 'لا توجد رحلات لهذه التواريخ',

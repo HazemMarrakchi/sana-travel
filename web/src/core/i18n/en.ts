@@ -238,6 +238,7 @@ export const en: Dict = {
   'vt.email': 'Email',
   'vt.done': 'Request sent!',
   'vt.live': 'Live prices',
+  'vt.bookFlight': 'Book this flight',
   'vt.estimate': 'Indicative fares',
   'vt.loadingFlights': 'Searching flights…',
   'vt.noResults': 'No flights found for these dates',

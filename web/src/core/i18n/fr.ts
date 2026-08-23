@@ -239,6 +239,7 @@ export const fr: Dict = {
   'vt.email': 'Email',
   'vt.done': 'Demande envoyée !',
   'vt.live': 'Prix temps réel',
+  'vt.bookFlight': 'Réserver ce vol',
   'vt.estimate': 'Tarifs indicatifs',
   'vt.loadingFlights': 'Recherche des vols…',
   'vt.noResults': 'Aucun vol trouvé pour ces dates',
