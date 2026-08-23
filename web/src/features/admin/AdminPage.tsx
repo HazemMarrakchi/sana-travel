@@ -351,15 +351,15 @@ export function AdminPage() {
       <div className="pointer-events-none fixed top-1/3 -right-40 h-96 w-96 rounded-full bg-[#2ec4b6]/[0.06] blur-3xl" />
 
       {/* ── Sidebar desktop ── */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-white/[0.06] bg-[#081120]/80 backdrop-blur-xl lg:flex">
-        <div className="flex items-center gap-3 px-8 pt-10 pb-14">
-          <span className="relative flex h-3 w-3">
+      <aside className="fixed top-[72px] bottom-0 left-0 z-40 hidden w-72 flex-col border-r border-white/[0.06] bg-[#081120]/80 backdrop-blur-xl lg:flex">
+        <div className="flex items-center gap-2.5 px-8 pt-5 pb-8">
+          <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-60" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-gold" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
           </span>
           <div>
-            <p className="font-display text-xl font-black tracking-wide">SANA</p>
-            <p className="text-mist text-[9px] font-bold tracking-[0.35em] uppercase">{t('admin.kicker')}</p>
+            <p className="font-display text-base leading-none font-black tracking-[0.25em]">SANA</p>
+            <p className="text-mist mt-1 text-[8px] font-bold tracking-[0.3em] uppercase">{t('admin.kicker')}</p>
           </div>
         </div>
 
@@ -412,7 +412,7 @@ export function AdminPage() {
       </aside>
 
       {/* ── Mobile topbar ── */}
-      <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-white/[0.06] bg-[#081120]/90 px-5 py-3.5 backdrop-blur-xl lg:hidden">
+      <div className="sticky top-[72px] z-30 flex items-center gap-3 border-b border-white/[0.06] bg-[#081120]/90 px-5 py-3 backdrop-blur-xl lg:hidden">
         <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-gold" />
         <p className="font-display flex-1 text-lg font-black">SANA</p>
         <Avatar name={user.fullName} size={34} />
