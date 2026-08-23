@@ -170,19 +170,41 @@ export function AdminPage() {
   const [clients, setClients] = useState<AdminUser[] | null>(null)
   const [escal, setEscal] = useState<Escalation[] | null>(null)
   const [error, setError] = useState('')
+  const [waking, setWaking] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
 
   useEffect(() => {
     if (!token || user?.role !== 'admin') return
-    void apiAuth('/bookings', token)
-      .then((d) => setBookings(d as AdminBooking[]))
-      .catch((e: Error) => setError(e.message))
-    void apiAuth('/users', token)
-      .then((d) => setClients(d as AdminUser[]))
-      .catch(() => setClients([]))
-    void apiAuth('/chat/escalations', token)
-      .then((d) => setEscal(d as Escalation[]))
-      .catch(() => setEscal([]))
+
+    /** plan gratuit Render : l'API peut dormir ~40 s → réessais silencieux */
+    async function loadResilient<T>(path: string): Promise<T> {
+      let lastErr: unknown
+      for (let attempt = 0; attempt < 4; attempt++) {
+        try {
+          return (await apiAuth(path, token!)) as T
+        } catch (err) {
+          lastErr = err
+          if (attempt < 3) {
+            setWaking(true)
+            await new Promise((r) => setTimeout(r, 5000))
+          }
+        }
+      }
+      setWaking(false)
+      throw lastErr
+    }
+
+    void (async () => {
+      try {
+        setBookings(await loadResilient<AdminBooking[]>('/bookings'))
+      } catch {
+        setError('bookings')
+      } finally {
+        setWaking(false)
+      }
+    })()
+    void loadResilient<AdminUser[]>('/users').then(setClients).catch(() => setClients([]))
+    void loadResilient<Escalation[]>('/chat/escalations').then(setEscal).catch(() => setEscal([]))
   }, [token, user])
 
   const stats = useMemo(() => {
@@ -357,6 +379,11 @@ export function AdminPage() {
           </div>
 
           {error && <p className="text-coral mt-4 text-sm">⚠ {t('bk.serverError')}</p>}
+          {waking && !error && (
+            <p className="text-gold mt-4 flex items-center gap-2 text-sm">
+              <span className="inline-block animate-spin">☕</span> Réveil du serveur gratuit (~40 s max)…
+            </p>
+          )}
 
           {/* ════ KPI BAND ════ */}
           <section className="mt-11 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
