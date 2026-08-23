@@ -3,6 +3,49 @@ import { Link } from 'react-router-dom'
 import { apiAuth, useAuth } from '../../core/auth'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
+import { ART } from '../../data/offers'
+
+interface AdminOffer {
+  slug: string
+  title: string
+  city: string
+  country: string
+  summary?: string
+  description?: string
+  priceEur: number
+  nights: number
+  hotelName?: string
+  rating?: number
+  artKey?: string
+  tags?: string[]
+  featured?: boolean
+  images?: string[]
+}
+
+type OfferDraft = {
+  slug: string
+  title: string
+  city: string
+  country: string
+  summary: string
+  description: string
+  priceEur: number
+  nights: number
+  hotelName: string
+  rating: number
+  tags: string
+  featured: boolean
+  images: string
+}
+
+const EMPTY_DRAFT: OfferDraft = {
+  slug: '', title: '', city: '', country: '', summary: '', description: '',
+  priceEur: 900, nights: 4, hotelName: '', rating: 4.8, tags: '', featured: false, images: '',
+}
+
+function slugify(s: string): string {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+}
 
 interface AdminBooking {
   _id: string
@@ -167,6 +210,7 @@ function Donut({ parts, total }: { parts: { label: string; value: number; color:
 
 const ICONS = {
   overview: 'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',
+  tag: 'M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z M7 7h.01',
   bookings:
     'M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 6 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-6Z M13 7v10',
   clients:
@@ -190,6 +234,10 @@ export function AdminPage() {
   const [bookings, setBookings] = useState<AdminBooking[] | null>(null)
   const [users, setUsers] = useState<AdminUser[]>([])
   const [escal, setEscal] = useState<Escalation[]>([])
+  const [offers, setOffers] = useState<AdminOffer[]>([])
+  const [modal, setModal] = useState<null | { mode: 'create' } | { mode: 'edit'; slug: string }>(null)
+  const [draft, setDraft] = useState<OfferDraft>(EMPTY_DRAFT)
+  const [saving, setSaving] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
   const [query, setQuery] = useState('')
   const [waking, setWaking] = useState(false)
@@ -203,10 +251,11 @@ export function AdminPage() {
       for (let attempt = 1; attempt <= 4; attempt++) {
         try {
           if (attempt > 1 && alive) setWaking(true)
-          const [b, u, e] = await Promise.all([
+          const [b, u, e, of] = await Promise.all([
             apiAuth('/bookings', token),
             apiAuth('/users', token),
             apiAuth('/chat/escalations', token),
+            apiAuth('/offers', token),
           ])
           if (!alive) return
           setWaking(false)
@@ -215,6 +264,7 @@ export function AdminPage() {
           setBookings(arr(b))
           setUsers(Array.isArray(u) ? (u as AdminUser[]) : [])
           setEscal(Array.isArray(e) ? (e as Escalation[]) : [])
+          setOffers(Array.isArray(of) ? (of as AdminOffer[]) : [])
           return
         } catch {
           if (!alive) return
@@ -278,6 +328,68 @@ export function AdminPage() {
     }
   }
 
+  function openCreate() {
+    setDraft(EMPTY_DRAFT)
+    setModal({ mode: 'create' })
+  }
+  function openEdit(o: AdminOffer) {
+    setDraft({
+      slug: o.slug,
+      title: o.title,
+      city: o.city,
+      country: o.country,
+      summary: o.summary ?? '',
+      description: o.description ?? '',
+      priceEur: o.priceEur,
+      nights: o.nights,
+      hotelName: o.hotelName ?? '',
+      rating: o.rating ?? 4.8,
+      tags: (o.tags ?? []).join(', '),
+      featured: Boolean(o.featured),
+      images: o.images?.[0] ?? '',
+    })
+    setModal({ mode: 'edit', slug: o.slug })
+  }
+  async function saveOffer() {
+    if (!draft.title.trim() || saving) return
+    setSaving(true)
+    const payload = {
+      slug: draft.slug.trim() || slugify(draft.title),
+      title: draft.title.trim(),
+      city: draft.city.trim(),
+      country: draft.country.trim(),
+      summary: draft.summary.trim(),
+      description: draft.description.trim(),
+      priceEur: Number(draft.priceEur) || 0,
+      nights: Number(draft.nights) || 1,
+      hotelName: draft.hotelName.trim(),
+      rating: Number(draft.rating) || 4.8,
+      tags: draft.tags.split(',').map((s) => s.trim()).filter(Boolean),
+      featured: draft.featured,
+      artKey: slugify(draft.city || draft.title),
+      ...(draft.images.trim() ? { images: [draft.images.trim()] } : {}),
+    }
+    try {
+      if (modal?.mode === 'edit') await apiAuth(`/offers/${modal.slug}`, token!, { method: 'PUT', body: payload })
+      else await apiAuth('/offers', token!, { method: 'POST', body: payload })
+      setOffers((os) => [...os.filter((o) => o.slug !== payload.slug), payload as unknown as AdminOffer])
+      setModal(null)
+    } catch {
+      /* leave modal open on error */
+    } finally {
+      setSaving(false)
+    }
+  }
+  async function removeOffer(slug: string) {
+    if (!window.confirm(t('admin.deleteConfirm'))) return
+    try {
+      await apiAuth(`/offers/${slug}`, token!, { method: 'DELETE' })
+      setOffers((os) => os.filter((o) => o.slug !== slug))
+    } catch {
+      /* ignore */
+    }
+  }
+
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       const tag = (document.activeElement as HTMLElement)?.tagName
@@ -300,7 +412,7 @@ export function AdminPage() {
       (es) => es.forEach((e) => e.isIntersecting && setActiveSection(e.target.id)),
       { rootMargin: '-35% 0px -55% 0px' },
     )
-    ;['overview', 'bookings', 'clients'].forEach((id) => {
+    ;['overview', 'offers', 'bookings', 'clients'].forEach((id) => {
       const el = document.getElementById(id)
       if (el) io.observe(el)
     })
@@ -332,6 +444,7 @@ export function AdminPage() {
 
   const navItems = [
     { id: 'overview', label: t('admin.overview'), icon: ICONS.overview },
+    { id: 'offers', label: t('nav.offers'), icon: ICONS.tag },
     { id: 'bookings', label: t('admin.bookings'), icon: ICONS.bookings },
     { id: 'clients', label: t('admin.clientsList'), icon: ICONS.clients },
     { id: 'chat', label: t('nav.concierge'), icon: ICONS.chat },
@@ -484,6 +597,67 @@ export function AdminPage() {
                 <p className="text-mist mt-1.5 text-sm">{kpi.label}</p>
               </div>
             ))}
+          </section>
+
+          {/* ── Offres ── */}
+          <section id="offers" className="mt-12 scroll-mt-24">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="font-display text-2xl font-black">
+                {t('nav.offers')}{' '}
+                <span className="text-mist text-base font-normal tabular-nums">({offers.length})</span>
+              </h2>
+              <button
+                onClick={openCreate}
+                className="from-gold to-gold-soft text-ink hover:shadow-gold/40 rounded-full bg-gradient-to-r px-6 py-2.5 text-xs font-black shadow-lg shadow-gold/25 transition-all hover:scale-105"
+              >
+                + {t('admin.newOffer')}
+              </button>
+            </div>
+
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {offers.map((o) => (
+                <article
+                  key={o.slug}
+                  className="hover:border-gold/25 group overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.03] transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className={`relative aspect-[16/9] bg-gradient-to-br ${o.artKey ? ART[o.artKey] ?? 'from-gold to-coral' : 'from-gold to-coral'}`}>
+                    {o.images?.[0] && (
+                      <img src={o.images[0]} alt={o.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                    )}
+                    <div className="from-deep absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-70" />
+                    {o.featured && (
+                      <span className="text-ink absolute top-3 start-3 rounded-full bg-gold px-2.5 py-1 text-[10px] font-black uppercase">
+                        ★
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 p-5 pt-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold">{o.title}</p>
+                      <p className="text-mist truncate text-xs">{o.city} · {o.country}</p>
+                      <p className="text-gold-soft mt-1.5 text-sm font-black">
+                        {formatPrice(o.priceEur, lang)}{' '}
+                        <span className="text-mist text-xs font-semibold">· {o.nights} n · ★ {o.rating ?? 4.8}</span>
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => openEdit(o)}
+                      title={t('admin.edit')}
+                      className="hover:border-gold/50 hover:text-gold grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 text-sm transition"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => removeOffer(o.slug)}
+                      title={t('admin.delete')}
+                      className="hover:border-coral/60 grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 text-sm transition hover:bg-coral/15"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
           </section>
 
           {waking && (
@@ -681,6 +855,128 @@ export function AdminPage() {
           </section>
         </div>
       </main>
+
+      {/* ── Modal offre (création / édition) ── */}
+      {modal && (
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/70 p-4 backdrop-blur-sm"
+          onClick={() => !saving && setModal(null)}
+        >
+          <form
+            onClick={(e) => e.stopPropagation()}
+            onSubmit={(e) => {
+              e.preventDefault()
+              void saveOffer()
+            }}
+            className="border-white/10 bg-night my-8 w-full max-w-2xl rounded-3xl border p-7 shadow-2xl sm:mx-auto"
+          >
+            <h3 className="font-display text-2xl font-black">
+              {modal.mode === 'create' ? t('admin.newOffer') : `${t('admin.edit')} · ${modal.slug}`}
+            </h3>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {([
+                ['title', 'f.title', true],
+                ['city', 'f.city', false],
+                ['country', 'f.country', false],
+                ['hotelName', 'f.hotel', false],
+              ] as const).map(([k, lk, req]) => (
+                <div key={k}>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t(lk)}</label>
+                  <input
+                    value={draft[k]}
+                    required={req}
+                    onChange={(e) => setDraft((d) => ({ ...d, [k]: e.target.value }))}
+                    className="focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
+                  />
+                </div>
+              ))}
+              <div>
+                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t('f.summary')}</label>
+                <textarea
+                  rows={2}
+                  value={draft.summary}
+                  onChange={(e) => setDraft((d) => ({ ...d, summary: e.target.value }))}
+                  className="focus:border-gold/60 w-full resize-none rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t('f.image')}</label>
+                <input
+                  value={draft.images}
+                  placeholder="https://images.unsplash.com/…"
+                  onChange={(e) => setDraft((d) => ({ ...d, images: e.target.value }))}
+                  className="focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t('f.desc')}</label>
+                <textarea
+                  rows={4}
+                  value={draft.description}
+                  onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
+                  className="focus:border-gold/60 h-full w-full resize-none rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
+                />
+              </div>
+              <div className="grid content-start gap-4">
+                <div className="grid grid-cols-3 gap-3">
+                  {([
+                    ['priceEur', 'f.price'],
+                    ['nights', 'f.nights'],
+                    ['rating', '★'],
+                  ] as const).map(([k, lk]) => (
+                    <div key={k}>
+                      <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">
+                        {lk === '★' ? '★' : t(lk)}
+                      </label>
+                      <input
+                        type="number"
+                        step={k === 'rating' ? '0.1' : '1'}
+                        min={k === 'nights' ? 1 : 0}
+                        value={draft[k]}
+                        onChange={(e) => setDraft((dr) => ({ ...dr, [k]: Number(e.target.value) }))}
+                        className="focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-3 text-sm outline-none transition"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40">{t('f.tags')}</label>
+                  <input
+                    value={draft.tags}
+                    onChange={(e) => setDraft((d) => ({ ...d, tags: e.target.value }))}
+                    className="focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition"
+                  />
+                </div>
+                <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold">
+                  <input
+                    type="checkbox"
+                    checked={draft.featured}
+                    onChange={(e) => setDraft((d) => ({ ...d, featured: e.target.checked }))}
+                    className="accent-gold h-4 w-4"
+                  />
+                  ★ {t('f.featured')}
+                </label>
+              </div>
+            </div>
+            <div className="mt-7 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setModal(null)}
+                className="hover:border-white/30 rounded-full border border-white/15 px-6 py-2.5 text-xs font-bold text-mist transition"
+              >
+                {t('admin.cancel')}
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="from-gold to-gold-soft text-ink rounded-full bg-gradient-to-r px-8 py-2.5 text-xs font-black shadow-lg shadow-gold/25 transition-all hover:scale-105 disabled:opacity-50"
+              >
+                {saving ? '…' : t('admin.save')}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   )
 }
