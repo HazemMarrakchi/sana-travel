@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { HomePage } from './features/home/HomePage'
@@ -13,9 +13,11 @@ import { ConciergePage } from './features/concierge/ConciergePage'
 import { ContactPage } from './features/contact/ContactPage'
 
 export default function App() {
+  const { pathname } = useLocation()
+  const isAdmin = pathname === '/admin'
   return (
     <div className="min-h-screen">
-      <Navbar />
+      {!isAdmin && <Navbar />}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/destinations" element={<DestinationsPage />} />
@@ -38,8 +40,8 @@ export default function App() {
           }
         />
       </Routes>
-      <Footer />
-      <ChatWidget />
+      {!isAdmin && <Footer />}
+      {!isAdmin && <ChatWidget />}
     </div>
   )
 }
