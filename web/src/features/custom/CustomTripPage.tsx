@@ -130,6 +130,7 @@ export function CustomTripPage() {
   const [country, setCountry] = useState('')
   const [dep, setDep] = useState(iso(new Date(Date.now() + 14 * 864e5)))
   const [ret, setRet] = useState(iso(new Date(Date.now() + 21 * 864e5)))
+  const [oneWay, setOneWay] = useState(false)
   const [travelers, setTravelers] = useState(2)
   const [withFlight, setWithFlight] = useState(true)
   const [flightIdx, setFlightIdx] = useState(0)
@@ -154,12 +155,13 @@ export function CustomTripPage() {
     if (!to || !withFlight) return
     setRealFlights(null)
     const ctrl = new AbortController()
-    void fetch(`${API_BASE}/flights/search?to=${to}&dep=${dep}&ret=${ret}&adults=${travelers}`, { signal: ctrl.signal })
+    const qs = `to=${to}&dep=${dep}${!oneWay && ret ? `&ret=${ret}` : ''}&adults=${travelers}`
+    void fetch(`${API_BASE}/flights/search?${qs}`, { signal: ctrl.signal })
       .then((r) => r.json())
       .then((d: { offers?: FlightProp[] }) => setRealFlights(d.offers ?? []))
       .catch(() => setRealFlights([]))
     return () => ctrl.abort()
-  }, [country, dep, ret, travelers, withFlight])
+  }, [country, dep, ret, oneWay, travelers, withFlight])
 
   const countries = useMemo(() => {
     const set = new Set<string>([...(offers ?? []).map((o) => o.country), ...Object.keys(FLIGHTS)])
@@ -171,9 +173,10 @@ export function CustomTripPage() {
   }, [countries, country])
 
   const nights = useMemo(() => {
+    if (oneWay) return 0
     const n = Math.round((new Date(ret).getTime() - new Date(dep).getTime()) / 864e5)
     return Math.max(1, Math.min(30, Number.isFinite(n) ? n : 7))
-  }, [dep, ret])
+  }, [dep, ret, oneWay])
 
   const base = useMemo(() => {
     const mine = (offers ?? []).filter((o) => o.country === country)
@@ -182,7 +185,7 @@ export function CustomTripPage() {
   }, [offers, country])
 
   const nightly = base ? base.priceEur / base.nights : 85
-  const hotelTotal = Math.round(nightly * nights * travelers)
+  const hotelTotal = oneWay ? 0 : Math.round(nightly * nights * travelers)
   const live = (realFlights ?? []).filter((f) => f.priceEur > 0)
   const flights: FlightProp[] = live.length > 0 ? live : FLIGHTS[country] ?? []
   const flightSource: 'live' | 'estimate' = live.length > 0 ? 'live' : 'estimate'
@@ -204,7 +207,8 @@ export function CustomTripPage() {
         type: 'voyage-libre',
         pays: country,
         ville: base?.city ?? '',
-        nuits: nights,
+        nuits: oneWay ? 0 : nights,
+        trajet: oneWay ? 'aller-simple' : 'aller-retour',
         vol: flight ? `${flight.airline} (${flight.stops === 0 ? 'direct' : `${flight.stops} escale${flight.stops > 1 ? 's' : ''}`})` : 'sans vol',
       })
       const res = await fetch(`${API_BASE}/bookings`, {
@@ -218,7 +222,7 @@ export function CustomTripPage() {
           contactPhone: phone.trim() || undefined,
           travelers,
           startDate: dep,
-          endDate: ret,
+          endDate: oneWay ? dep : ret,
           note,
           totalEur: total,
         }),
@@ -283,18 +287,34 @@ export function CustomTripPage() {
                 <label className={lab}>{t('vt.pax')}</label>
                 <input type="number" min={1} max={12} value={travelers} onChange={(e) => setTravelers(Math.max(1, Math.min(12, Number(e.target.value) || 1)))} className={inp} />
               </div>
+              <div className="sm:col-span-2 flex rounded-full border border-white/10 p-1 text-xs font-bold">
+                <button
+                  onClick={() => setOneWay(false)}
+                  className={`flex-1 rounded-full px-4 py-2 transition ${!oneWay ? 'bg-gold text-ink shadow' : 'text-mist hover:text-white'}`}
+                >
+                  ⇄ Aller-retour
+                </button>
+                <button
+                  onClick={() => setOneWay(true)}
+                  className={`flex-1 rounded-full px-4 py-2 transition ${oneWay ? 'bg-gold text-ink shadow' : 'text-mist hover:text-white'}`}
+                >
+                  → Aller simple
+                </button>
+              </div>
               <div>
                 <label className={lab}>✈️ {t('vt.dep')}</label>
                 <input type="date" min={iso(new Date())} value={dep} onChange={(e) => setDep(e.target.value)} className={inp} />
               </div>
-              <div>
-                <label className={lab}>🏠 {t('vt.ret')}</label>
-                <input type="date" min={iso(new Date(new Date(dep).getTime() + 864e5))} value={ret} onChange={(e) => setRet(e.target.value)} className={inp} />
-              </div>
+              {!oneWay && (
+                <div>
+                  <label className={lab}>🏠 {t('vt.ret')}</label>
+                  <input type="date" min={iso(new Date(new Date(dep).getTime() + 864e5))} value={ret} onChange={(e) => setRet(e.target.value)} className={inp} />
+                </div>
+              )}
             </div>
 
             <p className="text-gold text-sm font-bold">
-              🌙 {nights} {t('vt.nights')}
+              {oneWay ? '→ Aller simple · vol seul' : `🌙 ${nights} ${t('vt.nights')}`}
             </p>
 
             {flights.length > 0 && (
@@ -346,7 +366,7 @@ export function CustomTripPage() {
                             </p>
                             <p className="mt-1.5 text-[11px] font-semibold">
                               <span className={f.stops === 0 ? 'text-lagoon' : 'text-amber-300'}>
-                                {f.stops === 0 ? 'Direct' : `${f.stops} escale${f.stops > 1 ? 's' : ''}`} · A/R
+                                {f.stops === 0 ? 'Direct' : `${f.stops} escale${f.stops > 1 ? 's' : ''}`} · {oneWay ? 'Aller simple' : 'A/R'}
                               </span>
                               <span className="text-mist font-normal"> · {oLabel} ⇄ {dLabel}</span>
                               <span className="text-mist font-normal"> · ⏱ {durLabel}</span>
@@ -360,14 +380,16 @@ export function CustomTripPage() {
                                 <span className="text-mist">{f.origin}</span> →{' '}
                                 <span className="text-mist">{f.destination}</span>
                               </p>
-                              <p>
-                                <span className="text-mist font-bold uppercase tracking-wider">Retour</span>{' '}
-                                <span className="text-white/90">{retLabel}</span>
-                                {!f.returnAt && <span className="text-mist text-[10px]"> (heure indicative)</span>}
-                                <br />
-                                <span className="text-mist">{f.destination}</span> →{' '}
-                                <span className="text-mist">{f.origin}</span>
-                              </p>
+                              {!oneWay && (
+                                <p>
+                                  <span className="text-mist font-bold uppercase tracking-wider">Retour</span>{' '}
+                                  <span className="text-white/90">{retLabel}</span>
+                                  {!f.returnAt && <span className="text-mist text-[10px]"> (heure indicative)</span>}
+                                  <br />
+                                  <span className="text-mist">{f.destination}</span> →{' '}
+                                  <span className="text-mist">{f.origin}</span>
+                                </p>
+                              )}
                             </div>
                             <p className="font-display mt-3 text-lg font-black leading-none">
                               {formatPrice(f.priceEur, lang)}{' '}
@@ -405,10 +427,12 @@ export function CustomTripPage() {
             <p className="text-gold text-xs font-bold uppercase tracking-[0.3em]">{t('vt.total')}</p>
             <p className="font-display mt-3 text-5xl font-black">{formatPrice(total, lang)}</p>
             <div className="mt-6 space-y-3 border-t border-white/10 pt-6 text-sm">
-              <p className="flex justify-between gap-4">
-                <span className="text-mist">🏨 {base?.title ?? country} · {nights}×{nights >= 1 ? '' : ''}{t('vt.nights')}</span>
-                <span className="font-semibold tabular-nums">{formatPrice(hotelTotal, lang)}</span>
-              </p>
+              {!oneWay && (
+                <p className="flex justify-between gap-4">
+                  <span className="text-mist">🏨 {base?.title ?? country} · {nights} {t('vt.nights')}</span>
+                  <span className="font-semibold tabular-nums">{formatPrice(hotelTotal, lang)}</span>
+                </p>
+              )}
               <p className="flex justify-between gap-4">
                 <span className="text-mist">✈️ {flight ? flight.airline : t('vt.noFlight')}</span>
                 <span className="font-semibold tabular-nums">{flight ? formatPrice(flightTotal, lang) : '—'}</span>
