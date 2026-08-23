@@ -235,7 +235,7 @@ export const ar: Dict = {
   'vt.name': 'الاسم الكامل',
   'vt.email': 'البريد الإلكتروني',
   'vt.done': 'تم إرسال الطلب!',
-  'vt.live': 'أسعار حية · Amadeus',
+  'vt.live': 'أسعار حية',
   'vt.estimate': 'أسعار تقديرية',
   'vt.loadingFlights': 'جارٍ البحث عن الرحلات…',
   'ab.kicker': 'وكالتنا',

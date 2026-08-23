@@ -237,7 +237,7 @@ export const fr: Dict = {
   'vt.name': 'Nom complet',
   'vt.email': 'Email',
   'vt.done': 'Demande envoyée !',
-  'vt.live': 'Prix temps réel · Amadeus',
+  'vt.live': 'Prix temps réel',
   'vt.estimate': 'Tarifs indicatifs',
   'vt.loadingFlights': 'Recherche des vols…',
   'ab.kicker': 'Notre maison',

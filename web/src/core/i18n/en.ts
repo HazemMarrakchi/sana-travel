@@ -236,7 +236,7 @@ export const en: Dict = {
   'vt.name': 'Full name',
   'vt.email': 'Email',
   'vt.done': 'Request sent!',
-  'vt.live': 'Live prices · Amadeus',
+  'vt.live': 'Live prices',
   'vt.estimate': 'Indicative fares',
   'vt.loadingFlights': 'Searching flights…',
   'ab.kicker': 'Our house',
