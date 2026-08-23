@@ -9,6 +9,7 @@ export interface FlightProp {
   flightNumber?: string
   departureAt?: string
   returnAt?: string
+  duration?: string
   origin: string
   destination: string
   link?: string
@@ -56,6 +57,27 @@ const AIRLINE_NAMES: Record<string, string> = {
 }
 
 export { AIRPORT_NAMES }
+
+const ROUTE_DURATION: Record<string, string> = {
+  IST: '3h 15min', SAW: '3h 15min',
+  ATH: '2h 55min',
+  MLE: '11h 30min (1 escale)',
+  CMN: '2h 40min',
+  DPS: '18h (1 escale)',
+  DXB: '6h 10min',
+  CAI: '3h 00min',
+  BKK: '12h 00min (1 escale)',
+}
+
+function formatIsoDuration(iso?: string): string | undefined {
+  if (!iso) return undefined
+  // PT6H10M → 6h 10min
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?/)
+  if (!m) return iso
+  const h = m[1] ? `${m[1]}h` : ''
+  const min = m[2] ? ` ${m[2]}min` : ''
+  return `${h}${min}`.trim() || undefined
+}
 
 const TEST_HOST = 'https://test.api.amadeus.com'
 const TP_HOST = 'https://api.travelpayouts.com'
@@ -179,6 +201,7 @@ export class FlightsService {
           flightNumber: String(o.flight_number ?? ''),
           departureAt: o.departure_at,
           returnAt: o.return_at,
+          duration: ROUTE_DURATION[q.to] ?? (o.transfers ? `${o.transfers} escale${o.transfers > 1 ? 's' : ''}` : undefined),
           origin: o.origin ?? 'TUN',
           destination: o.destination ?? q.to,
           link: o.link,
@@ -232,6 +255,7 @@ export class FlightsService {
         seen.add(code)
         const segs0 = (o.itineraries?.[0]?.segments ?? []) as { departure?: { at?: string; iataCode?: string }; arrival?: { iataCode?: string } }[]
         const segs1 = (o.itineraries?.[1]?.segments ?? []) as { departure?: { at?: string } }[]
+        const rawDur = (o.itineraries?.[0] as { duration?: string })?.duration
         offers.push({
           airline: AIRLINE_NAMES[code] ?? code,
           airlineCode: code,
@@ -239,6 +263,7 @@ export class FlightsService {
           stops: Math.max(0, segs0.length - 1),
           departureAt: segs0[0]?.departure?.at,
           returnAt: segs1[0]?.departure?.at,
+          duration: formatIsoDuration(rawDur) ?? ROUTE_DURATION[q.to],
           origin: segs0[0]?.departure?.iataCode ?? 'TUN',
           destination: segs0[segs0.length - 1]?.arrival?.iataCode ?? q.to,
         })

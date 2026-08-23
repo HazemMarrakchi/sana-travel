@@ -62,6 +62,7 @@ interface FlightProp {
   flightNumber?: string
   departureAt?: string
   returnAt?: string
+  duration?: string
   origin: string
   destination: string
   link?: string
@@ -329,6 +330,9 @@ export function CustomTripPage() {
                                 {f.stops === 0 ? 'Direct' : `${f.stops} escale${f.stops > 1 ? 's' : ''}`} · A/R
                               </span>
                               <span className="text-mist font-normal"> · {oLabel} ⇄ {dLabel}</span>
+                              {f.duration && (
+                                <span className="text-mist font-normal"> · ⏱ {f.duration}</span>
+                              )}
                             </p>
                             <div className="mt-2 space-y-1.5 border-t border-white/10 pt-2.5 text-[11px] leading-relaxed">
                               <p>
