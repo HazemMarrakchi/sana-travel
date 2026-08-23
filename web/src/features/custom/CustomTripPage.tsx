@@ -187,7 +187,13 @@ export function CustomTripPage() {
   const nightly = base ? base.priceEur / base.nights : 85
   const hotelTotal = oneWay ? 0 : Math.round(nightly * nights * travelers)
   const live = (realFlights ?? []).filter((f) => f.priceEur > 0)
-  const flights: FlightProp[] = live.length > 0 ? live : FLIGHTS[country] ?? []
+  const staticFlights = (FLIGHTS[country] ?? [])
+  const allFlights: FlightProp[] = live.length > 0 ? live : staticFlights
+  // prix indicatifs (statiques) = A/R → multiplier ×0.6 en aller simple
+  const flights = allFlights.map((f) => ({
+    ...f,
+    priceEur: live.length > 0 ? f.priceEur : (oneWay ? Math.round(f.priceEur * 0.6) : f.priceEur),
+  }))
   const flightSource: 'live' | 'estimate' = live.length > 0 ? 'live' : 'estimate'
   const flight = withFlight && flights.length > 0 ? flights[Math.min(flightIdx, flights.length - 1)] : null
   const flightTotal = flight ? flight.priceEur * travelers : 0
