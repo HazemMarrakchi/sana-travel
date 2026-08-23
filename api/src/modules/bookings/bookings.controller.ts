@@ -27,7 +27,7 @@ export class BookingsController {
   @Get('mine')
   @Roles('client', 'admin')
   findMine(@Req() req: Request & { user?: RequestUser }): Promise<Booking[]> {
-    return this.bookingsService.findAllForUser(req.user!.sub)
+    return this.bookingsService.findMine(req.user!.sub, req.user!.email)
   }
 
   /** Public: quote lookup by reference */
@@ -49,7 +49,8 @@ export class BookingsController {
   async cancelOwn(@Req() req: Request & { user?: RequestUser }, @Param('id') id: string): Promise<Booking> {
     const booking = await this.bookingsService.findById(id)
     if (!booking) throw new NotFoundException(`Booking ${id} introuvable`)
-    const isOwner = !!booking.userId && String(booking.userId) === req.user!.sub
+    const isOwner = (!!booking.userId && String(booking.userId) === req.user!.sub) ||
+      (!!booking.email && booking.email.toLowerCase() === req.user!.email.toLowerCase())
     if (!isOwner && req.user!.role !== 'admin') throw new UnauthorizedException('Dossier non rattaché à ce compte')
     if (booking.status === 'cancelled' || booking.status === 'confirmed') {
       throw new BadRequestException(`Impossible d'annuler une réservation ${booking.status}`)

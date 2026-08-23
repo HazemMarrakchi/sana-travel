@@ -40,6 +40,14 @@ export class BookingsService {
     return this.bookingModel.find({ userId }).sort({ createdAt: -1 }).exec()
   }
 
+  /** Compte connecté : réservations liées au userId OU au même email (invité) */
+  async findMine(userId: string, email: string): Promise<Booking[]> {
+    const q = email
+      ? { $or: [{ userId }, { email: new RegExp(`^${email}$`, 'i') }] }
+      : { userId }
+    return this.bookingModel.find(q).sort({ createdAt: -1 }).exec()
+  }
+
   async findByReference(reference: string): Promise<Booking> {
     const booking = await this.bookingModel.findOne({ reference }).exec()
     if (!booking) throw new NotFoundException(`Booking ${reference} not found`)
