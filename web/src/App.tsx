@@ -14,6 +14,7 @@ import { ConciergePage } from './features/concierge/ConciergePage'
 import { CustomTripPage } from './features/custom/CustomTripPage'
 import { AboutPage } from './features/about/AboutPage'
 import { ContactPage } from './features/contact/ContactPage'
+import { LegalPage } from './features/legal/LegalPage'
 
 const TITLES: Record<string, string> = {
   '/': 'Voyages sur mesure',
@@ -27,6 +28,9 @@ const TITLES: Record<string, string> = {
   '/login': 'Connexion',
   '/account': 'Mon compte',
   '/admin': 'Administration',
+  '/mentions-legales': 'Mentions légales',
+  '/cgv': 'Conditions de vente',
+  '/confidentialite': 'Confidentialité',
 }
 
 const WHATSAPP = import.meta.env.VITE_WHATSAPP ?? ''
@@ -70,6 +74,9 @@ export default function App() {
         <Route path="/account" element={<AccountPage />} />
       <Route path="/agence" element={<AboutPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/mentions-legales" element={<LegalPage />} />
+        <Route path="/cgv" element={<LegalPage />} />
+        <Route path="/confidentialite" element={<LegalPage />} />
         <Route
           path="*"
           element={

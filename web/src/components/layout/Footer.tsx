@@ -24,7 +24,7 @@ export function Footer() {
   return (
     <footer className="bg-deep text-white">
       <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
-        <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
           <div>
             <p className="font-display text-4xl font-black">
               SANA<span className="text-gold">.</span>
@@ -60,6 +60,14 @@ export function Footer() {
               { label: t('nav.contact'), to: '/contact' },
               { label: t('acct.myBookings'), to: '/account' },
               { label: t('nav.login'), to: '/login' },
+            ]}
+          />
+          <FooterCol
+            title={t('footer.legal')}
+            items={[
+              { label: t('footer.mentions'), to: '/mentions-legales' },
+              { label: t('footer.cgv'), to: '/cgv' },
+              { label: t('footer.privacy'), to: '/confidentialite' },
             ]}
           />
           <div>
