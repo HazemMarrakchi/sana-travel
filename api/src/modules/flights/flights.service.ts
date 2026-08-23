@@ -56,6 +56,24 @@ const AIRLINE_NAMES: Record<string, string> = {
   SN: 'Brussels Airlines',
 }
 
+/** Durées typiques de vol direct depuis Tunis (heures) par destination */
+const DIRECT_MAX_HOURS: Record<string, number> = {
+  IST: 4, SAW: 4, ATH: 4, CMN: 4, CAI: 4, DXB: 7,
+  MLE: 14, DPS: 20, BKK: 15,
+}
+
+/** Nettoyage : si duration < max_direct + 1h mais stops > 0 → on met stops = 0 */
+function cleanFlights(offers: FlightProp[], dest: string): FlightProp[] {
+  const maxH = DIRECT_MAX_HOURS[dest] ?? 8
+  return offers.map((f) => {
+    if (!f.duration) return f
+    const m = f.duration.match(/(\d+)h/)
+    const hours = m ? parseInt(m[1]) : 999
+    if (hours <= maxH + 1 && f.stops > 0) return { ...f, stops: 0 }
+    return f
+  })
+}
+
 export { AIRPORT_NAMES }
 
 const ROUTE_DURATION: Record<string, string> = {
@@ -208,9 +226,10 @@ export class FlightsService {
         })
       }
       offers.sort((a, b) => a.priceEur - b.priceEur)
+      const cleaned = cleanFlights(offers, q.to)
 
-      this.cache.set(key, { exp: Date.now() + 15 * 60_000, data: offers })
-      return offers
+      this.cache.set(key, { exp: Date.now() + 15 * 60_000, data: cleaned })
+      return cleaned
     } catch {
       return []
     }
@@ -269,10 +288,11 @@ export class FlightsService {
         })
       }
       offers.sort((a, b) => a.priceEur - b.priceEur)
+      const cleaned = cleanFlights(offers, q.to)
 
       // cache 15 min — économise le quota gratuit
-      this.cache.set(key, { exp: Date.now() + 15 * 60_000, data: offers })
-      return offers
+      this.cache.set(key, { exp: Date.now() + 15 * 60_000, data: cleaned })
+      return cleaned
     } catch {
       return [] // quota épuisé / indispo → fallback front
     }
