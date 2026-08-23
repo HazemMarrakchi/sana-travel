@@ -16,6 +16,14 @@ export function OfferDetailPage() {
 
   useEffect(() => {
     void fetchOffer(slug).then((r) => setState({ ...r, loading: false }))
+    try {
+      const raw = localStorage.getItem('sana-recent')
+      const arr: string[] = raw ? JSON.parse(raw) : []
+      const next = [slug, ...arr.filter((s) => s !== slug)].slice(0, 8)
+      localStorage.setItem('sana-recent', JSON.stringify(next))
+    } catch {
+      /* stockage indisponible */
+    }
     window.scrollTo(0, 0)
   }, [slug])
 

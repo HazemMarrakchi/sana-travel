@@ -26,8 +26,14 @@ export function BookingPage() {
   const [error, setError] = useState('')
   const [created, setCreated] = useState<CreatedBooking | null>(null)
 
-  const [startDate, setStartDate] = useState(todayISO())
-  const [travelers, setTravelers] = useState(2)
+  const [startDate, setStartDate] = useState(() => {
+    const d = params.get('date')
+    return d && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : todayISO()
+  })
+  const [travelers, setTravelers] = useState(() => {
+    const n = Number(params.get('travelers'))
+    return Number.isFinite(n) && n >= 1 ? Math.min(12, Math.floor(n)) : 2
+  })
   const [contactName, setContactName] = useState('')
   const [contactEmail, setContactEmail] = useState('')
   const [contactPhone, setContactPhone] = useState('')

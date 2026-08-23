@@ -94,6 +94,17 @@ select.inp option {
 .animate-drift-a { animation: drift-a 14s ease-in-out infinite; }
 .animate-drift-b { animation: drift-b 18s ease-in-out infinite; }
 
+/* bandeau défilant de destinations */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 36s linear infinite; }
+[dir='rtl'] .animate-marquee { animation-direction: reverse; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee { animation: none; }
+}
+
 /* balayage lumineux sur les cartes destination */
 .tilt-card {
   transform-style: preserve-3d;

@@ -1,10 +1,182 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { artFor, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
 import { PosterImage } from '../../components/ui/PosterImage'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
+
+const todayISO = () => new Date().toISOString().slice(0, 10)
+const inDaysISO = (n: number) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10)
+
+const FALLBACK_NAMES = ['Magie de Cappadoce', 'Santorin', 'Maldives', 'Marrakech', 'Istanbul', 'Bali', 'Dubaï']
+const EARLY_TARGET = new Date('2026-09-30T23:59:59').getTime()
+
+/** bandeau Early Booking avec compte à rebours live */
+function PromoBanner() {
+  const { t } = useT()
+  const c = useCountdown(EARLY_TARGET)
+  const cells: [number, string][] = [
+    [c.days, 'J'],
+    [c.hours, 'H'],
+    [c.mins, 'M'],
+    [c.secs, 'S'],
+  ]
+  return (
+    <section className="from-gold-soft via-gold to-[#c98f2e] relative overflow-hidden bg-gradient-to-r py-9 text-[#071020]">
+      <div className="absolute -top-16 right-1/4 h-40 w-40 rounded-full bg-white/25 blur-3xl" />
+      <div className="relative mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-10 gap-y-6 px-5 lg:px-8">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.3em] opacity-70">{t('promo.kicker')}</p>
+          <p className="font-display mt-1.5 max-w-md text-lg leading-snug font-bold sm:text-xl">{t('promo.line')}</p>
+        </div>
+        <div className="flex items-center gap-5">
+          <div className="hidden text-right sm:block">
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-60">{t('promo.ends')}</p>
+          </div>
+          <div className="flex gap-2">
+            {cells.map(([v, u]) => (
+              <div key={u} className="bg-deep min-w-[58px] rounded-xl px-2 py-2 text-center shadow-lg">
+                <p className="text-gold-soft font-display text-2xl font-black tabular-nums">{String(v).padStart(2, '0')}</p>
+                <p className="text-mist text-[9px] font-bold tracking-widest">{u}</p>
+              </div>
+            ))}
+          </div>
+          <Link
+            to="/destinations"
+            className="text-gold hover:text-gold-soft hidden rounded-full bg-[#071020] px-7 py-3.5 text-sm font-black transition-all hover:scale-105 md:inline-block"
+          >
+            {t('home.cta1')} →
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/** section témoignages voyageurs */
+function Testimonials() {
+  const { t } = useT()
+  const items: [string, string, string][] = [
+    ['Sarah B.', 'Maldives · Lune de miel', 'rev.r1'],
+    ['Mehdi T.', 'Istanbul · En famille', 'rev.r2'],
+    ['Amira K.', 'Cappadoce · Entre amies', 'rev.r3'],
+  ]
+  return (
+    <section className="bg-deep relative overflow-hidden py-24 text-white lg:py-32">
+      <div className="animate-drift-a absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-[radial-gradient(closest-side,rgba(226,176,74,0.18),transparent)] blur-2xl" />
+      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="reveal text-center">
+          <p className="text-gold text-xs font-bold uppercase tracking-[0.35em]">{t('rev.kicker')}</p>
+          <h2 className="font-display mt-3 text-4xl font-black lg:text-5xl">{t('rev.title')}</h2>
+        </div>
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {items.map(([name, trip, k], i) => (
+            <figure
+              key={name}
+              className="reveal hover:border-gold/30 rounded-3xl border border-white/10 bg-white/[0.04] p-8 backdrop-blur transition-colors"
+              style={{ transitionDelay: `${i * 110}ms` }}
+            >
+              <p className="text-gold text-lg tracking-[0.3em]" aria-label="5 étoiles">★★★★★</p>
+              <blockquote className="text-mist mt-5 text-sm leading-relaxed italic">{t(k)}</blockquote>
+              <figcaption className="mt-7 flex items-center gap-3">
+                <span className="from-gold to-coral text-ink grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br text-xs font-black">
+                  {name[0]}
+                </span>
+                <span>
+                  <span className="block text-sm font-bold">{name}</span>
+                  <span className="text-mist block text-xs">{trip}</span>
+                </span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/** compte à rebours temps réel vers une échéance */
+function useCountdown(target: number) {
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  const left = Math.max(0, target - now)
+  return {
+    days: Math.floor(left / 86400000),
+    hours: Math.floor(left / 3600000) % 24,
+    mins: Math.floor(left / 60000) % 60,
+    secs: Math.floor(left / 1000) % 60,
+  }
+}
+
+/** moteur de recherche de voyage — préremplit /booking */
+function TripSearch({ offers }: { offers: Offer[] }) {
+  const { t, lang } = useT()
+  const nav = useNavigate()
+  const [slug, setSlug] = useState(offers[0]?.slug ?? '')
+  const [date, setDate] = useState(inDaysISO(30))
+  const [pax, setPax] = useState(2)
+
+  function search() {
+    if (!slug) return
+    const q = new URLSearchParams({ offer: slug, date, travelers: String(pax) })
+    nav(`/booking?${q.toString()}`)
+  }
+
+  const field =
+    'focus:border-gold w-full rounded-xl border border-ink/10 bg-white px-4 py-3.5 text-sm font-semibold text-ink outline-none transition'
+  const label = 'text-slate-soft mb-1.5 block text-[11px] font-bold uppercase tracking-[0.15em]'
+  const selected = offers.find((o) => o.slug === slug)
+
+  return (
+    <div className="rounded-[2rem] bg-white/[0.98] p-6 shadow-[0_40px_90px_-24px_rgba(7,16,32,0.55)] ring-1 ring-black/5 backdrop-blur-xl sm:p-7">
+      <p className="text-coral mb-5 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.35em]">
+        <span className="bg-gold inline-block h-px w-8" /> {t('ts.kicker')}
+      </p>
+      <div className="grid items-end gap-4 md:grid-cols-[1.5fr_1fr_0.7fr_auto]">
+        <div>
+          <label className={label}>{t('ts.destination')}</label>
+          <select value={slug} onChange={(e) => setSlug(e.target.value)} className={field}>
+            {(offers.length ? offers : []).map((o) => (
+              <option key={o.slug} value={o.slug}>
+                {o.title} · {o.country}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={label}>{t('ts.date')}</label>
+          <input type="date" min={todayISO()} value={date} onChange={(e) => setDate(e.target.value)} className={field} />
+        </div>
+        <div>
+          <label className={label}>{t('ts.pax')}</label>
+          <select value={pax} onChange={(e) => setPax(Number(e.target.value))} className={field}>
+            {[1, 2, 3, 4, 5, 6, 8, 10, 12].map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          onClick={search}
+          className="from-gold to-gold-soft text-ink hover:shadow-gold/50 rounded-xl bg-gradient-to-r px-8 py-3.5 text-sm font-black shadow-lg shadow-gold/30 transition-all hover:scale-[1.04]"
+        >
+          🔍 {t('ts.search')}
+        </button>
+      </div>
+      {selected && (
+        <p className="text-slate-soft mt-4 text-xs">
+          {t('card.from')} {formatPrice(selected.priceEur, lang)} · {selected.nights} {t('card.nights')} · ★{' '}
+          {selected.rating || 4.8}
+        </p>
+      )}
+    </div>
+  )
+}
 
 /** révèle les sections quand elles entrent dans le viewport */
 function useReveal() {
@@ -130,6 +302,50 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* ══════════ MOTEUR DE RECHERCHE ══════════ */}
+      <div className="bg-deep relative z-20 px-5">
+        <div className="mx-auto max-w-5xl -mt-0 translate-y-0 pb-4 lg:px-8" style={{ marginTop: '-3.5rem' }}>
+          <TripSearch offers={offers} />
+        </div>
+      </div>
+
+      {/* ══════════ BARRE DE CONFIANCE ══════════ */}
+      <section className="border-b border-white/5 bg-[#081120] py-8 text-white">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-5 md:grid-cols-4 lg:px-8">
+          {[
+            ['🛡️', 'trust.secure'],
+            ['⚡', 'trust.devis'],
+            ['🤖', 'trust.ai'],
+            ['🌍', 'trust.team'],
+          ].map(([icon, k]) => (
+            <div key={k} className="flex items-center justify-center gap-3">
+              <span className="border-gold/25 bg-gold/10 grid h-11 w-11 shrink-0 place-items-center rounded-full border text-lg">
+                {icon}
+              </span>
+              <span className="text-mist text-xs leading-snug font-bold uppercase tracking-wider">{t(k)}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══════════ BANDEAU EARLY BOOKING ══════════ */}
+      <PromoBanner />
+
+      {/* ══════════ MARQUEE DESTINATIONS ══════════ */}
+      <div className="border-white/10 overflow-hidden border-y bg-[#071020] py-5">
+        <div className="animate-marquee flex w-max items-center gap-8 whitespace-nowrap">
+          {[0, 1].map((dup) => (
+            <span key={dup} className="flex items-center gap-8">
+              {(offers.length ? offers.map((o) => o.title) : FALLBACK_NAMES).map((name, i) => (
+                <span key={`${dup}-${i}`} className="font-display text-mist/40 text-xl font-black tracking-wide italic">
+                  {name} <span className="text-gold mx-2 not-italic">✦</span>
+                </span>
+              ))}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* ══════════ DESTINATIONS ══════════ */}
       <section className="bg-ivory py-24 lg:py-32">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
@@ -210,6 +426,9 @@ export function HomePage() {
           </ol>
         </div>
       </section>
+
+      {/* ══════════ TÉMOIGNAGES ══════════ */}
+      <Testimonials />
 
       {/* ══════════ CONCIERGE TEASER ══════════ */}
       <section className="bg-ivory overflow-hidden py-24 lg:py-32">
