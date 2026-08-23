@@ -189,8 +189,7 @@ export function CustomTripPage() {
   const nightly = base ? base.priceEur / base.nights : 85
   const hotelTotal = oneWay ? 0 : Math.round(nightly * nights * travelers)
   const live = (realFlights ?? []).filter((f) => f.priceEur > 0)
-  const hasApi = realFlights !== null // null = chargement, [] = API configurée mais vide, [...] = résultats
-  // fallback statique UNIQUEMENT si l'API est configurée et renvoie du vide
+  const hasApi = realFlights !== null
   const flights: FlightProp[] = live.length > 0 ? live : (hasApi ? [] : (FLIGHTS[country] ?? []))
   const flightSource: 'live' | 'estimate' | 'none' = live.length > 0 ? 'live' : (hasApi ? 'none' : 'estimate')
   const flight = withFlight && flights.length > 0 ? flights[Math.min(flightIdx, flights.length - 1)] : null

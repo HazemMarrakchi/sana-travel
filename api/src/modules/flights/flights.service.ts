@@ -66,11 +66,13 @@ const DIRECT_MAX_HOURS: Record<string, number> = {
 function cleanFlights(offers: FlightProp[], dest: string): FlightProp[] {
   const maxH = DIRECT_MAX_HOURS[dest] ?? 8
   return offers.map((f) => {
-    if (!f.duration) return f
-    const m = f.duration.match(/(\d+)h/)
-    const hours = m ? parseInt(m[1]) : 999
-    if (hours <= maxH + 1 && f.stops > 0) return { ...f, stops: 0 }
-    return f
+    const clean = { ...f }
+    if (clean.duration) {
+      const m = clean.duration.match(/(\d+)h/)
+      const hours = m ? parseInt(m[1]) : 999
+      if (hours <= maxH + 1 && clean.stops > 0) clean.stops = 0
+    }
+    return clean
   })
 }
 
