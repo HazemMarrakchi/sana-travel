@@ -64,7 +64,7 @@ Principes : Simplicity First · domain-driven · pas de micro-fichiers · loggin
 - [x] ~~Auth JWT complète~~ ✅ M4 : 14/14 tests verts ; fix `import type` qui effaçait les DTOs (ValidationPipe skip) ; @IsOptional phone ; login 200
 - [ ] Lier les bookings invités au compte client après inscription (merge par email)
 - [x] ~~Booking 3 étapes + devis PDF + Resend~~ ✅ M3 : wizard invité, référence SNA-XXXXXX, total serveur, jsPDF lazy-loadé (bundle principal ~300kB), email Resend optionnel
-- [ ] Admin : CRUD UI des offres (dashboard v2 + statuts réservations livrés)
+- [x] ~~Admin : CRUD UI des offres~~ ✅ section Offres dans /admin : cartes + modal création/édition + suppression avec confirmation ; API sécurisée @Roles('admin') sur POST/PUT/DELETE
 - [x] ~~Concierge IA~~ ✅ M5 : POST /api/chat (règles 5/5 tests ; Groq llama-3.3-70b auto si GROQ_API_KEY), chat_logs + escalades dans /admin, widget flottant + page dédiée
 - [x] ~~Déploiement production~~ ✅ M6 EN LIGNE : https://hazemmarrakchi.github.io/sana-travel/ (Pages) + https://sana-api.onrender.com (Render free, auto-deploy sur push main). VITE_BASE=/sana-travel/ + BrowserRouter basename. Fix admin bookings vide (findAll). Cron keep-warm conseillé toutes les 10 min (cron-job.org → GET /api/offers)
 - [ ] Compte Resend à créer par le propriétaire pour activer l'envoi email
