@@ -214,6 +214,7 @@ export const en: Dict = {
   'f.hotel': 'Hotel',
   'f.tags': 'Tags (comma-separated)',
   'f.image': 'Image URL',
+  'f.images': 'Photo URLs',
   'f.featured': 'Featured',
   'fs.geo': 'Destination',
   'fs.content': 'Offer content',

@@ -13,9 +13,11 @@ export function OfferDetailPage() {
     live: false,
   })
   const { t, lang } = useT()
+  const [gal, setGal] = useState(0)
 
   useEffect(() => {
     void fetchOffer(slug).then((r) => setState({ ...r, loading: false }))
+    setGal(0)
     try {
       const raw = localStorage.getItem('sana-recent')
       const arr: string[] = raw ? JSON.parse(raw) : []
@@ -57,8 +59,22 @@ export function OfferDetailPage() {
       <section
         className={`relative flex min-h-[70vh] items-end overflow-hidden bg-gradient-to-br ${artFor(o.artKey)}`}
       >
-        <PosterImage src={o.photo ?? o.images?.[0]} alt={o.title} />
+        <PosterImage src={o.photo ?? o.images?.[gal] ?? o.images?.[0]} alt={o.title} />
         <div className="from-ink/85 via-ink/20 absolute inset-0 bg-gradient-to-t to-transparent" />
+        {o.images && o.images.length > 1 && (
+          <div className="absolute bottom-6 left-1/2 z-10 flex max-w-[92%] -translate-x-1/2 flex-wrap justify-center gap-2">
+            {o.images.map((u, i) => (
+              <button
+                key={i}
+                onClick={() => setGal(i)}
+                className={`h-14 w-20 overflow-hidden rounded-lg ring-2 transition ${i === gal ? 'ring-gold' : 'ring-white/30 hover:ring-white/60'}`}
+                aria-label={`photo ${i + 1}`}
+              >
+                <img src={u} alt="" className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
         <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 lg:px-8">
           <Link to="/destinations" className="text-white/80 hover:text-gold text-xs font-bold uppercase tracking-[0.3em] transition-colors">
             {t('od.back')}

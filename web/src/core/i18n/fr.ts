@@ -215,6 +215,7 @@ export const fr: Dict = {
   'f.hotel': 'Hôtel',
   'f.tags': 'Tags (séparés par des virgules)',
   'f.image': "URL de l'image",
+  'f.images': 'URLs des photos',
   'f.featured': 'Mise en avant',
   'fs.geo': 'Destination',
   'fs.content': 'Contenu de l’offre',

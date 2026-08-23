@@ -83,10 +83,16 @@ const PHOTOS = {
   dubai: U('1512453979798-5ea266f8880c'),
 }
 
+const POOL = Object.values(PHOTOS)
 try {
   await mongoose.connect(uri)
   await Offer.deleteMany({})
-  const docs = OFFERS.map((o) => ({ ...o, images: [PHOTOS[o.artKey]].filter(Boolean) }))
+  const docs = OFFERS.map((o, idx) => {
+    const own = PHOTOS[o.artKey]
+    const a = POOL[(idx + 1) % POOL.length]
+    const b = POOL[(idx + 3) % POOL.length]
+    return { ...o, images: [own, a, b].filter(Boolean) }
+  })
   const inserted = await Offer.insertMany(docs)
   console.log(`✅ ${inserted.length} offers seeded into sana_travel.offers`)
   await mongoose.disconnect()

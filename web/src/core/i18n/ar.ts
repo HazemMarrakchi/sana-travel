@@ -213,6 +213,7 @@ export const ar: Dict = {
   'f.hotel': 'الفندق',
   'f.tags': 'الوسوم (مفصولة بفواصل)',
   'f.image': 'رابط الصورة',
+  'f.images': 'روابط الصور',
   'f.featured': 'مميزة',
   'fs.geo': 'الوجهة',
   'fs.content': 'محتوى العرض',

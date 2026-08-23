@@ -384,7 +384,7 @@ export function AdminPage() {
       rating: o.rating ?? 4.8,
       tags: (o.tags ?? []).join(', '),
       featured: Boolean(o.featured),
-      images: o.images?.[0] ?? '',
+      images: (o.images ?? []).join('\n'),
     })
     setModal({ mode: 'edit', slug: o.slug })
   }
@@ -405,7 +405,7 @@ export function AdminPage() {
       tags: draft.tags.split(',').map((s) => s.trim()).filter(Boolean),
       featured: draft.featured,
       artKey: slugify(draft.city || draft.title),
-      ...(draft.images.trim() ? { images: [draft.images.trim()] } : {}),
+      images: draft.images.split(/[\n,]/).map((s) => s.trim()).filter(Boolean),
     }
     try {
       if (modal?.mode === 'edit') await apiAuth(`/offers/${modal.slug}`, token!, { method: 'PUT', body: payload })
@@ -1110,13 +1110,21 @@ export function AdminPage() {
 
               <FormSection icon="🖼️" title={t('fs.media')} />
               <div className="sm:col-span-2">
-                <label className={lab}>{t('f.image')}</label>
-                <input
+                <label className={lab}>{t('f.images')} <span className="font-normal text-ink/50">(une URL par ligne)</span></label>
+                <textarea
                   value={draft.images}
-                  placeholder="https://images.unsplash.com/…"
+                  rows={3}
+                  placeholder={"https://images.unsplash.com/photo-…\nhttps://images.unsplash.com/photo-…"}
                   onChange={(e) => set('images', e.target.value)}
-                  className={inp}
+                  className={inp + ' resize-y'}
                 />
+                {draft.images.split(/[\n,]/).map((s) => s.trim()).filter(Boolean).length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {draft.images.split(/[\n,]/).map((s) => s.trim()).filter(Boolean).map((u, i) => (
+                      <img key={i} src={u} alt="" className="h-16 w-24 rounded-lg object-cover ring-1 ring-white/20" onError={(e) => ((e.currentTarget.style.opacity = '0.25'))} />
+                    ))}
+                  </div>
+                )}
               </div>
               <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold sm:col-span-2">
                 <input type="checkbox" checked={draft.featured} onChange={(e) => set('featured', e.target.checked)} className="accent-gold h-4 w-4" />
