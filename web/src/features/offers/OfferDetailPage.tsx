@@ -134,7 +134,7 @@ export function OfferDetailPage() {
       <section
         className={`relative flex min-h-[70vh] items-end overflow-hidden bg-gradient-to-br ${artFor(o.artKey)}`}
       >
-        <PosterImage src={o.photo ?? o.images?.[gal] ?? o.images?.[0]} alt={o.title} />
+        <PosterImage src={o.images?.[gal] ?? o.photo ?? o.images?.[0]} alt={o.title} />
         <div className="from-ink/85 via-ink/20 absolute inset-0 bg-gradient-to-t to-transparent" />
         <button
           onClick={() => void onToggleFav()}

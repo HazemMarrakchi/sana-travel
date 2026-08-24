@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { artFor, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
@@ -6,12 +6,29 @@ import { PosterImage } from '../../components/ui/PosterImage'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
 
+type OfferType = 'all' | 'tours' | 'hotels'
+type SortKey = 'reco' | 'priceAsc' | 'priceDesc' | 'nightsDesc' | 'rating'
+
+const SORTERS: Record<SortKey, (a: Offer, b: Offer) => number> = {
+  reco: (a, b) => Number(b.featured) - Number(a.featured) || b.rating - a.rating,
+  priceAsc: (a, b) => a.priceEur - b.priceEur,
+  priceDesc: (a, b) => b.priceEur - a.priceEur,
+  nightsDesc: (a, b) => b.nights - a.nights,
+  rating: (a, b) => b.rating - a.rating,
+}
+
+const isHotel = (o: Offer): boolean => o.tags.includes('hôtel')
+
 export function DestinationsPage() {
   const [{ offers, live }, setState] = useState<{ offers: Offer[]; live: boolean }>({
     offers: [],
     live: false,
   })
   const [filter, setFilter] = useState<string>('tout')
+  const [type, setType] = useState<OfferType>('all')
+  const [sort, setSort] = useState<SortKey>('reco')
+  const [country, setCountry] = useState<string>('all')
+  const [city, setCity] = useState<string>('all')
   const { t, lang } = useT()
   const [recent, setRecent] = useState<string[]>([])
   const [query, setQuery] = useState('')
@@ -26,9 +43,39 @@ export function DestinationsPage() {
     }
   }, [])
 
-  const tags = ['tout', ...Array.from(new Set(offers.flatMap((o) => o.tags)))]
+  const typed = useMemo(
+    () =>
+      offers.filter((o) =>
+        type === 'all' ? true : type === 'hotels' ? isHotel(o) : !isHotel(o),
+      ),
+    [offers, type],
+  )
+
+  const tags = ['tout', ...Array.from(new Set(typed.flatMap((o) => o.tags)))].filter(
+    (tg) => tg !== 'hôtel',
+  )
+
+  const countries = useMemo(
+    () => Array.from(new Set(typed.map((o) => o.country))).sort((a, b) => a.localeCompare(b, 'fr')),
+    [typed],
+  )
+
+  /** cascade : les villes dépendent du pays sélectionné */
+  const cities = useMemo(() => {
+    const scoped = country === 'all' ? typed : typed.filter((o) => o.country === country)
+    return Array.from(new Set(scoped.map((o) => o.city))).sort((a, b) => a.localeCompare(b, 'fr'))
+  }, [typed, country])
+
+  useEffect(() => {
+    if (filter !== 'tout' && !typed.some((o) => o.tags.includes(filter))) setFilter('tout')
+    if (country !== 'all' && !countries.includes(country)) setCountry('all')
+    if (city !== 'all' && !cities.includes(city)) setCity('all')
+  }, [typed, countries, cities, filter, country, city])
+
   const q = query.trim().toLowerCase()
-  const visible = offers
+  const visible = typed
+    .filter((o) => country === 'all' ? true : o.country === country)
+    .filter((o) => city === 'all' ? true : o.city === city)
     .filter((o) => (filter === 'tout' ? true : o.tags.includes(filter)))
     .filter((o) =>
       !q ||
@@ -37,6 +84,7 @@ export function DestinationsPage() {
       o.country.toLowerCase().includes(q) ||
       o.tags.some((tg) => tg.toLowerCase().includes(q)),
     )
+    .sort(SORTERS[sort])
 
   return (
     <main className="bg-ivory min-h-screen">
@@ -50,12 +98,75 @@ export function DestinationsPage() {
       </p>
 
       <div className="mt-8 flex flex-col gap-4">
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t('dst.search')}
-          className="border-ink/15 focus:border-gold w-full max-w-md rounded-full border bg-white px-5 py-3 text-sm shadow-sm outline-none transition-colors"
-        />
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          {/* onglets type */}
+          <div className="border-ink/10 inline-flex w-fit rounded-full border bg-white p-1 shadow-sm">
+            {(
+              [
+                ['all', 'dest.tabAll'],
+                ['tours', 'dest.tabTours'],
+                ['hotels', 'dest.tabHotels'],
+              ] as const
+            ).map(([v, k]) => (
+              <button
+                key={v}
+                onClick={() => setType(v)}
+                className={`rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
+                  type === v ? 'bg-ink text-gold shadow-sm' : 'text-slate-soft hover:text-ink'
+                }`}
+              >
+                {t(k)}
+              </button>
+            ))}
+          </div>
+          {/* recherche + tri */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t('dst.search')}
+              className="border-ink/15 focus:border-gold w-full rounded-full border bg-white px-5 py-2.5 text-sm shadow-sm outline-none transition-colors sm:max-w-xs"
+            />
+            <select
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              aria-label={t('dest.country.label')}
+              className="border-ink/15 focus:border-gold rounded-full border bg-white px-5 py-2.5 text-sm font-semibold shadow-sm outline-none transition-colors"
+            >
+              <option value="all">{t('dest.country.all')}</option>
+              {countries.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+            <select
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              aria-label={t('dest.city.label')}
+              className="border-ink/15 focus:border-gold rounded-full border bg-white px-5 py-2.5 text-sm font-semibold shadow-sm outline-none transition-colors"
+            >
+              <option value="all">{t('dest.city.all')}</option>
+              {cities.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              aria-label={t('dest.sort.reco')}
+              className="border-ink/15 focus:border-gold rounded-full border bg-white px-5 py-2.5 text-sm font-semibold shadow-sm outline-none transition-colors"
+            >
+              <option value="reco">{t('dest.sort.reco')}</option>
+              <option value="priceAsc">{t('dest.sort.priceAsc')}</option>
+              <option value="priceDesc">{t('dest.sort.priceDesc')}</option>
+              <option value="nightsDesc">{t('dest.sort.nights')}</option>
+              <option value="rating">{t('dest.sort.rating')}</option>
+            </select>
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
             <button
@@ -71,6 +182,9 @@ export function DestinationsPage() {
             </button>
           ))}
         </div>
+        <p className="text-slate-soft text-[11px] font-bold uppercase tracking-[0.3em]">
+          {visible.length} {t('dest.offersWord')}
+        </p>
       </div>
 
       {/* vus récemment */}
@@ -102,6 +216,24 @@ export function DestinationsPage() {
         </div>
       )}
 
+      {visible.length === 0 ? (
+        <div className="bg-night mt-12 rounded-3xl p-10 text-center">
+          <p className="font-display text-2xl font-black">{t('dest.emptyTitle')}</p>
+          <p className="text-slate-soft mt-2 text-sm">{t('dest.emptyBody')}</p>
+          <button
+            onClick={() => {
+              setQuery('')
+              setFilter('tout')
+              setType('all')
+              setCountry('all')
+              setCity('all')
+            }}
+            className="from-gold to-gold-soft text-ink mt-6 rounded-full bg-gradient-to-r px-8 py-3 text-sm font-bold shadow-lg transition-transform hover:scale-[1.02]"
+          >
+            {t('dest.emptyReset')}
+          </button>
+        </div>
+      ) : (
       <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {visible.map((o) => (
           <Link
@@ -126,7 +258,8 @@ export function DestinationsPage() {
             </div>
           </Link>
         ))}
-      </div>
+        </div>
+      )}
       </div>
     </main>
   )

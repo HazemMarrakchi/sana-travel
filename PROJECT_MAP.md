@@ -72,6 +72,8 @@ Principes : Simplicity First · domain-driven · pas de micro-fichiers · loggin
 - [x] ~~Avis clients~~ ✅ module reviews : GET/POST publics (/api/reviews?slug=), suppression admin ; formulaire + liste sur la page détail offre
 - [x] ~~Favoris / wishlist~~ ✅ user.favorites (slugs) + GET/PUT me/favorites (toggle) ; cœur sur page détail, section Mes favoris dans /account, fallback localStorage invité
 - [x] ~~Paiement acompte Stripe~~ ✅ POST /bookings/:id/pay → Checkout Session (30%, mode test) + POST /bookings/pay-confirm au retour ; statut → confirmed si payé ; bouton dans /account ; nécessite STRIPE_SECRET_KEY (+ FRONT_URL) sinon 404 propre
+- [x] ~~Offres hôtels dédiées~~ ✅ 7 offres tag « hôtel » (Djerba, Hammamet, Le Caire, Rome, Antalya, Tozeur, **Gabès**) — photos Unsplash vérifiées HTTP 200, en base via scripts/add-hotels.mjs (14 offres) + fallback front ; **galerie photos** (3-4 images/hôtel en base + fallback, miniatures cliquables sur la page offre)
+- [x] ~~Organisation /destinations~~ ✅ onglets Tout/Voyages/Hôtels + filtres en cascade **Pays → Ville** (la ville ne propose que les villes du pays choisi, reset auto) + tri (recommandés/prix/durée/note) + compteur résultats + état vide avec réinitialisation
 - [ ] Compte Resend à créer par le propriétaire pour activer l'envoi email
 - [ ] Clé GROQ_API_KEY à ajouter dans Render (env) pour activer le vrai mode IA du concierge
 - [ ] Clé STRIPE_SECRET_KEY à ajouter dans Render (env) + FRONT_URL=https://hazemmarrakchi.github.io/sana-travel pour activer le paiement en ligne
