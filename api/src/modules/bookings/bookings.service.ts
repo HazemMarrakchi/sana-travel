@@ -43,7 +43,7 @@ export class BookingsService {
   /** Compte connecté : réservations liées au userId OU au même email (invité) */
   async findMine(userId: string, email: string): Promise<Booking[]> {
     const q = email
-      ? { $or: [{ userId }, { email: new RegExp(`^${email}$`, 'i') }] }
+      ? { $or: [{ userId }, { contactEmail: new RegExp(`^${email}$`, 'i') }] }
       : { userId }
     return this.bookingModel.find(q).sort({ createdAt: -1 }).exec()
   }

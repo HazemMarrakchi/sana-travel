@@ -50,7 +50,7 @@ export class BookingsController {
     const booking = await this.bookingsService.findById(id)
     if (!booking) throw new NotFoundException(`Booking ${id} introuvable`)
     const isOwner = (!!booking.userId && String(booking.userId) === req.user!.sub) ||
-      (!!booking.email && booking.email.toLowerCase() === req.user!.email.toLowerCase())
+      (!!booking.contactEmail && booking.contactEmail.toLowerCase() === req.user!.email.toLowerCase())
     if (!isOwner && req.user!.role !== 'admin') throw new UnauthorizedException('Dossier non rattaché à ce compte')
     if (booking.status === 'cancelled' || booking.status === 'confirmed') {
       throw new BadRequestException(`Impossible d'annuler une réservation ${booking.status}`)
