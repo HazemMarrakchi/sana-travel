@@ -97,7 +97,7 @@ export function DestinationsPage() {
         {live ? t('dest.liveNote') : t('dest.demoNote')}
       </p>
 
-      <div className="bg-ivory/95 sticky top-[72px] z-30 -mx-5 mt-8 flex flex-col gap-4 border-b border-ink/5 px-5 py-3 backdrop-blur lg:-mx-8 lg:px-8">
+      <div className="bg-ivory sticky top-[72px] z-30 -mx-5 mt-8 flex flex-col gap-4 border-b border-ink/5 px-5 py-3 lg:-mx-8 lg:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* onglets type */}
           <div className="border-ink/10 inline-flex w-fit rounded-full border bg-white p-1 shadow-sm">

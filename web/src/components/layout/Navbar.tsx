@@ -29,7 +29,7 @@ export function Navbar() {
   return (
     <header
       className={`sticky inset-x-0 top-0 z-50 transition-all duration-300 ${
-        onDarkHero ? 'bg-transparent text-white' : 'bg-ivory/85 text-ink shadow-sm backdrop-blur-md'
+        onDarkHero ? 'bg-transparent text-white' : 'bg-ivory text-ink shadow-sm'
       }`}
     >
       <nav className="mx-auto flex h-[72px] w-full max-w-[92rem] items-center justify-between gap-x-6 px-4 sm:px-5 lg:px-8">
