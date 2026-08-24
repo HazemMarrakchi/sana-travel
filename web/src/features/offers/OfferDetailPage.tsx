@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { artFor, fetchOffer } from '../../core/api'
+import { artFor, fetchOffer, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
 import { PosterImage } from '../../components/ui/PosterImage'
 import { useT } from '../../core/i18n'
@@ -12,12 +12,27 @@ export function OfferDetailPage() {
     loading: true,
     live: false,
   })
+  const [similar, setSimilar] = useState<Offer[]>([])
   const { t, lang } = useT()
   const [gal, setGal] = useState(0)
 
   useEffect(() => {
     void fetchOffer(slug).then((r) => setState({ ...r, loading: false }))
     setGal(0)
+    void fetchOffers().then(({ offers }) => {
+      const cur = offers.find((x) => x.slug === slug)
+      if (!cur) return setSimilar([])
+      const scored = offers
+        .filter((x) => x.slug !== slug)
+        .map((x) => ({
+          o: x,
+          s: (x.country === cur.country ? 2 : 0) + x.tags.filter((tg) => cur.tags.includes(tg)).length,
+        }))
+        .sort((a, b) => b.s - a.s || a.o.priceEur - b.o.priceEur)
+        .slice(0, 4)
+        .map((x) => x.o)
+      setSimilar(scored)
+    })
     try {
       const raw = localStorage.getItem('sana-recent')
       const arr: string[] = raw ? JSON.parse(raw) : []
@@ -141,6 +156,38 @@ export function OfferDetailPage() {
           <p className="text-mist mt-4 text-center text-xs">{t('od.devis')}</p>
         </aside>
       </section>
+
+      {/* offres similaires */}
+      {similar.length > 0 && (
+        <section className="bg-ivory mx-auto max-w-7xl px-5 pb-24 lg:px-8">
+          <h2 className="font-display text-3xl font-black">{t('od.similar')}</h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {similar.map((s) => (
+              <Link
+                key={s.slug}
+                to={`/offres/${s.slug}`}
+                onClick={() => window.scrollTo(0, 0)}
+                className={`group relative aspect-[3/4] overflow-hidden rounded-3xl bg-gradient-to-br ${artFor(s.artKey)} shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl`}
+              >
+                <PosterImage src={s.photo ?? s.images?.[0]} alt={s.title} />
+                <div className="from-ink/80 via-ink/10 absolute inset-0 bg-gradient-to-t to-transparent" />
+                <span className="absolute top-4 right-4 rounded-full bg-white/85 px-3 py-1 text-xs font-bold backdrop-blur-sm">
+                  ★ {s.rating}
+                </span>
+                <div className="absolute inset-x-0 bottom-0 p-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/70">
+                    {s.country} · {s.nights} {t('card.nights')}
+                  </p>
+                  <h3 className="font-display mt-1 text-xl font-black text-white">{s.title}</h3>
+                  <p className="mt-2 inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm transition-colors group-hover:bg-gold group-hover:text-ink">
+                    {t('card.from')} {formatPrice(s.priceEur, lang)}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   )
 }

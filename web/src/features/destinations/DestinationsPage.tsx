@@ -14,6 +14,7 @@ export function DestinationsPage() {
   const [filter, setFilter] = useState<string>('tout')
   const { t, lang } = useT()
   const [recent, setRecent] = useState<string[]>([])
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     void fetchOffers().then(setState)
@@ -26,7 +27,16 @@ export function DestinationsPage() {
   }, [])
 
   const tags = ['tout', ...Array.from(new Set(offers.flatMap((o) => o.tags)))]
-  const visible = filter === 'tout' ? offers : offers.filter((o) => o.tags.includes(filter))
+  const q = query.trim().toLowerCase()
+  const visible = offers
+    .filter((o) => (filter === 'tout' ? true : o.tags.includes(filter)))
+    .filter((o) =>
+      !q ||
+      o.title.toLowerCase().includes(q) ||
+      o.city.toLowerCase().includes(q) ||
+      o.country.toLowerCase().includes(q) ||
+      o.tags.some((tg) => tg.toLowerCase().includes(q)),
+    )
 
   return (
     <main className="bg-ivory min-h-screen">
@@ -39,20 +49,28 @@ export function DestinationsPage() {
         {live ? t('dest.liveNote') : t('dest.demoNote')}
       </p>
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        {tags.map((tag) => (
-          <button
-            key={tag}
-            onClick={() => setFilter(tag)}
-            className={`rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
-              filter === tag
-                ? 'border-ink bg-ink text-gold'
-                : 'border-ink/15 hover:border-ink/40'
-            }`}
-          >
-            {tag === 'tout' ? t('filter.all') : tag}
-          </button>
-        ))}
+      <div className="mt-8 flex flex-col gap-4">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t('dst.search')}
+          className="border-ink/15 focus:border-gold w-full max-w-md rounded-full border bg-white px-5 py-3 text-sm shadow-sm outline-none transition-colors"
+        />
+        <div className="flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => setFilter(tag)}
+              className={`rounded-full border px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
+                filter === tag
+                  ? 'border-ink bg-ink text-gold'
+                  : 'border-ink/15 hover:border-ink/40'
+              }`}
+            >
+              {tag === 'tout' ? t('filter.all') : tag}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* vus récemment */}

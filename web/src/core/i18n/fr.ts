@@ -50,6 +50,7 @@ export const fr: Dict = {
   'chat.s2': 'C’est réservé ✓ Devis envoyé par email — il ne reste que les valises !',
 
   'dest.kicker': 'Toutes nos offres',
+  'dst.search': 'Rechercher une destination, un pays, une envie…',
   'dest.title1': 'Où partirez-vous',
   'dest.title2': 'la prochaine fois ?',
   'dest.liveNote': '✅ Offres en direct de notre système de réservation.',
@@ -61,6 +62,7 @@ export const fr: Dict = {
   'od.back': '← Toutes les destinations',
   'od.notfound': 'Offre introuvable',
   'od.backlist': '← Retour aux destinations',
+  'od.similar': 'Vous aimerez aussi',
   'od.stay': 'Votre séjour',
   'od.lDest': 'Destination',
   'od.lDur': 'Durée',

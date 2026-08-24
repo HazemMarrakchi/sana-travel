@@ -50,6 +50,7 @@ export const ar: Dict = {
   'chat.s2': 'تم الحجز ✓ عرض السعر في بريدك — لم يتبقَّ سوى الحقائب!',
 
   'dest.kicker': 'كل عروضنا',
+  'dst.search': 'ابحث عن وجهة أو بلد أو فكرة…',
   'dest.title1': 'إلى أين ستسافر',
   'dest.title2': 'في المرة القادمة؟',
   'dest.liveNote': '✅ عروض مباشرة من نظام الحجز لدينا.',
@@ -61,6 +62,7 @@ export const ar: Dict = {
   'od.back': '← كل الوجهات',
   'od.notfound': 'العرض غير موجود',
   'od.backlist': '← العودة إلى الوجهات',
+  'od.similar': 'قد يعجبك أيضًا',
   'od.stay': 'إقامتك',
   'od.lDest': 'الوجهة',
   'od.lDur': 'المدة',

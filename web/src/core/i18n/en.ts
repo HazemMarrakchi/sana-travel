@@ -50,6 +50,7 @@ export const en: Dict = {
   'chat.s2': 'Booked ✓ Quote sent by email — only the suitcases are left!',
 
   'dest.kicker': 'All our offers',
+  'dst.search': 'Search a destination, a country, an idea…',
   'dest.title1': 'Where will you go',
   'dest.title2': 'next time?',
   'dest.liveNote': '✅ Offers live from our booking system.',
@@ -61,6 +62,7 @@ export const en: Dict = {
   'od.back': '← All destinations',
   'od.notfound': 'Offer not found',
   'od.backlist': '← Back to destinations',
+  'od.similar': 'You may also like',
   'od.stay': 'Your stay',
   'od.lDest': 'Destination',
   'od.lDur': 'Duration',
