@@ -57,7 +57,7 @@ export const fr: Dict = {
   'dest.demoNote': 'Mode démonstration — offres statiques (l’API est endormie).',
   'filter.all': 'tout',
   'dest.tabAll': 'Tout',
-  'dest.tabTours': 'Voyages',
+  'dest.tabTours': 'Voyages organisés',
   'dest.tabHotels': 'Hôtels',
   'dest.sort.reco': 'Recommandés',
   'dest.sort.priceAsc': 'Prix croissant',
