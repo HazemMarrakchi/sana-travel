@@ -130,50 +130,51 @@ export function OfferDetailPage() {
 
   return (
     <main>
-      {/* hero éditorial : texte à gauche, photo encadrée à droite */}
+      {/* hero texte pur — aucune photo en fond */}
       <section className="bg-deep text-white">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 lg:grid-cols-[1.05fr_1fr] lg:px-8 lg:py-16">
-          <div>
-            <Link to="/destinations" className="text-mist hover:text-gold text-xs font-bold uppercase tracking-[0.3em] transition-colors">
-              ← {t('od.back')}
-            </Link>
-            <p className="text-gold mt-6 text-xs font-bold uppercase tracking-[0.25em]">
-              {o.country} · {o.nights} {t('od.nights')} · ★ {o.rating}
-            </p>
-            <h1 className="font-display mt-3 text-5xl font-black leading-[1.05] lg:text-6xl">
-              {o.title}
-            </h1>
-            <p className="text-mist mt-5 max-w-xl text-lg leading-relaxed">{o.summary}</p>
-          </div>
+        <div className="mx-auto max-w-4xl px-5 py-14 lg:px-8 lg:py-20">
+          <Link to="/destinations" className="text-mist hover:text-gold text-xs font-bold uppercase tracking-[0.3em] transition-colors">
+            ← {t('od.back')}
+          </Link>
+          <p className="text-gold mt-8 text-xs font-bold uppercase tracking-[0.25em]">
+            {o.country} · {o.nights} {t('od.nights')} · ★ {o.rating}
+          </p>
+          <h1 className="font-display mt-3 text-5xl font-black leading-[1.05] lg:text-6xl">
+            {o.title}
+          </h1>
+          <p className="text-mist mt-6 max-w-2xl text-lg leading-relaxed">{o.summary}</p>
+        </div>
+      </section>
 
-          <div className="order-first lg:order-none">
-            <div className={`group relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-2xl ring-1 ring-white/15 bg-gradient-to-br ${artFor(o.artKey)}`}>
-              <PosterImage src={o.images?.[gal] ?? o.photo ?? o.images?.[0]} alt={o.title} />
-              <button
-                onClick={() => void onToggleFav()}
-                aria-label={isFav ? t('fav.remove') : t('fav.add')}
-                className={`absolute top-4 end-4 z-10 grid size-11 place-items-center rounded-full text-lg shadow-lg backdrop-blur-sm transition-transform hover:scale-110 ${
-                  isFav ? 'bg-coral text-white' : 'bg-white/85 text-ink'
-                }`}
-              >
-                {isFav ? '♥' : '♡'}
-              </button>
-            </div>
-            {o.images && o.images.length > 1 && (
-              <div className="mt-4 flex gap-2.5">
-                {o.images.map((u, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setGal(i)}
-                    className={`h-16 w-24 shrink-0 overflow-hidden rounded-xl transition ${i === gal ? 'ring-gold ring-2' : 'opacity-60 ring-1 ring-white/20 hover:opacity-100'}`}
-                    aria-label={`photo ${i + 1}`}
-                  >
-                    <img src={u} alt="" className="h-full w-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
+      {/* galerie — photo en contenu, jamais en fond */}
+      <section className="bg-deep pb-4">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className={`group relative aspect-[16/7] overflow-hidden rounded-[2rem] shadow-xl ring-1 ring-white/10 bg-gradient-to-br ${artFor(o.artKey)}`}>
+            <PosterImage src={o.images?.[gal] ?? o.photo ?? o.images?.[0]} alt={o.title} />
+            <button
+              onClick={() => void onToggleFav()}
+              aria-label={isFav ? t('fav.remove') : t('fav.add')}
+              className={`absolute top-4 end-4 z-10 grid size-11 place-items-center rounded-full text-lg shadow-lg backdrop-blur-sm transition-transform hover:scale-110 ${
+                isFav ? 'bg-coral text-white' : 'bg-white/85 text-ink'
+              }`}
+            >
+              {isFav ? '♥' : '♡'}
+            </button>
           </div>
+          {o.images && o.images.length > 1 && (
+            <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1">
+              {o.images.map((u, i) => (
+                <button
+                  key={i}
+                  onClick={() => setGal(i)}
+                  className={`h-16 w-24 shrink-0 overflow-hidden rounded-xl transition ${i === gal ? 'ring-gold ring-2' : 'opacity-60 ring-1 ring-white/20 hover:opacity-100'}`}
+                  aria-label={`photo ${i + 1}`}
+                >
+                  <img src={u} alt="" className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
