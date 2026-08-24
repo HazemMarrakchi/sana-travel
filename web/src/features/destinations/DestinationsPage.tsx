@@ -30,17 +30,10 @@ export function DestinationsPage() {
   const [country, setCountry] = useState<string>('all')
   const [city, setCity] = useState<string>('all')
   const { t, lang } = useT()
-  const [recent, setRecent] = useState<string[]>([])
   const [query, setQuery] = useState('')
 
   useEffect(() => {
     void fetchOffers().then(setState)
-    try {
-      const raw = localStorage.getItem('sana-recent')
-      if (raw) setRecent(JSON.parse(raw) as string[])
-    } catch {
-      /* ignore */
-    }
   }, [])
 
   const typed = useMemo(
@@ -186,35 +179,6 @@ export function DestinationsPage() {
           {visible.length} {t('dest.offersWord')}
         </p>
       </div>
-
-      {/* vus récemment */}
-      {recent.length > 0 && (
-        <div className="mt-10">
-          <p className="text-slate-soft text-[11px] font-bold uppercase tracking-[0.3em]">👁 {t('rv.recent')}</p>
-          <div className="mt-4 flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {recent
-              .map((s) => offers.find((o) => o.slug === s))
-              .filter((o): o is Offer => Boolean(o))
-              .map((o) => (
-                <Link
-                  key={o.slug}
-                  to={`/offres/${o.slug}`}
-                  className="border-ink/10 hover:border-gold flex shrink-0 items-center gap-3 rounded-2xl border bg-white p-2.5 pe-5 shadow-sm transition-all hover:shadow-md"
-                >
-                  <span className={`bg-gradient-to-br ${artFor(o.artKey)} h-11 w-11 shrink-0 overflow-hidden rounded-xl`}>
-                    <PosterImage src={o.photo ?? o.images?.[0]} alt={o.title} />
-                  </span>
-                  <span>
-                    <span className="block max-w-[150px] truncate text-xs font-bold text-[#071020]">{o.title}</span>
-                    <span className="text-slate-soft block text-[11px] font-semibold">
-                      {formatPrice(o.priceEur, lang)}
-                    </span>
-                  </span>
-                </Link>
-              ))}
-          </div>
-        </div>
-      )}
 
       {visible.length === 0 ? (
         <div className="bg-night mt-12 rounded-3xl p-10 text-center">
