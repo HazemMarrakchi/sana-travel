@@ -239,20 +239,21 @@ export function DestinationsPage() {
           <Link
             key={o.slug}
             to={`/offres/${o.slug}`}
-            className={`group relative aspect-[4/5] overflow-hidden rounded-3xl bg-gradient-to-br ${artFor(o.artKey)} shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl`}
+            className="group border-ink/5 hover:border-gold/40 flex flex-col overflow-hidden rounded-3xl border bg-white shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
           >
-            <PosterImage src={o.photo ?? o.images?.[0]} alt={o.title} />
-            <div className="from-ink/80 via-ink/10 absolute inset-0 bg-gradient-to-t to-transparent" />
-            <span className="absolute top-4 right-4 rounded-full bg-white/85 px-3 py-1 text-xs font-bold backdrop-blur-sm">
-              ★ {o.rating}
-            </span>
-            <div className="absolute inset-x-0 bottom-0 p-5">
-              <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/70">
+            <div className={`relative aspect-[4/3] overflow-hidden bg-gradient-to-br ${artFor(o.artKey)}`}>
+              <PosterImage src={o.photo ?? o.images?.[0]} alt={o.title} />
+              <span className="absolute top-4 right-4 rounded-full bg-white/85 px-3 py-1 text-xs font-bold backdrop-blur-sm">
+                ★ {o.rating}
+              </span>
+            </div>
+            <div className="flex flex-1 flex-col p-6">
+              <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">
                 {o.country} · {o.nights} {t('card.nights')}
               </p>
-              <h2 className="font-display mt-1 text-2xl font-black text-white">{o.title}</h2>
-              <p className="text-white/80 mt-1 line-clamp-2 text-sm">{o.summary}</p>
-              <p className="mt-3 inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm transition-colors group-hover:bg-gold group-hover:text-ink">
+              <h2 className="font-display mt-1.5 text-2xl font-black text-ink">{o.title}</h2>
+              <p className="text-slate-soft mt-2 line-clamp-2 text-sm">{o.summary}</p>
+              <p className="bg-night group-hover:from-gold group-hover:to-gold-soft group-hover:text-ink mt-4 inline-block w-fit rounded-full px-4 py-1.5 text-xs font-bold text-gold transition-colors">
                 {t('card.from')} {formatPrice(o.priceEur, lang)}
               </p>
             </div>
