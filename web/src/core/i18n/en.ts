@@ -273,4 +273,26 @@ export const en: Dict = {
   'acct.cancel': 'Request cancellation',
   'acct.cancelOk': 'Cancellation recorded — an agent will confirm shortly.',
   'admin.handled': 'Handled',
+
+  'fav.add': 'Add to favorites',
+  'fav.remove': 'Remove from favorites',
+  'acct.favorites': 'My favorites',
+  'acct.noFavs': 'No favorites yet — explore our destinations and save your crushes here.',
+  'acct.payError': 'Payment unavailable — please try again shortly.',
+
+  'rvl.title': 'Traveler reviews',
+  'rvl.empty': 'No reviews yet — be the first to share your experience.',
+  'rvl.formTitle': 'Leave a review',
+  'rvl.name': 'Your name',
+  'rvl.comment': 'Share your experience…',
+  'rvl.submit': 'Post my review',
+  'rvl.done': 'Thanks! Your review is live.',
+  'rvl.error': 'Could not send — check the fields or try again.',
+
+  'pay.cta': 'Pay the deposit (30%)',
+  'pay.paid': 'Deposit paid ✓',
+  'pay.redirect': 'Redirecting to secure payment…',
+  'pay.success': 'Payment confirmed!',
+  'pay.sub': 'Your booking is confirmed. Have a great trip!',
+  'pay.fail': 'The payment could not be confirmed.',
 }

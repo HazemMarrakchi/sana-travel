@@ -5,6 +5,17 @@ import type { Offer } from '../../data/offers'
 import { PosterImage } from '../../components/ui/PosterImage'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
+import { API_BASE, useAuth } from '../../core/auth'
+import { loadFavorites, toggleFavorite } from '../../core/favorites'
+
+interface Review {
+  _id: string
+  offerSlug: string
+  authorName: string
+  rating: number
+  comment: string
+  createdAt: string
+}
 
 export function OfferDetailPage() {
   const { slug = '' } = useParams()
@@ -15,10 +26,20 @@ export function OfferDetailPage() {
   const [similar, setSimilar] = useState<Offer[]>([])
   const { t, lang } = useT()
   const [gal, setGal] = useState(0)
+  const { token } = useAuth()
+  const [isFav, setIsFav] = useState(false)
+  const [reviews, setReviews] = useState<Review[] | null>(null)
+  const [rName, setRName] = useState('')
+  const [rRating, setRRating] = useState(5)
+  const [rComment, setRComment] = useState('')
+  const [rDone, setRDone] = useState(false)
+  const [rError, setRError] = useState('')
 
   useEffect(() => {
     void fetchOffer(slug).then((r) => setState({ ...r, loading: false }))
     setGal(0)
+    setRDone(false)
+    setRError('')
     void fetchOffers().then(({ offers }) => {
       const cur = offers.find((x) => x.slug === slug)
       if (!cur) return setSimilar([])
@@ -33,6 +54,11 @@ export function OfferDetailPage() {
         .map((x) => x.o)
       setSimilar(scored)
     })
+    void fetch(`${API_BASE}/reviews?slug=${encodeURIComponent(slug)}`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((d: unknown) => setReviews(Array.isArray(d) ? (d as Review[]) : []))
+      .catch(() => setReviews([]))
+    void loadFavorites(token).then((favs) => setIsFav(favs.includes(slug)))
     try {
       const raw = localStorage.getItem('sana-recent')
       const arr: string[] = raw ? JSON.parse(raw) : []
@@ -42,7 +68,41 @@ export function OfferDetailPage() {
       /* stockage indisponible */
     }
     window.scrollTo(0, 0)
-  }, [slug])
+  }, [slug, token])
+
+  async function onToggleFav() {
+    try {
+      const next = await toggleFavorite(slug, token)
+      setIsFav(next.includes(slug))
+    } catch {
+      /* silencieux */
+    }
+  }
+
+  async function submitReview(e: React.FormEvent) {
+    e.preventDefault()
+    if (!state.offer || rName.trim().length < 2 || rComment.trim().length < 5) {
+      setRError(t('rvl.error'))
+      return
+    }
+    try {
+      const res = await fetch(`${API_BASE}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offerSlug: state.offer.slug, authorName: rName, rating: rRating, comment: rComment }),
+      })
+      if (!res.ok) throw new Error(String(res.status))
+      setRName('')
+      setRComment('')
+      setRRating(5)
+      setRDone(true)
+      const d = (await res.json()) as Review
+      setReviews((rs) => [d, ...(rs ?? [])])
+    } catch {
+      setRError(t('rvl.error'))
+    }
+  }
+
 
   const o = state.offer
   if (state.loading) {
@@ -76,6 +136,15 @@ export function OfferDetailPage() {
       >
         <PosterImage src={o.photo ?? o.images?.[gal] ?? o.images?.[0]} alt={o.title} />
         <div className="from-ink/85 via-ink/20 absolute inset-0 bg-gradient-to-t to-transparent" />
+        <button
+          onClick={() => void onToggleFav()}
+          aria-label={isFav ? t('fav.remove') : t('fav.add')}
+          className={`absolute top-6 end-6 z-10 grid size-12 place-items-center rounded-full text-xl shadow-lg backdrop-blur-sm transition-transform hover:scale-110 ${
+            isFav ? 'bg-coral text-white' : 'bg-white/85 text-ink'
+          }`}
+        >
+          {isFav ? '♥' : '♡'}
+        </button>
         {o.images && o.images.length > 1 && (
           <div className="absolute bottom-6 left-1/2 z-10 flex max-w-[92%] -translate-x-1/2 flex-wrap justify-center gap-2">
             {o.images.map((u, i) => (
@@ -155,6 +224,87 @@ export function OfferDetailPage() {
           </Link>
           <p className="text-mist mt-4 text-center text-xs">{t('od.devis')}</p>
         </aside>
+      </section>
+
+      {/* avis voyageurs */}
+      <section className="bg-deep mx-auto px-5 py-16 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.4fr_1fr]">
+          <div>
+            <h2 className="font-display text-3xl font-black text-white">{t('rvl.title')}</h2>
+            {reviews === null && <p className="text-mist mt-6 animate-pulse">{t('bk.loading')}</p>}
+            {reviews?.length === 0 && (
+              <p className="text-mist bg-night mt-6 rounded-3xl p-8 text-sm">{t('rvl.empty')}</p>
+            )}
+            <div className="mt-8 space-y-4">
+              {reviews?.map((r) => (
+                <article key={r._id} className="bg-night rounded-3xl p-6">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="bg-gold/20 text-gold font-display grid size-10 place-items-center rounded-full text-sm font-black uppercase">
+                        {r.authorName.slice(0, 1)}
+                      </span>
+                      <div>
+                        <p className="text-sm font-bold text-white">{r.authorName}</p>
+                        <p className="text-mist text-[11px]">
+                          {new Date(r.createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'ar' ? 'ar-TN' : 'fr-FR')}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-gold text-sm tracking-widest">
+                      {'★'.repeat(r.rating)}
+                      {'☆'.repeat(5 - r.rating)}
+                    </span>
+                  </div>
+                  <p className="text-mist mt-4 text-sm leading-relaxed">{r.comment}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          {/* formulaire avis */}
+          <form onSubmit={(e) => void submitReview(e)} className="bg-night h-fit rounded-3xl p-8 text-white lg:sticky lg:top-28">
+            <h3 className="font-display text-xl font-black">{t('rvl.formTitle')}</h3>
+            {rDone && <p className="bg-lagoon/15 text-lagoon mt-4 rounded-xl px-4 py-3 text-sm font-semibold">✓ {t('rvl.done')}</p>}
+            {rError && <p className="text-coral mt-4 text-sm font-semibold">{rError}</p>}
+            <label className="text-mist mt-6 block text-xs font-bold uppercase tracking-widest">{t('rvl.name')}</label>
+            <input
+              value={rName}
+              onChange={(e) => setRName(e.target.value)}
+              maxLength={60}
+              required
+              className="border-white/15 focus:border-gold mt-2 w-full rounded-xl border bg-white/5 px-4 py-3 text-sm outline-none"
+            />
+            <label className="text-mist mt-5 block text-xs font-bold uppercase tracking-widest">★</label>
+            <div className="mt-2 flex gap-1">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  type="button"
+                  key={n}
+                  onClick={() => setRRating(n)}
+                  aria-label={`${n}/5`}
+                  className={`text-2xl transition-transform hover:scale-125 ${n <= rRating ? 'text-gold' : 'text-white/25'}`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            <label className="text-mist mt-5 block text-xs font-bold uppercase tracking-widest">{t('rvl.comment')}</label>
+            <textarea
+              value={rComment}
+              onChange={(e) => setRComment(e.target.value)}
+              rows={4}
+              maxLength={800}
+              required
+              className="border-white/15 focus:border-gold mt-2 w-full resize-none rounded-xl border bg-white/5 px-4 py-3 text-sm outline-none"
+            />
+            <button
+              type="submit"
+              className="from-gold to-gold-soft shadow-gold/25 mt-6 w-full rounded-full bg-gradient-to-r py-3.5 text-sm font-bold text-ink shadow-lg transition-transform hover:scale-[1.02]"
+            >
+              {t('rvl.submit')}
+            </button>
+          </form>
+        </div>
       </section>
 
       {/* offres similaires */}

@@ -52,8 +52,9 @@ sana-travel/
 └── api/                        # NestJS (/api prefix)
     └── src/modules/
         ├── offers/             # CRUD + filtres ✅
-        ├── users/              # register/login (JWT en S3)
-        └── bookings/           # create/list/updateStatus ✅
+        ├── users/              # register/login (JWT en S3) + favoris ✅
+        ├── bookings/           # create/list/updateStatus + claim + acompte Stripe ✅
+        └── reviews/            # avis publics GET/POST, modération admin ✅
 ```
 Principes : Simplicity First · domain-driven · pas de micro-fichiers · logging simple console par niveau.
 
@@ -62,14 +63,18 @@ Principes : Simplicity First · domain-driven · pas de micro-fichiers · loggin
 - [x] ~~i18n FR/EN/AR + prix TND~~ ✅ core/i18n (RTL auto) + core/money.ts
 - [x] ~~Photos Unsplash vérifiées~~ ✅ 6 URLs testées HTTP 200, en DB
 - [x] ~~Auth JWT complète~~ ✅ M4 : 14/14 tests verts ; fix `import type` qui effaçait les DTOs (ValidationPipe skip) ; @IsOptional phone ; login 200
-- [ ] Lier les bookings invités au compte client après inscription (merge par email)
+- [x] ~~Lier les bookings invités au compte client après inscription~~ ✅ POST /api/bookings/claim (updateMany par email) ; appelé auto après login/register côté front
 - [x] ~~Booking 3 étapes + devis PDF + Resend~~ ✅ M3 : wizard invité, référence SNA-XXXXXX, total serveur, jsPDF lazy-loadé (bundle principal ~300kB), email Resend optionnel
 - [x] ~~Admin : CRUD UI des offres~~ ✅ section Offres dans /admin : cartes + modal création/édition + suppression avec confirmation ; API sécurisée @Roles('admin') sur POST/PUT/DELETE
 - [x] ~~Concierge IA~~ ✅ M5 : POST /api/chat (règles 5/5 tests ; Groq llama-3.3-70b auto si GROQ_API_KEY), chat_logs + escalades dans /admin, widget flottant + page dédiée
 - [x] ~~Déploiement production~~ ✅ M6 EN LIGNE : https://hazemmarrakchi.github.io/sana-travel/ (Pages) + https://sana-api.onrender.com (Render free, auto-deploy sur push main). VITE_BASE=/sana-travel/ + BrowserRouter basename. Fix admin bookings vide (findAll). Cron keep-warm conseillé toutes les 10 min (cron-job.org → GET /api/offers)
+- [x] ~~Offre Dubaï~~ ✅ seedée en base via scripts/add-dubai.mjs (7 offres au total, photo Unsplash vérifiée)
+- [x] ~~Avis clients~~ ✅ module reviews : GET/POST publics (/api/reviews?slug=), suppression admin ; formulaire + liste sur la page détail offre
+- [x] ~~Favoris / wishlist~~ ✅ user.favorites (slugs) + GET/PUT me/favorites (toggle) ; cœur sur page détail, section Mes favoris dans /account, fallback localStorage invité
+- [x] ~~Paiement acompte Stripe~~ ✅ POST /bookings/:id/pay → Checkout Session (30%, mode test) + POST /bookings/pay-confirm au retour ; statut → confirmed si payé ; bouton dans /account ; nécessite STRIPE_SECRET_KEY (+ FRONT_URL) sinon 404 propre
 - [ ] Compte Resend à créer par le propriétaire pour activer l'envoi email
 - [ ] Clé GROQ_API_KEY à ajouter dans Render (env) pour activer le vrai mode IA du concierge
-- [ ] Offre Dubaï proposée par l'IA mais absente du catalogue — créer une 7e offre ? (décision propriétaire)
+- [ ] Clé STRIPE_SECRET_KEY à ajouter dans Render (env) + FRONT_URL=https://hazemmarrakchi.github.io/sana-travel pour activer le paiement en ligne
 - [x] ~~Design premium~~ ✅ navbar sticky (zéro chevauchement structurel), HomePage 3D (TiltCard, reveal au scroll, aurores animées), LoginPage split-screen, AdminPage cockpit v2 (sidebar glass sous la navbar top-[72px], donut chart, KPI count-up, recherche réservations avec raccourci « / », scroll-spy)
 
 ## Milestones (verifiable goals)

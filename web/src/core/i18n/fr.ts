@@ -274,4 +274,26 @@ export const fr: Dict = {
   'acct.cancel': 'Demander l’annulation',
   'acct.cancelOk': 'Annulation enregistrée — un agent va vous confirmer.',
   'admin.handled': 'Traité',
+
+  'fav.add': 'Ajouter aux favoris',
+  'fav.remove': 'Retirer des favoris',
+  'acct.favorites': 'Mes favoris',
+  'acct.noFavs': 'Aucun favori pour le moment — explorez nos destinations et gardez vos coups de cœur ici.',
+  'acct.payError': 'Paiement indisponible — réessayez dans un instant.',
+
+  'rvl.title': 'Avis des voyageurs',
+  'rvl.empty': 'Aucun avis pour le moment — soyez le premier à partager votre expérience.',
+  'rvl.formTitle': 'Laisser un avis',
+  'rvl.name': 'Votre nom',
+  'rvl.comment': 'Racontez votre expérience…',
+  'rvl.submit': 'Publier mon avis',
+  'rvl.done': 'Merci ! Votre avis est publié.',
+  'rvl.error': 'Impossible d’envoyer — vérifiez les champs ou réessayez.',
+
+  'pay.cta': 'Payer l’acompte (30 %)',
+  'pay.paid': 'Acompte payé ✓',
+  'pay.redirect': 'Redirection vers le paiement sécurisé…',
+  'pay.success': 'Paiement confirmé !',
+  'pay.sub': 'Votre réservation est confirmée. Bon voyage !',
+  'pay.fail': 'Le paiement n’a pas pu être confirmé.',
 }

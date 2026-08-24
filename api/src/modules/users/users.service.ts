@@ -26,4 +26,21 @@ export class UsersService {
     }
     return user
   }
+
+  async getFavorites(userId: string): Promise<string[]> {
+    const user = await this.findById(userId)
+    return user.favorites ?? []
+  }
+
+  async toggleFavorite(userId: string, slug: string): Promise<string[]> {
+    const doc = await this.userModel.findById(userId).exec()
+    if (!doc) throw new NotFoundException(`User ${userId} not found`)
+    const favorites = doc.favorites ?? []
+    const next = favorites.includes(slug)
+      ? favorites.filter((s) => s !== slug)
+      : [...favorites, slug]
+    doc.favorites = next
+    await doc.save()
+    return next
+  }
 }

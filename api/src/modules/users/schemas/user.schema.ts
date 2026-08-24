@@ -19,6 +19,10 @@ export class User {
 
   @Prop({ default: '' })
   phone!: string
+
+  /** slugs des offres favorites */
+  @Prop({ type: [String], default: [] })
+  favorites!: string[]
 }
 
 export type UserDocument = HydratedDocument<User>

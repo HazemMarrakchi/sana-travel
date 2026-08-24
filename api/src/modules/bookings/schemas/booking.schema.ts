@@ -48,6 +48,16 @@ export class Booking {
   /** snapshot of the price at booking time */
   @Prop({ required: true, min: 0 })
   totalEur!: number
+
+  /** acompte 30% payé en ligne via Stripe Checkout */
+  @Prop({ default: false })
+  depositPaid?: boolean
+
+  @Prop()
+  depositEur?: number
+
+  @Prop()
+  stripeSessionId?: string
 }
 
 export type BookingDocument = HydratedDocument<Booking>

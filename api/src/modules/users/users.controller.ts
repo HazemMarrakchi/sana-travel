@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Post, Put, Req, UseGuards } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { User } from './schemas/user.schema'
 import { JwtAuthGuard, Roles } from '../auth/jwt-auth.guard'
@@ -21,5 +21,22 @@ export class UsersController {
   @Roles('client', 'admin')
   me(@Req() req: Request & { user?: RequestUser }) {
     return this.usersService.findById(req.user!.sub)
+  }
+
+  /** Authenticated: mes offres favorites */
+  @Get('me/favorites')
+  @Roles('client', 'admin')
+  favorites(@Req() req: Request & { user?: RequestUser }): Promise<string[]> {
+    return this.usersService.getFavorites(req.user!.sub)
+  }
+
+  /** Authenticated: toggle un favori (slug) — renvoie la liste à jour */
+  @Put('me/favorites')
+  @Roles('client', 'admin')
+  toggleFavorite(
+    @Req() req: Request & { user?: RequestUser },
+    @Body('slug') slug: string,
+  ): Promise<string[]> {
+    return this.usersService.toggleFavorite(req.user!.sub, String(slug ?? ''))
   }
 }

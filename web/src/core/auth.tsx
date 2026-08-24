@@ -59,6 +59,15 @@ async function authCall(path: string, body: Record<string, unknown>): Promise<Au
   }
 }
 
+/** Rattache les devis invités (même email) au compte — best effort */
+async function claimGuestBookings(token: string): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/bookings/claim`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+  } catch {
+    /* silencieux */
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState | null>(() => {
     try {
@@ -77,12 +86,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const s = await authCall('login', { email, password })
     setState(s)
+    void claimGuestBookings(s.token)
     return s.user
   }, [])
 
   const register = useCallback(async (fullName: string, email: string, password: string, phone?: string) => {
     const s = await authCall('register', { fullName, email, password, phone })
     setState(s)
+    void claimGuestBookings(s.token)
     return s.user
   }, [])
 

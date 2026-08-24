@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'
 import { apiAuth, useAuth } from '../../core/auth'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
+import { loadFavorites, toggleFavorite } from '../../core/favorites'
+import { artFor, fetchOffers } from '../../core/api'
+import type { Offer } from '../../data/offers'
+import { PosterImage } from '../../components/ui/PosterImage'
 
 interface MyBooking {
   _id: string
@@ -14,6 +18,8 @@ interface MyBooking {
   note?: string
   status: 'draft' | 'quote_sent' | 'confirmed' | 'cancelled'
   totalEur: number
+  depositPaid?: boolean
+  depositEur?: number
   createdAt: string
 }
 
@@ -30,13 +36,42 @@ export function AccountPage() {
   const [bookings, setBookings] = useState<MyBooking[] | null>(null)
   const [open, setOpen] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [paying, setPaying] = useState<string | null>(null)
+  const [favs, setFavs] = useState<string[]>([])
+  const [favOffers, setFavOffers] = useState<Offer[]>([])
 
   useEffect(() => {
     if (!token) return
     void apiAuth('/bookings/mine', token)
       .then((d) => setBookings(d as MyBooking[]))
       .catch((e: Error) => setError(e.message))
+    void loadFavorites(token).then((f) => setFavs(f))
+    void fetchOffers().then(({ offers }) => setFavOffers(offers))
   }, [token])
+
+  async function onToggleFav(slug: string) {
+    try {
+      const next = await toggleFavorite(slug, token)
+      setFavs(next)
+    } catch {
+      /* silencieux */
+    }
+  }
+
+  async function payDeposit(b: MyBooking) {
+    if (!token) return
+    setPaying(b._id)
+    setError('')
+    try {
+      const d = (await apiAuth(`/bookings/${b._id}/pay`, token, { method: 'POST' })) as { url?: string }
+      if (d.url) window.location.href = d.url
+      else setError(t('acct.payError'))
+    } catch (e) {
+      setError((e as Error).message || t('acct.payError'))
+    } finally {
+      setPaying(null)
+    }
+  }
 
   async function cancelBooking(id: string) {
     if (!window.confirm(t('acct.cancel') + ' ?')) return
@@ -117,6 +152,9 @@ export function AccountPage() {
                 <span className={`rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${STATUS_STYLES[b.status]}`}>
                   {t(`st.${b.status}`)}
                 </span>
+                {b.depositPaid && (
+                  <span className="bg-lagoon/20 text-lagoon rounded-full px-4 py-1.5 text-xs font-bold">✓ {t('pay.paid')}</span>
+                )}
                 <p className="font-display text-2xl font-black text-white">{formatPrice(b.totalEur, lang)}</p>
                 <span className="text-gold text-lg">{open === b._id ? '▾' : '▸'}</span>
               </button>
@@ -155,11 +193,63 @@ export function AccountPage() {
                       ✕ {t('acct.cancel')}
                     </button>
                   )}
+                  {!b.depositPaid && b.status !== 'cancelled' && (
+                    <button
+                      onClick={() => void payDeposit(b)}
+                      disabled={paying === b._id}
+                      className="from-gold to-gold-soft text-ink shadow-gold/25 mt-5 rounded-full bg-gradient-to-r px-6 py-2.5 text-xs font-bold shadow-lg transition-transform hover:scale-[1.03] disabled:opacity-60 sm:ms-3"
+                    >
+                      {paying === b._id ? t('pay.redirect') : `💳 ${t('pay.cta')} · ${formatPrice(Math.round(b.totalEur * 0.3), lang)}`}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
           ))}
         </div>
+
+        <h2 className="font-display mt-14 mb-5 text-xl font-bold text-white">{t('acct.favorites')}</h2>
+        {favs.length === 0 ? (
+          <div className="bg-night rounded-3xl p-10 text-center">
+            <p className="text-mist text-sm">{t('acct.noFavs')}</p>
+            <Link to="/destinations" className="text-gold mt-3 inline-block text-sm font-bold underline underline-offset-4">
+              {t('dest.kicker')} →
+            </Link>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {favs
+              .map((slug) => favOffers.find((o) => o.slug === slug))
+              .filter((o): o is Offer => !!o)
+              .map((o) => (
+                <div key={o.slug} className="bg-night group relative overflow-hidden rounded-2xl">
+                  <Link to={`/offres/${o.slug}`} className={`block aspect-[16/10] bg-gradient-to-br ${artFor(o.artKey)}`}>
+                    <PosterImage src={o.photo ?? o.images?.[0]} alt={o.title} />
+                    <span className="absolute top-3 start-3 rounded-full bg-white/85 px-3 py-1 text-xs font-bold backdrop-blur-sm">
+                      ★ {o.rating}
+                    </span>
+                    <div className="from-ink/80 absolute inset-0 bg-gradient-to-t via-transparent to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/70">
+                        {o.country} · {o.nights} {t('card.nights')}
+                      </p>
+                      <h3 className="font-display mt-0.5 font-black text-white">{o.title}</h3>
+                      <p className="text-gold mt-1 text-sm font-bold">
+                        {t('card.from')} {formatPrice(o.priceEur, lang)}
+                      </p>
+                    </div>
+                  </Link>
+                  <button
+                    onClick={() => void onToggleFav(o.slug)}
+                    aria-label={t('fav.remove')}
+                    className="bg-coral absolute top-3 end-3 grid size-9 place-items-center rounded-full text-sm text-white shadow-lg transition-transform hover:scale-110"
+                  >
+                    ♥
+                  </button>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
     </main>
   )

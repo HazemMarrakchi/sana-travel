@@ -30,10 +30,42 @@ export class BookingsController {
     return this.bookingsService.findMine(req.user!.sub, req.user!.email)
   }
 
+  /** Authenticated: rattachement des devis invités (même email) à ce compte */
+  @Post('claim')
+  @Roles('client', 'admin')
+  claim(@Req() req: Request & { user?: RequestUser }): Promise<{ linked: number }> {
+    return this.bookingsService.claimGuests(req.user!.sub, req.user!.email)
+  }
+
+  /** Public: vérifie le paiement Stripe au retour du checkout */
+  @Post('pay-confirm')
+  payConfirm(
+    @Body('reference') reference: string,
+    @Body('sessionId') sessionId: string,
+  ): Promise<Booking> {
+    return this.bookingsService.confirmDeposit(reference, sessionId)
+  }
+
   /** Public: quote lookup by reference */
   @Get(':reference')
   findByReference(@Param('reference') reference: string): Promise<Booking> {
     return this.bookingsService.findByReference(reference)
+  }
+
+  /** Propriétaire (ou admin): créer une session Stripe pour l'acompte 30% */
+  @Post(':id/pay')
+  @Roles('client', 'admin')
+  async pay(
+    @Req() req: Request & { user?: RequestUser },
+    @Param('id') id: string,
+  ): Promise<{ url: string }> {
+    const booking = await this.bookingsService.findById(id)
+    if (!booking) throw new NotFoundException(`Booking ${id} introuvable`)
+    const isOwner = (!!booking.userId && String(booking.userId) === req.user!.sub) ||
+      (!!booking.contactEmail && booking.contactEmail.toLowerCase() === req.user!.email.toLowerCase())
+    if (!isOwner && req.user!.role !== 'admin') throw new UnauthorizedException('Dossier non rattaché à ce compte')
+    const url = await this.bookingsService.createDepositSession(booking)
+    return { url }
   }
 
   /** Admin: change booking status */

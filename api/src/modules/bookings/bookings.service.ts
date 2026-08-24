@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
+import Stripe from 'stripe'
 import { Booking, BookingDocument } from './schemas/booking.schema'
 import { Offer, OfferDocument } from '../offers/schemas/offer.schema'
 
@@ -26,11 +27,23 @@ function makeReference(): string {
 @Injectable()
 export class BookingsService {
   private readonly logger = new Logger(BookingsService.name)
+  private stripe: Stripe | null = null
 
   constructor(
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
     @InjectModel(Offer.name) private offerModel: Model<OfferDocument>,
   ) {}
+
+  /** Rattache les réservations invitées (même email, sans compte) au compte client */
+  async claimGuests(userId: string, email: string): Promise<{ linked: number }> {
+    const res = await this.bookingModel
+      .updateMany(
+        { userId: { $in: [null, undefined] }, contactEmail: new RegExp(`^${email}$`, 'i') },
+        { userId },
+      )
+      .exec()
+    return { linked: res.modifiedCount ?? 0 }
+  }
 
   async findAll(): Promise<Booking[]> {
     return this.bookingModel.find().sort({ createdAt: -1 }).exec()
@@ -93,8 +106,71 @@ export class BookingsService {
     return booking
   }
 
-  async findById(id: string): Promise<Booking | null> {
+  async findById(id: string): Promise<BookingDocument | null> {
     return this.bookingModel.findById(id).exec()
+  }
+
+  /** Session Stripe Checkout pour l'acompte 30% (mode test) */
+  async createDepositSession(booking: BookingDocument): Promise<string> {
+    const key = process.env.STRIPE_SECRET_KEY
+    if (!key) throw new NotFoundException('Paiement en ligne non configuré (STRIPE_SECRET_KEY manquant)')
+    if (!this.stripe) this.stripe = new Stripe(key)
+    if (booking.depositPaid) throw new NotFoundException('Acompte déjà payé')
+    if (booking.status === 'cancelled') throw new NotFoundException('Réservation annulée')
+
+    const frontUrl = process.env.FRONT_URL ?? 'http://localhost:5174'
+    const deposit = Math.round(booking.totalEur * 0.3 * 100) / 100
+    const offer = await this.offerModel.findOne({ slug: booking.offerSlug }).exec()
+    const label = `${offer?.title ?? booking.offerSlug} — acompte 30% (${booking.reference})`
+
+    const session = await this.stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: 'eur',
+            unit_amount: Math.round(deposit * 100),
+            product_data: { name: label },
+          },
+        },
+      ],
+      success_url: `${frontUrl}/paiement/retour?ref=${booking.reference}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontUrl}/account?paiement=annule`,
+      metadata: { bookingId: String(booking._id), reference: booking.reference },
+    })
+
+    await this.bookingModel
+      .updateOne({ _id: booking._id }, { stripeSessionId: session.id, depositEur: deposit })
+      .exec()
+
+    return session.url ?? ''
+  }
+
+  /** Vérifie la session Stripe après retour de paiement et confirme l'acompte */
+  async confirmDeposit(reference: string, sessionId: string): Promise<Booking> {
+    const key = process.env.STRIPE_SECRET_KEY
+    if (!key) throw new NotFoundException('Paiement en ligne non configuré')
+    if (!this.stripe) this.stripe = new Stripe(key)
+
+    const booking = await this.bookingModel.findOne({ reference }).exec()
+    if (!booking) throw new NotFoundException(`Booking ${reference} introuvable`)
+    if (booking.depositPaid) return booking
+    if (booking.stripeSessionId && booking.stripeSessionId !== sessionId) {
+      throw new NotFoundException('Session de paiement inconnue')
+    }
+
+    const session = await this.stripe.checkout.sessions.retrieve(sessionId)
+    if (session.payment_status !== 'paid') throw new NotFoundException('Paiement non confirmé')
+    if (session.metadata?.bookingId !== String(booking._id)) {
+      throw new NotFoundException('Session de paiement inconnue')
+    }
+
+    booking.depositPaid = true
+    booking.status = 'confirmed'
+    await booking.save()
+    this.logger.log(`Deposit paid for ${booking.reference} (${booking.depositEur} EUR)`)
+    return booking
   }
 
   /** Fire-and-forget quote email via Resend REST API. Silently skipped without RESEND_API_KEY. */

@@ -15,6 +15,7 @@ import { CustomTripPage } from './features/custom/CustomTripPage'
 import { AboutPage } from './features/about/AboutPage'
 import { ContactPage } from './features/contact/ContactPage'
 import { LegalPage } from './features/legal/LegalPage'
+import { PaymentReturnPage } from './features/payment/PaymentReturnPage'
 
 const TITLES: Record<string, string> = {
   '/': 'Voyages sur mesure',
@@ -25,9 +26,10 @@ const TITLES: Record<string, string> = {
   '/agence': 'L’agence',
   '/concierge': 'Concierge IA',
   '/contact': 'Contact',
-  '/login': 'Connexion',
+   '/login': 'Connexion',
   '/account': 'Mon compte',
   '/admin': 'Administration',
+  '/paiement/retour': 'Paiement',
   '/mentions-legales': 'Mentions légales',
   '/cgv': 'Conditions de vente',
   '/confidentialite': 'Confidentialité',
@@ -72,6 +74,7 @@ export default function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/account" element={<AccountPage />} />
+        <Route path="/paiement/retour" element={<PaymentReturnPage />} />
       <Route path="/agence" element={<AboutPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/mentions-legales" element={<LegalPage />} />

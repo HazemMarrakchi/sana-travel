@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module'
 import { ChatModule } from './modules/chat/chat.module'
 import { NewsletterModule } from './modules/newsletter/newsletter.module'
 import { FlightsModule } from './modules/flights/flights.module'
+import { ReviewsModule } from './modules/reviews/reviews.module'
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { FlightsModule } from './modules/flights/flights.module'
     ChatModule,
 NewsletterModule,
 FlightsModule,
+ReviewsModule,
   ],
 })
 export class AppModule {}
