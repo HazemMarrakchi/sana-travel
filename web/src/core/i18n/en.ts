@@ -245,6 +245,8 @@ export const en: Dict = {
   'vt.loadingFlights': 'Searching flights…',
   'vt.noResults': 'No flights found for these dates',
   'ab.kicker': 'Our house',
+  'tm.kicker': 'Client reviews',
+  'tm.title': 'They travelled with SANA',
   'ab.title': 'The agency that lets Tunisia travel differently',
   'ab.story': 'Born in Tunis, SANA Travel has crafted tailor-made journeys for over 10 years. Our team knows every hotel, transfer and local tip we recommend.',
   'ab.v1t': 'Human advice',

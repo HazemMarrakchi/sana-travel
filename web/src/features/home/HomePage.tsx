@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { artFor, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
+import { TESTIMONIALS } from '../../data/testimonials'
 import { PosterImage } from '../../components/ui/PosterImage'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
@@ -464,6 +465,32 @@ export function HomePage() {
               <ChatBubble side="user">{t('chat.u2')}</ChatBubble>
               <ChatBubble side="sana">{t('chat.s2')}</ChatBubble>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* avis clients */}
+      <section className="bg-deep py-24 text-white lg:py-32">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="reveal max-w-2xl">
+            <p className="text-coral text-xs font-bold uppercase tracking-[0.35em]">{t('tm.kicker')}</p>
+            <h2 className="font-display mt-3 text-4xl font-black lg:text-5xl">{t('tm.title')}</h2>
+          </div>
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {TESTIMONIALS.map((tm) => (
+              <figure
+                key={tm.name}
+                className="reveal flex h-full flex-col rounded-3xl border border-white/[0.07] bg-white/[0.03] p-7 transition-colors hover:border-gold/30"
+              >
+                <span className="font-display text-gold/60 text-5xl leading-none">“</span>
+                <blockquote className="text-mist mt-2 flex-1 text-sm leading-relaxed">{tm.text[lang]}</blockquote>
+                <figcaption className="border-white/10 mt-6 border-t pt-4">
+                  <span className="text-gold text-sm tracking-wider">{'★'.repeat(tm.rating)}{'☆'.repeat(5 - tm.rating)}</span>
+                  <p className="mt-1.5 text-sm font-bold">{tm.name}</p>
+                  <p className="text-mist text-[11px] font-semibold uppercase tracking-wider">{tm.trip[lang]}</p>
+                </figcaption>
+              </figure>
+            ))}
           </div>
         </div>
       </section>
