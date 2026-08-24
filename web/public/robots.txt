@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+Sitemap: https://hazemmarrakchi.github.io/sana-travel/sitemap.xml
