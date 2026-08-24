@@ -71,28 +71,22 @@ const OFFERS = [
   },
 ]
 
-/** Unsplash IDs vérifiés HTTP 200 le 2026-08-22 */
+/** Photos vérifiées (HTTP 200) — Istanbul via Wikimedia Commons (titre explicite Hagia Sophia) */
 const U = (id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`
 const PHOTOS = {
   cappadoce: U('1533105079780-92b9be482077'),
   santorin: U('1570077188670-e3a8d69ac5ff'),
   maldives: U('1514282401047-d79a71a590e8'),
   marrakech: U('1597212618440-806262de4f6b'),
-  istanbul: U('1524231757912-21f4fe3a7200'),
+  istanbul: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Hagia_Sophia_Istanbul_Old_City%2C_Turkey_%28Unsplash%29.jpg/1280px-Hagia_Sophia_Istanbul_Old_City%2C_Turkey_%28Unsplash%29.jpg',
   bali: U('1537996194471-e657df975ab4'),
   dubai: U('1512453979798-5ea266f8880c'),
 }
 
-const POOL = Object.values(PHOTOS)
 try {
   await mongoose.connect(uri)
   await Offer.deleteMany({})
-  const docs = OFFERS.map((o, idx) => {
-    const own = PHOTOS[o.artKey]
-    const a = POOL[(idx + 1) % POOL.length]
-    const b = POOL[(idx + 3) % POOL.length]
-    return { ...o, images: [own, a, b].filter(Boolean) }
-  })
+  const docs = OFFERS.map((o) => ({ ...o, images: [PHOTOS[o.artKey]].filter(Boolean) }))
   const inserted = await Offer.insertMany(docs)
   console.log(`✅ ${inserted.length} offers seeded into sana_travel.offers`)
   await mongoose.disconnect()
