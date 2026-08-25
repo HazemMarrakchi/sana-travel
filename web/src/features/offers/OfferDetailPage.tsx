@@ -135,9 +135,9 @@ export function OfferDetailPage() {
       {/* hero texte pur — aucune photo en fond */}
       <section className="bg-deep text-white">
         <div className="mx-auto max-w-4xl px-5 py-14 lg:px-8 lg:py-20">
-          <Link to="/destinations" className="text-mist hover:text-gold text-xs font-bold uppercase tracking-[0.3em] transition-colors">
-            ← {t('od.back')}
-          </Link>
+            <Link to={isHotelOffer(o) ? '/destinations' : '/offres'} className="text-mist hover:text-gold text-xs font-bold uppercase tracking-[0.3em] transition-colors">
+              ← {t('od.back')}
+            </Link>
           <p className="text-gold mt-8 text-xs font-bold uppercase tracking-[0.25em]">
             {o.country} · {o.nights} {t('od.nights')} · ★ {o.rating}
           </p>

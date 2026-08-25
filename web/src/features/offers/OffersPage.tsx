@@ -5,28 +5,23 @@ import type { Offer } from '../../data/offers'
 import { PosterImage } from '../../components/ui/PosterImage'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
-
-type OfferType = 'all' | 'tours' | 'hotels'
-const isHotel = (o: Offer): boolean => o.tags.includes('hôtel')
+import { isHotelOffer } from '../../core/stay'
 
 export function OffersPage() {
   const [{ offers, live }, setState] = useState<{ offers: Offer[]; live: boolean }>({
     offers: [],
     live: false,
   })
-  const [type, setType] = useState<OfferType>('all')
   const { t } = useT()
 
   useEffect(() => {
     void fetchOffers().then(setState)
   }, [])
 
-  const visible = useMemo(
-    () =>
-      offers
-        .filter((o) => (type === 'all' ? true : type === 'hotels' ? isHotel(o) : !isHotel(o)))
-        .sort((a, b) => Number(b.featured) - Number(a.featured) || a.priceEur - b.priceEur),
-    [offers, type],
+  /** cette page = voyages organisés uniquement (les hôtels vivent sur /destinations) */
+  const tours = useMemo(
+    () => offers.filter((o) => !isHotelOffer(o)).sort((a, b) => Number(b.featured) - Number(a.featured) || a.priceEur - b.priceEur),
+    [offers],
   )
 
   return (
@@ -38,28 +33,8 @@ export function OffersPage() {
           {live ? t('dest.liveNote') : t('dest.demoNote')}
         </p>
 
-        <div className="mt-8 inline-flex w-fit rounded-full border border-ink/10 bg-white p-1 shadow-sm">
-          {(
-            [
-              ['all', 'dest.tabAll'],
-              ['tours', 'dest.tabTours'],
-              ['hotels', 'dest.tabHotels'],
-            ] as const
-          ).map(([v, k]) => (
-            <button
-              key={v}
-              onClick={() => setType(v)}
-              className={`rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
-                type === v ? 'bg-ink text-gold shadow-sm' : 'text-slate-soft hover:text-ink'
-              }`}
-            >
-              {t(k)}
-            </button>
-          ))}
-        </div>
-
         <div className="mt-8 flex flex-col gap-4">
-          {visible.map((o) => (
+          {tours.map((o) => (
             <Link
               key={o.slug}
               to={`/offres/${o.slug}`}
@@ -84,7 +59,7 @@ export function OffersPage() {
           ))}
         </div>
 
-        {visible.length === 0 && (
+        {tours.length === 0 && (
           <p className="text-slate-soft mt-12 text-center">{t('dest.emptyBody')}</p>
         )}
       </div>

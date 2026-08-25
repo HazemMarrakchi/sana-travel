@@ -6,7 +6,6 @@ import { PosterImage } from '../../components/ui/PosterImage'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
 
-type OfferType = 'all' | 'tours' | 'hotels'
 type SortKey = 'reco' | 'priceAsc' | 'priceDesc' | 'nightsDesc' | 'rating'
 
 const SORTERS: Record<SortKey, (a: Offer, b: Offer) => number> = {
@@ -37,7 +36,6 @@ export function DestinationsPage() {
     live: false,
   })
   const [filter, setFilter] = useState<string>('tout')
-  const [type, setType] = useState<OfferType>('all')
   const [sort, setSort] = useState<SortKey>('reco')
   const [country, setCountry] = useState<string>('all')
   const [city, setCity] = useState<string>('all')
@@ -50,37 +48,32 @@ export function DestinationsPage() {
     void fetchOffers().then(setState)
   }, [])
 
-  const typed = useMemo(
-    () =>
-      offers.filter((o) =>
-        type === 'all' ? true : type === 'hotels' ? isHotel(o) : !isHotel(o),
-      ),
-    [offers, type],
-  )
+  /** cette page = hôtels uniquement (les voyages organisés vivent sur /offres) */
+  const hotels = useMemo(() => offers.filter((o) => isHotel(o)), [offers])
 
-  const tags = ['tout', ...Array.from(new Set(typed.flatMap((o) => o.tags)))].filter(
+  const tags = ['tout', ...Array.from(new Set(hotels.flatMap((o) => o.tags)))].filter(
     (tg) => tg !== 'hôtel',
   )
 
   const countries = useMemo(
-    () => Array.from(new Set(typed.map((o) => o.country))).sort((a, b) => a.localeCompare(b, 'fr')),
-    [typed],
+    () => Array.from(new Set(hotels.map((o) => o.country))).sort((a, b) => a.localeCompare(b, 'fr')),
+    [hotels],
   )
 
   /** cascade : les villes dépendent du pays sélectionné */
   const cities = useMemo(() => {
-    const scoped = country === 'all' ? typed : typed.filter((o) => o.country === country)
+    const scoped = country === 'all' ? hotels : hotels.filter((o) => o.country === country)
     return Array.from(new Set(scoped.map((o) => o.city))).sort((a, b) => a.localeCompare(b, 'fr'))
-  }, [typed, country])
+  }, [hotels, country])
 
   useEffect(() => {
-    if (filter !== 'tout' && !typed.some((o) => o.tags.includes(filter))) setFilter('tout')
+    if (filter !== 'tout' && !hotels.some((o) => o.tags.includes(filter))) setFilter('tout')
     if (country !== 'all' && !countries.includes(country)) setCountry('all')
     if (city !== 'all' && !cities.includes(city)) setCity('all')
-  }, [typed, countries, cities, filter, country, city])
+  }, [hotels, countries, cities, filter, country, city])
 
   const q = query.trim().toLowerCase()
-  const visible = typed
+  const visible = hotels
     .filter((o) => country === 'all' ? true : o.country === country)
     .filter((o) => city === 'all' ? true : o.city === city)
     .filter((o) => (filter === 'tout' ? true : o.tags.includes(filter)))
@@ -106,26 +99,6 @@ export function DestinationsPage() {
 
       <div className="bg-ivory sticky top-[72px] z-30 -mx-5 mt-8 flex flex-col gap-4 border-b border-ink/5 px-5 py-3 lg:-mx-8 lg:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          {/* onglets type */}
-          <div className="border-ink/10 inline-flex w-fit rounded-full border bg-white p-1 shadow-sm">
-            {(
-              [
-                ['all', 'dest.tabAll'],
-                ['tours', 'dest.tabTours'],
-                ['hotels', 'dest.tabHotels'],
-              ] as const
-            ).map(([v, k]) => (
-              <button
-                key={v}
-                onClick={() => setType(v)}
-                className={`rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
-                  type === v ? 'bg-ink text-gold shadow-sm' : 'text-slate-soft hover:text-ink'
-                }`}
-              >
-                {t(k)}
-              </button>
-            ))}
-          </div>
           {/* recherche + tri */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <input
@@ -229,7 +202,6 @@ export function DestinationsPage() {
             onClick={() => {
               setQuery('')
               setFilter('tout')
-              setType('all')
               setCountry('all')
               setCity('all')
             }}
@@ -274,6 +246,19 @@ export function DestinationsPage() {
         })}
         </div>
       )}
+
+      {/* bannière : rien ne vous convient ? voyage libre */}
+      <div className="bg-night mt-14 flex flex-col items-center gap-5 rounded-3xl p-10 text-center shadow-xl">
+        <p className="text-gold text-xs font-bold uppercase tracking-[0.3em]">{t('dest.hl.kicker')}</p>
+        <h2 className="font-display max-w-2xl text-3xl font-black text-white">{t('dest.hl.title')}</h2>
+        <p className="text-mist max-w-xl text-sm leading-relaxed">{t('dest.hl.body')}</p>
+        <Link
+          to="/voyage-libre"
+          className="from-gold to-gold-soft text-ink mt-1 rounded-full bg-gradient-to-r px-8 py-3.5 text-sm font-bold shadow-lg transition-transform hover:scale-[1.03]"
+        >
+          {t('dest.hl.btn')}
+        </Link>
+      </div>
       </div>
     </main>
   )
