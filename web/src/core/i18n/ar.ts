@@ -57,6 +57,8 @@ export const ar: Dict = {
   'dest.demoNote': 'وضع تجريبي — عروض ثابتة (الـ API نائمة).',
   'filter.all': 'الكل',
   'dest.tabAll': 'الكل',
+  'op.kicker': 'الفهرس',
+  'op.title': 'كل عروضنا',
   'dest.tabTours': 'رحلات',
   'dest.tabHotels': 'فنادق',
   'dest.sort.reco': 'الموصى بها',

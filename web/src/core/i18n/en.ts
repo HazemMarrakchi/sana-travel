@@ -57,6 +57,8 @@ export const en: Dict = {
   'dest.demoNote': 'Demo mode — static offers (the API is asleep).',
   'filter.all': 'all',
   'dest.tabAll': 'All',
+  'op.kicker': 'Catalogue',
+  'op.title': 'All our offers',
   'dest.tabTours': 'Tours',
   'dest.tabHotels': 'Hotels',
   'dest.sort.reco': 'Recommended',

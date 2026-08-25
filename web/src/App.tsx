@@ -5,6 +5,7 @@ import { Footer } from './components/layout/Footer'
 import { HomePage } from './features/home/HomePage'
 import { DestinationsPage } from './features/destinations/DestinationsPage'
 import { OfferDetailPage } from './features/offers/OfferDetailPage'
+import { OffersPage } from './features/offers/OffersPage'
 import { BookingPage } from './features/booking/BookingPage'
 import { LoginPage } from './features/auth/LoginPage'
 import { AccountPage } from './features/account/AccountPage'
@@ -67,7 +68,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/destinations" element={<DestinationsPage />} />
-        <Route path="/offres" element={<DestinationsPage />} />
+        <Route path="/offres" element={<OffersPage />} />
         <Route path="/offres/:slug" element={<OfferDetailPage />} />
         <Route path="/booking" element={<BookingPage />} />
       <Route path="/voyage-libre" element={<CustomTripPage />} />
