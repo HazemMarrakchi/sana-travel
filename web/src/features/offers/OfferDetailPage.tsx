@@ -342,11 +342,11 @@ function StayConfigurator({ offer }: { offer: Offer }) {
   const [board, setBoard] = useState<Board>('bb')
 
   const q = quoteStay(offer, { start, end, travelers, board })
-  const invalid = Boolean(start && end && nightsBetween(start, end) < 1)
+  const invalid = Boolean(hotel && start && end && nightsBetween(start, end) < 1)
   const coefPct = Math.round((q.coef - 1) * 100)
 
   const bookingParams = new URLSearchParams({ offer: offer.slug })
-  if (start) bookingParams.set('date', start)
+  if (hotel && start) bookingParams.set('date', start)
   if (hotel && start && end && !invalid) {
     bookingParams.set('depart', end)
     bookingParams.set('board', board)
@@ -358,18 +358,24 @@ function StayConfigurator({ offer }: { offer: Offer }) {
     <aside className="bg-night h-fit rounded-3xl p-8 text-white shadow-xl lg:sticky lg:top-28">
       <h3 className="font-display text-xl font-black">🧮 {t('bk.cfg.title')}</h3>
 
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-mist text-[10px] font-bold uppercase tracking-widest">{t('bk.arrive')}</label>
-          <input
-            type="date"
-            min={today}
-            value={start}
-            onChange={(e) => setStart(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none [color-scheme:dark] focus:border-gold"
-          />
-        </div>
-        {hotel ? (
+      {!hotel && (
+        <p className="bg-gold/10 text-gold mt-4 rounded-xl px-4 py-2.5 text-xs font-bold">
+          🧭 {t('bk.orgNote')}
+        </p>
+      )}
+
+      {hotel && (
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-mist text-[10px] font-bold uppercase tracking-widest">{t('bk.arrive')}</label>
+            <input
+              type="date"
+              min={today}
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none [color-scheme:dark] focus:border-gold"
+            />
+          </div>
           <div>
             <label className="text-mist text-[10px] font-bold uppercase tracking-widest">{t('bk.depart')}</label>
             <input
@@ -380,14 +386,10 @@ function StayConfigurator({ offer }: { offer: Offer }) {
               className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none [color-scheme:dark] focus:border-gold"
             />
           </div>
-        ) : (
-          <div className="flex items-end">
-            <p className="text-mist pb-2.5 text-sm">{q.nights} {t('od.nights')}</p>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className={`mt-3 grid grid-cols-2 gap-3`}>
+      <div className={`mt-3 grid gap-3 ${hotel ? 'grid-cols-2' : ''}`}>
         <div>
           <label className="text-mist text-[10px] font-bold uppercase tracking-widest">{t('bk.travelers')}</label>
           <select

@@ -74,6 +74,7 @@ export const en: Dict = {
   'bk.pers': 'pax',
   'bk.perNight': '/ night / pax',
   'bk.invalidDates': 'Check-out must be after check-in.',
+  'bk.orgNote': 'Organized by the agency — program, accommodation and departure dates set by SANA.',
   'dest.hl.kicker': 'Tailor-made',
   'dest.hl.title': 'Neither hotel nor tour? Go free-form.',
   'dest.hl.body': 'Tell us your destination, budget and wishes: our advisors design the route, flights and hotels for you.',

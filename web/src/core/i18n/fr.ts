@@ -74,6 +74,7 @@ export const fr: Dict = {
   'bk.pers': 'pers.',
   'bk.perNight': '/ nuit / pers',
   'bk.invalidDates': 'Le départ doit suivre l’arrivée.',
+  'bk.orgNote': 'Voyage organisé par l’agence — programme, hébergement et dates de départ fixés par SANA.',
   'dest.hl.kicker': 'Sur mesure',
   'dest.hl.title': 'Ni hôtel ni circuit ? Partez en voyage libre.',
   'dest.hl.body': 'Dites-nous votre destination, votre budget et vos envies : nos conseillers composent l’itinéraire, les vols et les hôtels pour vous.',
