@@ -446,7 +446,7 @@ function StayConfigurator({ offer }: { offer: Offer }) {
       <ul className="border-white/10 mt-5 space-y-2 border-t pt-4 text-sm">
         <li className="flex justify-between gap-3">
           <span className="text-mist">
-            {q.nights} × {t('od.nights')} · {travelers} × {t('bk.pers')}
+            {travelers} × {t('bk.pers')} · {hotel ? t(`bk.board.${board}`) : `${q.nights} ${t('od.nights')}`}
           </span>
           <span className="font-semibold">{formatPrice(q.perNightEur, lang)} {t('bk.perNight')}</span>
         </li>
