@@ -38,6 +38,13 @@ export class Booking {
   @Prop({ type: Date })
   endDate?: Date
 
+  /** configurateur hôtel : nb chambres + formule (bb/hb/ai) */
+  @Prop({ min: 1, max: 5 })
+  rooms?: number
+
+  @Prop({ enum: ['bb', 'hb', 'ai'] })
+  board?: 'bb' | 'hb' | 'ai'
+
   /** résumé libre (voyage personnalisé : vol choisi, options…) */
   @Prop()
   note?: string

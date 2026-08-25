@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { artFor, fetchOffer } from '../../core/api'
 import type { Offer } from '../../data/offers'
 import { useT } from '../../core/i18n'
+import { isHotelOffer, quoteStay } from '../../core/stay'
 import { formatPrice } from '../../core/money'
 import { downloadDevis } from '../../core/devisPdf'
 
@@ -16,6 +17,9 @@ const todayISO = () => new Date().toISOString().slice(0, 10)
 export function BookingPage() {
   const [params] = useSearchParams()
   const slug = params.get('offer') ?? ''
+  const departParam = /^\d{4}-\d{2}-\d{2}$/.test(params.get('depart') ?? '') ? (params.get('depart') as string) : ''
+  const roomsParam = Math.max(1, Math.min(5, Number(params.get('rooms')) || 1))
+  const boardParam = ['bb', 'hb', 'ai'].includes(params.get('board') ?? '') ? (params.get('board') as string) : ''
   const { t, lang } = useT()
 
   const [{ offer, loading }, setOfferState] = useState<{ offer?: Offer; loading: boolean }>({
@@ -44,7 +48,18 @@ export function BookingPage() {
     window.scrollTo(0, 0)
   }, [slug])
 
-  const totalEur = useMemo(() => (offer ? offer.priceEur * travelers : 0), [offer, travelers])
+  const totalEur = useMemo(
+    () =>
+      offer
+        ? quoteStay(offer, {
+            start: startDate,
+            end: departParam || undefined,
+            travelers,
+            board: boardParam || undefined,
+          }).totalEur
+        : 0,
+    [offer, startDate, departParam, boardParam, travelers],
+  )
 
   if (loading) {
     return (
@@ -88,6 +103,9 @@ export function BookingPage() {
             offerSlug: offer.slug,
             startDate,
             travelers,
+            endDate: departParam || undefined,
+            rooms: isHotelOffer(offer) && departParam ? roomsParam : undefined,
+            board: isHotelOffer(offer) && departParam ? boardParam || undefined : undefined,
             contactName,
             contactEmail,
             contactPhone: contactPhone || undefined,
@@ -267,7 +285,14 @@ export function BookingPage() {
                 {[
                   [t('od.lDest'), `${offer.city}, ${offer.country}`],
                   [t('od.lHotel'), offer.hotelName],
-                  [t('bk.date'), startDate],
+                  [t('bk.arrive'), startDate],
+                  ...(departParam ? [[t('bk.depart'), departParam] as [string, string]] : []),
+                  ...(isHotelOffer(offer) && departParam
+                    ? ([
+                        [t('bk.rooms'), String(roomsParam)],
+                        [t('bk.board.label'), t(`bk.board.${boardParam || 'bb'}`)],
+                      ] as [string, string][])
+                    : []),
                   [t('bk.travelers'), String(travelers)],
                   [t('bk.name'), contactName],
                   [t('bk.email'), contactEmail],

@@ -7,6 +7,8 @@ import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
 import { API_BASE, useAuth } from '../../core/auth'
 import { loadFavorites, toggleFavorite } from '../../core/favorites'
+import { BOARDS, isHotelOffer, nightsBetween, quoteStay } from '../../core/stay'
+import type { Board } from '../../core/stay'
 
 interface Review {
   _id: string
@@ -207,31 +209,8 @@ export function OfferDetailPage() {
           </div>
         </div>
 
-        {/* booking card */}
-        <aside className="bg-night h-fit rounded-3xl p-8 text-white shadow-xl lg:sticky lg:top-28">
-          <p className="text-mist text-xs font-bold uppercase tracking-widest">{t('card.from')}</p>
-          <p className="font-display mt-1 text-5xl font-black text-gold">{formatPrice(o.priceEur, lang)}</p>
-          <p className="text-mist mt-1 text-sm">
-            {t('od.perPerson')} · {o.nights} {t('od.nights')}
-          </p>
-
-          <ul className="border-white/10 my-6 space-y-2.5 border-t pt-6 text-sm">
-            {['od.f1', 'od.f2', 'od.f3', 'od.f4'].map((k) => (
-              <li key={k} className="flex items-center gap-2">
-                <span className="bg-lagoon/20 text-lagoon grid size-5 shrink-0 place-items-center rounded-full text-[10px] font-black">✓</span>
-                {t(k)}
-              </li>
-            ))}
-          </ul>
-
-          <Link
-            to={`/booking?offer=${o.slug}`}
-            className="block rounded-full bg-gradient-to-r from-gold to-gold-soft py-4 text-center text-sm font-bold text-ink shadow-lg shadow-gold/25 transition-transform hover:scale-[1.02]"
-          >
-            {t('od.book')}
-          </Link>
-          <p className="text-mist mt-4 text-center text-xs">{t('od.devis')}</p>
-        </aside>
+        {/* configurateur de séjour */}
+        <StayConfigurator offer={o} />
       </section>
 
       {/* avis voyageurs */}
@@ -347,5 +326,151 @@ export function OfferDetailPage() {
         </section>
       )}
     </main>
+  )
+}
+
+/** Configurateur : arrivée/départ, voyageurs, chambres, formule — devis en direct. */
+function StayConfigurator({ offer }: { offer: Offer }) {
+  const { t, lang } = useT()
+  const hotel = isHotelOffer(offer)
+  const today = new Date().toISOString().slice(0, 10)
+
+  const [start, setStart] = useState('')
+  const [end, setEnd] = useState('')
+  const [travelers, setTravelers] = useState(2)
+  const [rooms, setRooms] = useState(1)
+  const [board, setBoard] = useState<Board>('bb')
+
+  const q = quoteStay(offer, { start, end, travelers, board })
+  const invalid = Boolean(start && end && nightsBetween(start, end) < 1)
+  const coefPct = Math.round((q.coef - 1) * 100)
+
+  const bookingParams = new URLSearchParams({ offer: offer.slug })
+  if (start) bookingParams.set('date', start)
+  if (hotel && start && end && !invalid) {
+    bookingParams.set('depart', end)
+    bookingParams.set('board', board)
+    bookingParams.set('rooms', String(rooms))
+  }
+  bookingParams.set('travelers', String(travelers))
+
+  return (
+    <aside className="bg-night h-fit rounded-3xl p-8 text-white shadow-xl lg:sticky lg:top-28">
+      <h3 className="font-display text-xl font-black">🧮 {t('bk.cfg.title')}</h3>
+
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-mist text-[10px] font-bold uppercase tracking-widest">{t('bk.arrive')}</label>
+          <input
+            type="date"
+            min={today}
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none [color-scheme:dark] focus:border-gold"
+          />
+        </div>
+        {hotel ? (
+          <div>
+            <label className="text-mist text-[10px] font-bold uppercase tracking-widest">{t('bk.depart')}</label>
+            <input
+              type="date"
+              min={start || today}
+              value={end}
+              onChange={(e) => setEnd(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none [color-scheme:dark] focus:border-gold"
+            />
+          </div>
+        ) : (
+          <div className="flex items-end">
+            <p className="text-mist pb-2.5 text-sm">{q.nights} {t('od.nights')}</p>
+          </div>
+        )}
+      </div>
+
+      <div className={`mt-3 grid grid-cols-2 gap-3`}>
+        <div>
+          <label className="text-mist text-[10px] font-bold uppercase tracking-widest">{t('bk.travelers')}</label>
+          <select
+            value={travelers}
+            onChange={(e) => setTravelers(Number(e.target.value))}
+            className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white outline-none focus:border-gold"
+          >
+            {[1, 2, 3, 4, 5, 6, 8, 10, 12].map((n) => (
+              <option key={n} value={n} className="text-ink">
+                {n}
+              </option>
+            ))}
+          </select>
+        </div>
+        {hotel && (
+          <div>
+            <label className="text-mist text-[10px] font-bold uppercase tracking-widest">{t('bk.rooms')}</label>
+            <select
+              value={rooms}
+              onChange={(e) => setRooms(Number(e.target.value))}
+              className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white outline-none focus:border-gold"
+            >
+              {[1, 2, 3, 4, 5].map((n) => (
+                <option key={n} value={n} className="text-ink">
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {hotel && (
+        <div className="mt-4">
+          <p className="text-mist text-[10px] font-bold uppercase tracking-widest">{t('bk.board.label')}</p>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {BOARDS.map((b) => (
+              <button
+                key={b.id}
+                onClick={() => setBoard(b.id)}
+                className={`rounded-xl border px-2 py-2.5 text-[11px] font-bold transition-colors ${
+                  board === b.id
+                    ? 'border-gold bg-gold/15 text-gold'
+                    : 'border-white/15 text-mist hover:border-white/40'
+                }`}
+              >
+                {t(b.key)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <ul className="border-white/10 mt-5 space-y-2 border-t pt-4 text-sm">
+        <li className="flex justify-between gap-3">
+          <span className="text-mist">
+            {q.nights} × {t('od.nights')} · {travelers} × {t('bk.pers')}
+          </span>
+          <span className="font-semibold">{formatPrice(q.perNightEur, lang)} {t('bk.perNight')}</span>
+        </li>
+        {hotel && coefPct > 0 && (
+          <li className="flex justify-between gap-3">
+            <span className="text-mist">{t(`bk.board.${board}`)}</span>
+            <span className="text-lagoon font-semibold">+{coefPct}%</span>
+          </li>
+        )}
+        <li className="border-white/10 flex items-baseline justify-between gap-3 border-t pt-3">
+          <span className="text-xs font-bold uppercase tracking-widest">{t('bk.total')}</span>
+          <span className="font-display text-4xl font-black text-gold">{formatPrice(q.totalEur, lang)}</span>
+        </li>
+      </ul>
+
+      {invalid ? (
+        <p className="text-coral mt-4 text-xs font-bold">⚠ {t('bk.invalidDates')}</p>
+      ) : (
+        <Link
+          to={`/booking?${bookingParams.toString()}`}
+          className="from-gold to-gold-soft shadow-gold/25 mt-5 block rounded-full bg-gradient-to-r py-4 text-center text-sm font-bold text-ink shadow-lg transition-transform hover:scale-[1.02]"
+        >
+          {t('od.book')}
+        </Link>
+      )}
+      <p className="text-mist mt-4 text-center text-xs">{t('od.devis')}</p>
+    </aside>
   )
 }

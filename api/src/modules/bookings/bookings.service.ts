@@ -12,7 +12,12 @@ export interface CreateBookingInput {
   contactName: string
   contactEmail: string
   contactPhone?: string
+  endDate?: string
+  rooms?: number
+  board?: 'bb' | 'hb' | 'ai'
 }
+
+const BOARD_COEF: Record<string, number> = { bb: 1, hb: 1.18, ai: 1.35 }
 
 const REF_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
@@ -72,8 +77,23 @@ export class BookingsService {
     if (!offer) throw new NotFoundException(`Offer "${input.offerSlug}" not found`)
 
     const travelers = Math.max(1, Math.min(12, Math.round(Number(input.travelers) || 1)))
+    const rooms = Math.max(1, Math.min(5, Math.round(Number(input.rooms) || 1)))
+    const board = input.board === 'hb' || input.board === 'ai' ? input.board : 'bb'
     const startDate = new Date(input.startDate)
     if (Number.isNaN(startDate.getTime())) throw new NotFoundException('Invalid start date')
+
+    /** même calcul que le configurateur front (core/stay.ts) — le serveur fait foi */
+    const isHotel = Array.isArray((offer as { tags?: string[] }).tags) && (offer as { tags?: string[] }).tags!.includes('hôtel')
+    let nights = offer.nights
+    if (input.endDate) {
+      const end = new Date(input.endDate)
+      if (!Number.isNaN(end.getTime())) {
+        nights = Math.min(30, Math.max(1, Math.round((end.getTime() - startDate.getTime()) / 86400000)))
+      }
+    }
+    const perNight = offer.priceEur / offer.nights
+    const coef = isHotel ? (BOARD_COEF[board] ?? 1) : 1
+    const totalEur = Math.round(nights * travelers * perNight * coef)
 
     let reference = makeReference()
     // collision-safe retry
@@ -91,9 +111,12 @@ export class BookingsService {
       contactEmail: input.contactEmail.trim().toLowerCase(),
       contactPhone: input.contactPhone?.trim() || undefined,
       travelers,
+      rooms: isHotel ? rooms : undefined,
+      board: isHotel ? board : undefined,
       startDate,
+      endDate: input.endDate ? new Date(input.endDate) : undefined,
       status: 'quote_sent',
-      totalEur: offer.priceEur * travelers,
+      totalEur,
     })
 
     void this.sendQuoteEmail(created, offer)
