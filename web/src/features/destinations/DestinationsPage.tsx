@@ -19,6 +19,18 @@ const SORTERS: Record<SortKey, (a: Offer, b: Offer) => number> = {
 
 const isHotel = (o: Offer): boolean => o.tags.includes('hôtel')
 
+const addDays = (iso: string, n: number): string => {
+  const d = new Date(`${iso}T12:00:00`)
+  d.setDate(d.getDate() + n)
+  return d.toISOString().slice(0, 10)
+}
+
+const fmtDate = (iso: string, lang: string): string =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString(lang === 'ar' ? 'ar' : lang === 'en' ? 'en-GB' : 'fr-FR', {
+    day: 'numeric',
+    month: 'short',
+  })
+
 export function DestinationsPage() {
   const [{ offers, live }, setState] = useState<{ offers: Offer[]; live: boolean }>({
     offers: [],
@@ -31,6 +43,8 @@ export function DestinationsPage() {
   const [city, setCity] = useState<string>('all')
   const { t, lang } = useT()
   const [query, setQuery] = useState('')
+  /** date d'arrivée choisie → départ calculé par offre, clic = réservation directe */
+  const [arrive, setArrive] = useState('')
 
   useEffect(() => {
     void fetchOffers().then(setState)
@@ -180,6 +194,33 @@ export function DestinationsPage() {
         </p>
       </div>
 
+      {/* planificateur de séjour : arrivée choisie, départ calculé par offre */}
+      <div className="border-gold/30 bg-white mt-6 flex flex-col gap-4 rounded-3xl border p-5 shadow-sm sm:flex-row sm:items-end sm:gap-6">
+        <div>
+          <label htmlFor="sana-arrive" className="text-slate-soft text-[11px] font-bold uppercase tracking-widest">
+            📅 {t('dest.arrive')}
+          </label>
+          <input
+            id="sana-arrive"
+            type="date"
+            min={new Date().toISOString().slice(0, 10)}
+            value={arrive}
+            onChange={(e) => setArrive(e.target.value)}
+            className="border-ink/15 focus:border-gold mt-1 block rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold outline-none transition-colors"
+          />
+        </div>
+        {arrive ? (
+          <button
+            onClick={() => setArrive('')}
+            className="text-slate-soft hover:text-coral text-xs font-bold underline"
+          >
+            ✕ {t('dest.clearDates')}
+          </button>
+        ) : (
+          <p className="text-slate-soft flex-1 text-xs leading-relaxed">{t('dest.plannerHint')}</p>
+        )}
+      </div>
+
       {visible.length === 0 ? (
         <div className="bg-night mt-12 rounded-3xl p-10 text-center">
           <p className="font-display text-2xl font-black">{t('dest.emptyTitle')}</p>
@@ -199,10 +240,12 @@ export function DestinationsPage() {
         </div>
       ) : (
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {visible.map((o) => (
+        {visible.map((o) => {
+          const depart = arrive ? addDays(arrive, o.nights) : ''
+          return (
           <Link
             key={o.slug}
-            to={`/offres/${o.slug}`}
+            to={arrive ? `/booking?offer=${o.slug}&date=${arrive}` : `/offres/${o.slug}`}
             className="group border-ink/5 hover:border-gold/40 flex flex-col overflow-hidden rounded-3xl border bg-white shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
           >
             <div className={`relative aspect-[4/3] overflow-hidden bg-gradient-to-br ${artFor(o.artKey)}`}>
@@ -217,12 +260,18 @@ export function DestinationsPage() {
               </p>
               <h2 className="font-display mt-1.5 text-2xl font-black text-ink">{o.title}</h2>
               <p className="text-slate-soft mt-2 line-clamp-2 text-sm">{o.summary}</p>
-              <p className="bg-night group-hover:from-gold group-hover:to-gold-soft group-hover:text-ink mt-4 inline-block w-fit rounded-full px-4 py-1.5 text-xs font-bold text-gold transition-colors">
-                {t('card.from')} {formatPrice(o.priceEur, lang)}
+              {arrive && (
+                <p className="text-lagoon mt-2 text-xs font-bold">
+                  📅 {fmtDate(arrive, lang)} → {fmtDate(depart, lang)}
+                </p>
+              )}
+              <p className={`mt-4 inline-block w-fit rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${arrive ? 'bg-coral text-white group-hover:bg-ink' : 'bg-night text-gold group-hover:from-gold group-hover:to-gold-soft group-hover:bg-gradient-to-r group-hover:text-ink'}`}>
+                {arrive ? `🛎 ${t('dest.book')}` : `${t('card.from')} ${formatPrice(o.priceEur, lang)}`}
               </p>
             </div>
           </Link>
-        ))}
+          )
+        })}
         </div>
       )}
       </div>
