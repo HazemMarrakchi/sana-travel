@@ -4,7 +4,7 @@ import { artFor, fetchOffer } from '../../core/api'
 import type { Offer } from '../../data/offers'
 import { useT } from '../../core/i18n'
 import { isHotelOffer, quoteStay } from '../../core/stay'
-import { formatPrice } from '../../core/money'
+import { formatPrice, formatPriceExact } from '../../core/money'
 import { downloadDevis } from '../../core/devisPdf'
 
 interface CreatedBooking {
@@ -306,7 +306,7 @@ export function BookingPage() {
               <div className="border-white/10 mt-5 flex items-baseline justify-between border-t pt-5">
                 <span className="text-xs font-bold uppercase tracking-widest">{t('bk.total')}</span>
                 <span className="font-display text-3xl font-black text-gold">
-                  {formatPrice(totalEur, lang)}
+                  {formatPriceExact(totalEur, lang)}
                 </span>
               </div>
               <p className="text-mist mt-1 text-right text-xs">

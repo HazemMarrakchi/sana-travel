@@ -4,7 +4,7 @@ import { artFor, fetchOffer, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
 import { PosterImage } from '../../components/ui/PosterImage'
 import { useT } from '../../core/i18n'
-import { formatPrice } from '../../core/money'
+import { formatPrice, formatPriceExact } from '../../core/money'
 import { API_BASE, useAuth } from '../../core/auth'
 import { loadFavorites, toggleFavorite } from '../../core/favorites'
 import { BOARDS, isHotelOffer, nightsBetween, quoteStay } from '../../core/stay'
@@ -449,7 +449,7 @@ function StayConfigurator({ offer }: { offer: Offer }) {
           <span className="text-mist">
             {travelers} × {t('bk.pers')} · {hotel ? t(`bk.board.${board}`) : `${q.nights} ${t('od.nights')}`}
           </span>
-          <span className="font-semibold">{formatPrice(q.perNightEur, lang)} {t('bk.perNight')}</span>
+          <span className="font-semibold">{formatPriceExact(q.perNightEur, lang)} {t('bk.perNight')}</span>
         </li>
         {hotel && coefPct > 0 && (
           <li className="flex justify-between gap-3">
@@ -459,7 +459,7 @@ function StayConfigurator({ offer }: { offer: Offer }) {
         )}
         <li className="border-white/10 flex items-baseline justify-between gap-3 border-t pt-3">
           <span className="text-xs font-bold uppercase tracking-widest">{t('bk.total')}</span>
-          <span className="font-display text-4xl font-black text-gold">{formatPrice(q.totalEur, lang)}</span>
+          <span className="font-display text-4xl font-black text-gold">{formatPriceExact(q.totalEur, lang)}</span>
         </li>
       </ul>
 
