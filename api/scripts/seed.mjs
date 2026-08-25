@@ -71,22 +71,23 @@ const OFFERS = [
   },
 ]
 
-/** Photos vérifiées (HTTP 200) — Istanbul via Wikimedia Commons (titre explicite Hagia Sophia) */
+/** Photos à titre explicite — Wikimedia Commons (sujet garanti) + Unsplash d'origine */
 const U = (id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`
+const W = (f) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(f)}?width=1200`
 const PHOTOS = {
-  cappadoce: U('1533105079780-92b9be482077'),
-  santorin: U('1570077188670-e3a8d69ac5ff'),
-  maldives: U('1514282401047-d79a71a590e8'),
-  marrakech: U('1597212618440-806262de4f6b'),
-  istanbul: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Hagia_Sophia_Istanbul_Old_City%2C_Turkey_%28Unsplash%29.jpg/1280px-Hagia_Sophia_Istanbul_Old_City%2C_Turkey_%28Unsplash%29.jpg',
-  bali: U('1537996194471-e657df975ab4'),
-  dubai: U('1512453979798-5ea266f8880c'),
+  cappadoce: [U('1533105079780-92b9be482077'), W('Cappadocia Chimneys Wikimedia Commons.jpg')],
+  santorin: [U('1570077188670-e3a8d69ac5ff'), W('Oia Santorini sunset.jpg')],
+  maldives: [U('1514282401047-d79a71a590e8'), W('Aerial shot of a small island on a coral reef in the Maldives.jpg')],
+  marrakech: [U('1597212618440-806262de4f6b'), W('Oriental hanging lanterns. Souk Haddadine, Marrakech Medina, Morocco.jpg')],
+  istanbul: [W('Hagia Sophia Istanbul Old City, Turkey (Unsplash).jpg'), W('20101106 Galata Tower Istanbul Turkey Panorama.jpg')],
+  bali: [U('1537996194471-e657df975ab4'), W('Pura Samuan Tiga (2022) img 01.jpg')],
+  dubai: [U('1512453979798-5ea266f8880c'), W('Burj Khalifa Dubai, UAE at Sunset 001 by Eric Chamchoum.jpg')],
 }
 
 try {
   await mongoose.connect(uri)
   await Offer.deleteMany({})
-  const docs = OFFERS.map((o) => ({ ...o, images: [PHOTOS[o.artKey]].filter(Boolean) }))
+  const docs = OFFERS.map((o) => ({ ...o, images: PHOTOS[o.artKey] ?? [] }))
   const inserted = await Offer.insertMany(docs)
   console.log(`✅ ${inserted.length} offers seeded into sana_travel.offers`)
   await mongoose.disconnect()

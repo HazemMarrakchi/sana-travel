@@ -13,8 +13,9 @@ const in180 = () => new Date(Date.now() + 180 * 24 * 3600 * 1000)
 const in540 = () => new Date(Date.now() + 540 * 24 * 3600 * 1000)
 
 const U = (id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`
+const W = (f) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(f)}?width=1200`
 
-/** Unsplash IDs vérifiés HTTP 200 le 2026-08-24 */
+/** Photos à titre explicite — Wikimedia Commons */
 const HOTELS = [
   {
     slug: 'hotel-djerba-palace',
@@ -33,7 +34,7 @@ const HOTELS = [
     featured: true,
     availableFrom: in180(),
     availableTo: in540(),
-    images: [U('1566073771259-6a8506099945'), U('1540541338287-41700207dee6'), U('1571003123894-1f0594d2b5d9'), U('1509233725247-49e657c54213')],
+    images: [W('Hotel beach, Djerba, Tunisia (2007).jpg'), W('Djerba el mouradi menzel hotel beach-7.jpg')],
   },
   {
     slug: 'hotel-hammamet-garden',
@@ -52,7 +53,7 @@ const HOTELS = [
     featured: false,
     availableFrom: in180(),
     availableTo: in540(),
-    images: [U('1520250497591-112f2f40a3f4'), U('1519046904884-53103b34b206'), U('1582719508461-905c673771fd'), U('1506929562872-bb421503ef21')],
+    images: [W('Hammamet-Sud beach R02.jpg'), W('Hammamet-Sud beach R05.jpg')],
   },
   {
     slug: 'hotel-giza-pyramids-view',
@@ -71,7 +72,7 @@ const HOTELS = [
     featured: false,
     availableFrom: in180(),
     availableTo: in540(),
-    images: [U('1503177119275-0aa32b3a9368'), U('1568322445389-f64ac2515020'), U('1611892440504-42a792e24d32'), U('1590490360182-c33d57733427')],
+    images: [W('All Gizah Pyramids.jpg'), W('Giza Pyramids during "Forever is Now" exhibition.jpg')],
   },
   {
     slug: 'hotel-trastevere-rome',
@@ -90,7 +91,7 @@ const HOTELS = [
     featured: false,
     availableFrom: in180(),
     availableTo: in540(),
-    images: [U('1552832230-c0197dd311b5'), U('1531572753322-ad063cecc140'), U('1515542622106-78bda8ba0e5b'), U('1469854523086-cc02fe5d8800')],
+    images: [W('Trastevere streets, Rome, Italy.jpg'), W('Trastevere street, Rome, Italy.jpg')],
   },
   {
     slug: 'hotel-lara-beach-antalya',
@@ -109,7 +110,7 @@ const HOTELS = [
     featured: false,
     availableFrom: in180(),
     availableTo: in540(),
-    images: [U('1512918728675-ed5a9ecdebfd'), U('1551882547-ff40c63fe5fa'), U('1542314831-068cd1dbfeeb'), U('1507525428034-b723cf961d3e')],
+    images: [W('Antalya kaleiçi 2.jpg'), W('Antalya Bucht.jpg')],
   },
   {
     slug: 'hotel-oasis-palm-tozeur',
@@ -128,7 +129,7 @@ const HOTELS = [
     featured: false,
     availableFrom: in180(),
     availableTo: in540(),
-    images: [U('1509316785289-025f5b846b35'), U('1473580044384-7ba9967e16a0'), U('1547234935-80c7145ec969'), U('1441974231531-c6227db76b6e')],
+    images: [W('Naoura Mosque - Tozeur, Tunisia 05.jpg')],
   },
   {
     slug: 'hotel-gabes-oasis',
@@ -147,7 +148,7 @@ const HOTELS = [
     featured: false,
     availableFrom: in180(),
     availableTo: in540(),
-    images: [U('1518495973542-4542c06a5843'), U('1470252649378-9c29740c9fa8'), U('1416879595882-3373a0480b5b')],
+    images: [W('Gabes oasis de Lemdoun.JPG'), W('Oasis de Gabès.jpg')],
   },
 ]
 
