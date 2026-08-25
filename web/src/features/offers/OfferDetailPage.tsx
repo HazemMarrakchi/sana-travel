@@ -187,12 +187,13 @@ export function OfferDetailPage() {
           <p className="text-slate-soft mt-4 leading-relaxed">{o.description}</p>
 
           <dl className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
-            {[
+            {([
               ['od.lDest', `${o.city}, ${o.country}`],
-              ['od.lDur', `${o.nights} ${t('od.nights')}`],
+              // durée statique inutile pour un hôtel : le client choisit ses dates
+              ...(!isHotelOffer(o) ? ([['od.lDur', `${o.nights} ${t('od.nights')}`]] as [string, string][]) : []),
               ['od.lHotel', o.hotelName],
               ['od.lRating', `★ ${o.rating}`],
-            ].map(([k, v]) => (
+            ] as [string, string][]).map(([k, v]) => (
               <div key={k} className="border-gold border-t-2 pt-4">
                 <dt className="text-slate-soft text-[11px] font-bold uppercase tracking-widest">{t(k)}</dt>
                 <dd className="mt-1 text-sm font-semibold">{v}</dd>
