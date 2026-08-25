@@ -61,7 +61,7 @@ export const fr: Dict = {
   'op.title': 'Nos voyages organisés',
   'dest.arrive': 'Date d’arrivée',
   'dest.clearDates': 'Effacer la date',
-  'dest.plannerHint': 'Choisissez votre date d’arrivée : chaque offre calcule son départ selon sa durée et se réserve en un clic.',
+  'dest.plannerHint': 'Choisissez vos dates d’arrivée et de départ : la durée de votre séjour s’affiche et chaque hôtel se réserve en un clic.',
   'dest.book': 'Réserver',
   'bk.cfg.title': 'Composez votre séjour',
   'bk.arrive': 'Arrivée',

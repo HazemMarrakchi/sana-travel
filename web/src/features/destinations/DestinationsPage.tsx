@@ -5,6 +5,7 @@ import type { Offer } from '../../data/offers'
 import { PosterImage } from '../../components/ui/PosterImage'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
+import { nightsBetween } from '../../core/stay'
 
 type SortKey = 'reco' | 'priceAsc' | 'priceDesc' | 'nightsDesc' | 'rating'
 
@@ -17,12 +18,6 @@ const SORTERS: Record<SortKey, (a: Offer, b: Offer) => number> = {
 }
 
 const isHotel = (o: Offer): boolean => o.tags.includes('hôtel')
-
-const addDays = (iso: string, n: number): string => {
-  const d = new Date(`${iso}T12:00:00`)
-  d.setDate(d.getDate() + n)
-  return d.toISOString().slice(0, 10)
-}
 
 const fmtDate = (iso: string, lang: string): string =>
   new Date(`${iso}T12:00:00`).toLocaleDateString(lang === 'ar' ? 'ar' : lang === 'en' ? 'en-GB' : 'fr-FR', {
@@ -41,8 +36,12 @@ export function DestinationsPage() {
   const [city, setCity] = useState<string>('all')
   const { t, lang } = useT()
   const [query, setQuery] = useState('')
-  /** date d'arrivée choisie → départ calculé par offre, clic = réservation directe */
+  /** le client choisit arrivée ET départ → nuits calculées, réservation directe */
   const [arrive, setArrive] = useState('')
+  const [depart, setDepart] = useState('')
+  const stayNights = arrive && depart ? nightsBetween(arrive, depart) : 0
+  const stayInvalid = Boolean(arrive && depart && stayNights < 1)
+  const stayReady = Boolean(arrive && depart && !stayInvalid)
 
   useEffect(() => {
     void fetchOffers().then(setState)
@@ -167,11 +166,11 @@ export function DestinationsPage() {
         </p>
       </div>
 
-      {/* planificateur de séjour : arrivée choisie, départ calculé par offre */}
-      <div className="border-gold/30 bg-white mt-6 flex flex-col gap-4 rounded-3xl border p-5 shadow-sm sm:flex-row sm:items-end sm:gap-6">
+      {/* planificateur de séjour : le client choisit arrivée ET départ */}
+      <div className="border-gold/30 bg-white mt-6 flex flex-col gap-4 rounded-3xl border p-5 shadow-sm sm:flex-row sm:items-end sm:gap-5">
         <div>
           <label htmlFor="sana-arrive" className="text-slate-soft text-[11px] font-bold uppercase tracking-widest">
-            📅 {t('dest.arrive')}
+            📅 {t('bk.arrive')}
           </label>
           <input
             id="sana-arrive"
@@ -182,15 +181,38 @@ export function DestinationsPage() {
             className="border-ink/15 focus:border-gold mt-1 block rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold outline-none transition-colors"
           />
         </div>
-        {arrive ? (
+        <div>
+          <label htmlFor="sana-depart" className="text-slate-soft text-[11px] font-bold uppercase tracking-widest">
+            🛫 {t('bk.depart')}
+          </label>
+          <input
+            id="sana-depart"
+            type="date"
+            min={arrive || new Date().toISOString().slice(0, 10)}
+            value={depart}
+            onChange={(e) => setDepart(e.target.value)}
+            className={`border-ink/15 focus:border-gold mt-1 block rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold outline-none transition-colors ${stayInvalid ? 'border-coral' : ''}`}
+          />
+        </div>
+        {arrive && depart && !stayInvalid ? (
+          <p className="text-lagoon pb-2.5 text-sm font-bold">
+            ⏱ {stayNights} {t('od.nights')}
+          </p>
+        ) : null}
+        {stayInvalid ? (
+          <p className="text-coral pb-2.5 text-xs font-bold">{t('bk.invalidDates')}</p>
+        ) : arrive ? (
           <button
-            onClick={() => setArrive('')}
-            className="text-slate-soft hover:text-coral text-xs font-bold underline"
+            onClick={() => {
+              setArrive('')
+              setDepart('')
+            }}
+            className="text-slate-soft hover:text-coral pb-2.5 text-xs font-bold underline"
           >
             ✕ {t('dest.clearDates')}
           </button>
         ) : (
-          <p className="text-slate-soft flex-1 text-xs leading-relaxed">{t('dest.plannerHint')}</p>
+          <p className="text-slate-soft flex-1 pb-0.5 text-xs leading-relaxed">{t('dest.plannerHint')}</p>
         )}
       </div>
 
@@ -213,11 +235,10 @@ export function DestinationsPage() {
       ) : (
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {visible.map((o) => {
-          const depart = arrive ? addDays(arrive, o.nights) : ''
           return (
           <Link
             key={o.slug}
-            to={arrive ? `/booking?offer=${o.slug}&date=${arrive}` : `/offres/${o.slug}`}
+            to={stayReady ? `/booking?offer=${o.slug}&date=${arrive}&depart=${depart}` : `/offres/${o.slug}`}
             className="group border-ink/5 hover:border-gold/40 flex flex-col overflow-hidden rounded-3xl border bg-white shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
           >
             <div className={`relative aspect-[4/3] overflow-hidden bg-gradient-to-br ${artFor(o.artKey)}`}>
@@ -228,17 +249,17 @@ export function DestinationsPage() {
             </div>
             <div className="flex flex-1 flex-col p-6">
               <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">
-                {o.country} · {o.nights} {t('card.nights')}
+                {o.country} · {stayReady ? stayNights : o.nights} {t('card.nights')}
               </p>
               <h2 className="font-display mt-1.5 text-2xl font-black text-ink">{o.title}</h2>
               <p className="text-slate-soft mt-2 line-clamp-2 text-sm">{o.summary}</p>
-              {arrive && (
+              {stayReady && (
                 <p className="text-lagoon mt-2 text-xs font-bold">
                   📅 {fmtDate(arrive, lang)} → {fmtDate(depart, lang)}
                 </p>
               )}
-              <p className={`mt-4 inline-block w-fit rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${arrive ? 'bg-coral text-white group-hover:bg-ink' : 'bg-night text-gold group-hover:from-gold group-hover:to-gold-soft group-hover:bg-gradient-to-r group-hover:text-ink'}`}>
-                {arrive ? `🛎 ${t('dest.book')}` : `${t('card.from')} ${formatPrice(o.priceEur, lang)}`}
+              <p className={`mt-4 inline-block w-fit rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${stayReady ? 'bg-coral text-white group-hover:bg-ink' : 'bg-night text-gold group-hover:from-gold group-hover:to-gold-soft group-hover:bg-gradient-to-r group-hover:text-ink'}`}>
+                {stayReady ? `🛎 ${t('dest.book')}` : `${t('card.from')} ${formatPrice(o.priceEur, lang)}`}
               </p>
             </div>
           </Link>

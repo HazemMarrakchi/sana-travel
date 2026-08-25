@@ -61,7 +61,7 @@ export const en: Dict = {
   'op.title': 'Our organized trips',
   'dest.arrive': 'Arrival date',
   'dest.clearDates': 'Clear date',
-  'dest.plannerHint': 'Pick your arrival date: each offer computes its departure from its own length and books in one click.',
+  'dest.plannerHint': 'Pick your check-in and check-out dates: your stay length shows up and every hotel books in one click.',
   'dest.book': 'Book now',
   'bk.cfg.title': 'Build your stay',
   'bk.arrive': 'Check-in',
