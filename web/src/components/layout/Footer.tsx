@@ -81,11 +81,11 @@ export function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('nl.ph')}
-                  className="border-white/15 bg-white/[0.05] focus:border-gold/60 w-full min-w-0 rounded-full border px-4 py-2.5 text-sm outline-none transition"
+                  className="inp-dark w-full min-w-0 rounded-full px-4 py-2.5 text-sm"
                 />
                 <button
                   onClick={() => void subscribe()}
-                  className="from-gold to-gold-soft shrink-0 rounded-full bg-gradient-to-r px-5 py-2.5 text-xs font-bold text-ink transition-transform hover:scale-[1.03]"
+                  className="btn-gold shrink-0 px-5 py-2.5 text-xs font-bold"
                 >
                   {t('nl.cta')}
                 </button>

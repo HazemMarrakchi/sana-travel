@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useT } from '../../core/i18n'
+import { ChatIcon, SparkleIcon, SendIcon } from '../../components/ui/Icons'
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api'
 
@@ -53,20 +54,20 @@ export function ChatWidget() {
           }}
           aria-label={t('chat.open')}
           title={t('chat.open')}
-          className="bg-gold fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full text-2xl shadow-xl transition hover:scale-110"
+          className="bg-gold fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full text-ink shadow-luxe-dark ring-1 ring-gold-soft/40 transition-all hover:scale-110"
         >
-          💬
+          <ChatIcon className="h-6 w-6" />
         </button>
       )}
 
       {open && (
-        <div className="border-night bg-deep fixed bottom-5 right-5 z-50 flex h-[480px] w-[min(92vw,370px)] flex-col overflow-hidden rounded-2xl border shadow-2xl">
-          <div className="bg-night flex items-center justify-between px-4 py-3">
-            <p className="text-gold font-display font-semibold">✨ {t('chat.title')}</p>
+        <div className="card-dark fixed bottom-5 right-5 z-50 flex h-[480px] w-[min(92vw,370px)] flex-col overflow-hidden rounded-3xl ring-1 ring-white/10 shadow-luxe-dark">
+          <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-4 py-3">
+            <p className="text-gold font-display inline-flex items-center gap-1.5 font-semibold"><SparkleIcon className="h-4 w-4" /> {t('chat.title')}</p>
             <button
               onClick={() => setOpen(false)}
               aria-label="×"
-              className="text-mist hover:text-ivory rounded-full px-2 text-lg leading-none"
+              className="text-mist hover:bg-white/10 hover:text-ivory grid h-7 w-7 place-items-center rounded-full text-base leading-none transition"
             >
               ×
             </button>
@@ -78,7 +79,7 @@ export function ChatWidget() {
                 <p
                   className={
                     m.role === 'user'
-                      ? 'bg-gold max-w-[85%] rounded-2xl rounded-br-sm px-3.5 py-2.5 text-sm whitespace-pre-wrap text-[#0a1628]'
+                      ? 'bg-gold max-w-[85%] rounded-2xl rounded-br-sm px-3.5 py-2.5 text-sm whitespace-pre-wrap text-ink'
                       : 'bg-night text-ivory max-w-[85%] rounded-2xl rounded-bl-sm px-3.5 py-2.5 text-sm whitespace-pre-wrap'
                   }
                 >
@@ -95,21 +96,21 @@ export function ChatWidget() {
             )}
           </div>
 
-          <form onSubmit={send} className="border-night border-t p-3">
+          <form onSubmit={send} className="border-t border-white/10 p-3">
             <div className="flex gap-2">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t('chat.placeholder')}
-                className="inp flex-1"
+                className="inp-dark flex-1"
                 maxLength={500}
               />
               <button
                 type="submit"
                 disabled={busy || !input.trim()}
-                className="bg-gold rounded-xl px-4 text-sm font-semibold text-[#0a1628] disabled:opacity-40"
+                className="btn-gold shrink-0 px-4 py-3 text-sm disabled:opacity-40"
               >
-                ➤
+                <SendIcon className="h-4 w-4" />
               </button>
             </div>
           </form>

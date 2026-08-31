@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
+import { WhatsAppIcon } from './components/ui/Icons'
 import { HomePage } from './features/home/HomePage'
 import { DestinationsPage } from './features/destinations/DestinationsPage'
 import { OfferDetailPage } from './features/offers/OfferDetailPage'
@@ -47,9 +48,9 @@ function WhatsappFloat() {
       target="_blank"
       rel="noreferrer"
       aria-label="WhatsApp"
-      className="fixed bottom-24 end-5 z-40 grid h-13 w-13 place-items-center rounded-full bg-[#25D366] text-2xl shadow-xl shadow-[#25D366]/40 transition-transform hover:scale-110"
+      className="fixed bottom-24 end-5 z-40 grid h-13 w-13 place-items-center rounded-full bg-[#25D366] text-white shadow-xl shadow-[#25D366]/40 transition-transform hover:scale-110"
     >
-      💬
+      <WhatsAppIcon className="h-7 w-7" />
     </a>
   )
 }

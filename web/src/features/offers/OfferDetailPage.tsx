@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { artFor, fetchOffer, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
 import { PosterImage } from '../../components/ui/PosterImage'
+import { StarIcon, StarEmptyIcon, AlertIcon, CalculatorIcon, CompassIcon, HeartIcon, HeartEmptyIcon } from '../../components/ui/Icons'
 import { useT } from '../../core/i18n'
 import { formatPrice, formatPriceExact } from '../../core/money'
 import { API_BASE, useAuth } from '../../core/auth'
@@ -132,51 +133,61 @@ export function OfferDetailPage() {
 
   return (
     <main>
-      {/* hero texte pur — aucune photo en fond */}
-      <section className="bg-deep text-white">
-        <div className="mx-auto max-w-4xl px-5 py-14 lg:px-8 lg:py-20">
-            <Link to={isHotelOffer(o) ? '/destinations' : '/offres'} className="text-mist hover:text-gold text-xs font-bold uppercase tracking-[0.3em] transition-colors">
+      {/* hero texte pur â€” aucune photo en fond */}
+      <section className="bg-deep relative overflow-hidden text-white">
+        {/* grande image d'offre en hero immersif */}
+        <div className="absolute inset-0">
+          <PosterImage src={o.images?.[gal] ?? o.photo ?? o.images?.[0]} alt={o.title} />
+          <div className="from-deep absolute inset-0 bg-gradient-to-t via-deep/60 to-deep/40" />
+          <div className="absolute inset-0 bg-ink/30" />
+          <div className="texture-dark pointer-events-none absolute inset-0 opacity-40" />
+        </div>
+        <div className="relative mx-auto max-w-5xl px-5 py-24 lg:px-8 lg:py-36">
+            <Link to={isHotelOffer(o) ? '/destinations' : '/offres'} className="text-white/80 hover:text-gold inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.3em] backdrop-blur-md transition-colors">
               ← {t('od.back')}
             </Link>
-          <p className="text-gold mt-8 text-xs font-bold uppercase tracking-[0.25em]">
-            {o.country} · {o.nights} {t('od.nights')} · ★ {o.rating}
+          <p className="text-gold mt-10 text-xs font-bold uppercase tracking-[0.25em]">
+            {o.country} · {o.nights} {t('od.nights')} · <StarIcon className="text-gold mb-0.5 -ml-0.5 inline h-3.5 w-3.5" /> {o.rating}
           </p>
-          <h1 className="font-display mt-3 text-5xl font-black leading-[1.05] lg:text-6xl">
+          <h1 className="font-display mt-4 text-5xl leading-[0.98] font-medium sm:text-6xl lg:text-7xl">
             {o.title}
           </h1>
-          <p className="text-mist mt-6 max-w-2xl text-lg leading-relaxed">{o.summary}</p>
+          <p className="text-white/80 mt-6 max-w-2xl text-lg font-light leading-relaxed">{o.summary}</p>
         </div>
       </section>
 
-      {/* galerie — photo en contenu, jamais en fond */}
-      <section className="bg-deep pb-4">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className={`group relative aspect-[16/7] overflow-hidden rounded-[2rem] shadow-xl ring-1 ring-white/10 bg-gradient-to-br ${artFor(o.artKey)}`}>
-            <PosterImage src={o.images?.[gal] ?? o.photo ?? o.images?.[0]} alt={o.title} />
+      {/* galerie — bandeau de vignettes sélectionnables */}
+      <section className="bg-deep">
+        <div className="mx-auto -mt-10 max-w-7xl px-5 lg:px-8">
+          <div className="relative">
             <button
               onClick={() => void onToggleFav()}
               aria-label={isFav ? t('fav.remove') : t('fav.add')}
-              className={`absolute top-4 end-4 z-10 grid size-11 place-items-center rounded-full text-lg shadow-lg backdrop-blur-sm transition-transform hover:scale-110 ${
-                isFav ? 'bg-coral text-white' : 'bg-white/85 text-ink'
+              className={`absolute -top-4 right-6 z-10 grid size-12 place-items-center rounded-full text-lg shadow-xl backdrop-blur-sm transition-transform hover:scale-110 ${
+                isFav ? 'bg-coral text-white' : 'bg-white/90 text-ink'
               }`}
             >
-              {isFav ? '♥' : '♡'}
+              {isFav ? <HeartIcon className="h-5 w-5" /> : <HeartEmptyIcon className="h-5 w-5" />}
             </button>
+            {o.images && o.images.length > 1 ? (
+              <div className="flex gap-2.5 overflow-x-auto pb-1">
+                {o.images.map((u, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setGal(i)}
+                    className={`relative aspect-[3/2] h-24 shrink-0 overflow-hidden rounded-xl transition ${
+                      i === gal ? 'ring-gold ring-2' : 'opacity-60 ring-1 ring-white/20 hover:opacity-100'
+                    }`}
+                    aria-label={`photo ${i + 1}`}
+                  >
+                    <img src={u} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="h-1" />
+            )}
           </div>
-          {o.images && o.images.length > 1 && (
-            <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1">
-              {o.images.map((u, i) => (
-                <button
-                  key={i}
-                  onClick={() => setGal(i)}
-                  className={`h-16 w-24 shrink-0 overflow-hidden rounded-xl transition ${i === gal ? 'ring-gold ring-2' : 'opacity-60 ring-1 ring-white/20 hover:opacity-100'}`}
-                  aria-label={`photo ${i + 1}`}
-                >
-                  <img src={u} alt="" className="h-full w-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
@@ -189,14 +200,17 @@ export function OfferDetailPage() {
           <dl className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
             {([
               ['od.lDest', `${o.city}, ${o.country}`],
-              // durée statique inutile pour un hôtel : le client choisit ses dates
+              // durÃ©e statique inutile pour un hÃ´tel : le client choisit ses dates
               ...(!isHotelOffer(o) ? ([['od.lDur', `${o.nights} ${t('od.nights')}`]] as [string, string][]) : []),
               ['od.lHotel', o.hotelName],
-              ['od.lRating', `★ ${o.rating}`],
+              ['od.lRating', String(o.rating)],
             ] as [string, string][]).map(([k, v]) => (
               <div key={k} className="border-gold border-t-2 pt-4">
                 <dt className="text-slate-soft text-[11px] font-bold uppercase tracking-widest">{t(k)}</dt>
-                <dd className="mt-1 text-sm font-semibold">{v}</dd>
+                <dd className="mt-1 flex items-center gap-1.5 text-sm font-semibold">
+                  {k === 'od.lRating' && <StarIcon className="text-gold h-4 w-4" />}
+                  {v}
+                </dd>
               </div>
             ))}
           </dl>
@@ -210,7 +224,7 @@ export function OfferDetailPage() {
           </div>
         </div>
 
-        {/* configurateur de séjour */}
+        {/* configurateur de sÃ©jour */}
         <StayConfigurator offer={o} />
       </section>
 
@@ -221,11 +235,11 @@ export function OfferDetailPage() {
             <h2 className="font-display text-3xl font-black text-white">{t('rvl.title')}</h2>
             {reviews === null && <p className="text-mist mt-6 animate-pulse">{t('bk.loading')}</p>}
             {reviews?.length === 0 && (
-              <p className="text-mist bg-night mt-6 rounded-3xl p-8 text-sm">{t('rvl.empty')}</p>
+              <p className="text-mist panel-dark mt-6 rounded-3xl p-8 text-sm">{t('rvl.empty')}</p>
             )}
             <div className="mt-8 space-y-4">
               {reviews?.map((r) => (
-                <article key={r._id} className="bg-night rounded-3xl p-6">
+                <article key={r._id} className="panel-dark rounded-3xl p-6">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <span className="bg-gold/20 text-gold font-display grid size-10 place-items-center rounded-full text-sm font-black uppercase">
@@ -238,9 +252,9 @@ export function OfferDetailPage() {
                         </p>
                       </div>
                     </div>
-                    <span className="text-gold text-sm tracking-widest">
-                      {'★'.repeat(r.rating)}
-                      {'☆'.repeat(5 - r.rating)}
+                    <span className="text-gold flex items-center gap-0.5 text-sm">
+                      {[...Array(r.rating)].map((_, i) => <StarIcon key={`f${i}`} className="h-4 w-4" />)}
+                      {[...Array(5 - r.rating)].map((_, i) => <StarEmptyIcon key={`e${i}`} className="h-4 w-4 text-gold/40" />)}
                     </span>
                   </div>
                   <p className="text-mist mt-4 text-sm leading-relaxed">{r.comment}</p>
@@ -250,9 +264,9 @@ export function OfferDetailPage() {
           </div>
 
           {/* formulaire avis */}
-          <form onSubmit={(e) => void submitReview(e)} className="bg-night h-fit rounded-3xl p-8 text-white lg:sticky lg:top-28">
+          <form onSubmit={(e) => void submitReview(e)} className="panel-dark h-fit rounded-3xl p-8 text-white lg:sticky lg:top-28">
             <h3 className="font-display text-xl font-black">{t('rvl.formTitle')}</h3>
-            {rDone && <p className="bg-lagoon/15 text-lagoon mt-4 rounded-xl px-4 py-3 text-sm font-semibold">✓ {t('rvl.done')}</p>}
+            {rDone && <p className="bg-lagoon/15 text-lagoon mt-4 rounded-xl px-4 py-3 text-sm font-semibold">âœ“ {t('rvl.done')}</p>}
             {rError && <p className="text-coral mt-4 text-sm font-semibold">{rError}</p>}
             <label className="text-mist mt-6 block text-xs font-bold uppercase tracking-widest">{t('rvl.name')}</label>
             <input
@@ -260,9 +274,11 @@ export function OfferDetailPage() {
               onChange={(e) => setRName(e.target.value)}
               maxLength={60}
               required
-              className="border-white/15 focus:border-gold mt-2 w-full rounded-xl border bg-white/5 px-4 py-3 text-sm outline-none"
+              className="inp-dark mt-2 w-full text-sm"
             />
-            <label className="text-mist mt-5 block text-xs font-bold uppercase tracking-widest">★</label>
+            <label className="text-mist mt-5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest">
+              <StarIcon className="h-3.5 w-3.5" /> {t('rvl.rating')}
+            </label>
             <div className="mt-2 flex gap-1">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
@@ -270,9 +286,11 @@ export function OfferDetailPage() {
                   key={n}
                   onClick={() => setRRating(n)}
                   aria-label={`${n}/5`}
-                  className={`text-2xl transition-transform hover:scale-125 ${n <= rRating ? 'text-gold' : 'text-white/25'}`}
+                  className={`transition-transform hover:scale-125 ${n <= rRating ? 'text-gold' : 'text-white/25'}`}
                 >
-                  ★
+                  {n <= rRating
+                    ? <StarIcon className="h-6 w-6" />
+                    : <StarEmptyIcon className="h-6 w-6" />}
                 </button>
               ))}
             </div>
@@ -283,11 +301,11 @@ export function OfferDetailPage() {
               rows={4}
               maxLength={800}
               required
-              className="border-white/15 focus:border-gold mt-2 w-full resize-none rounded-xl border bg-white/5 px-4 py-3 text-sm outline-none"
+              className="inp-dark mt-2 w-full resize-none text-sm"
             />
             <button
               type="submit"
-              className="from-gold to-gold-soft shadow-gold/25 mt-6 w-full rounded-full bg-gradient-to-r py-3.5 text-sm font-bold text-ink shadow-lg transition-transform hover:scale-[1.02]"
+              className="btn-gold mt-6 w-full py-3.5 text-sm font-bold"
             >
               {t('rvl.submit')}
             </button>
@@ -309,12 +327,12 @@ export function OfferDetailPage() {
               >
                 <PosterImage src={s.photo ?? s.images?.[0]} alt={s.title} />
                 <div className="from-ink/80 via-ink/10 absolute inset-0 bg-gradient-to-t to-transparent" />
-                <span className="absolute top-4 right-4 rounded-full bg-white/85 px-3 py-1 text-xs font-bold backdrop-blur-sm">
-                  ★ {s.rating}
+                <span className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-white/85 px-3 py-1 text-xs font-bold backdrop-blur-sm">
+                  <StarIcon className="text-gold h-3.5 w-3.5" /> {s.rating}
                 </span>
                 <div className="absolute inset-x-0 bottom-0 p-5">
                   <p className="text-xs font-bold uppercase tracking-[0.25em] text-white/70">
-                    {s.country} · {s.nights} {t('card.nights')}
+                    {s.country} Â· {s.nights} {t('card.nights')}
                   </p>
                   <h3 className="font-display mt-1 text-xl font-black text-white">{s.title}</h3>
                   <p className="mt-2 inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm transition-colors group-hover:bg-gold group-hover:text-ink">
@@ -330,7 +348,7 @@ export function OfferDetailPage() {
   )
 }
 
-/** Configurateur : arrivée/départ, voyageurs, chambres, formule — devis en direct. */
+/** Configurateur : arrivÃ©e/dÃ©part, voyageurs, chambres, formule â€” devis en direct. */
 function StayConfigurator({ offer }: { offer: Offer }) {
   const { t, lang } = useT()
   const hotel = isHotelOffer(offer)
@@ -356,12 +374,12 @@ function StayConfigurator({ offer }: { offer: Offer }) {
   bookingParams.set('travelers', String(travelers))
 
   return (
-    <aside className="bg-night h-fit rounded-3xl p-8 text-white shadow-xl lg:sticky lg:top-28">
-      <h3 className="font-display text-xl font-black">🧮 {t('bk.cfg.title')}</h3>
+    <aside className="panel-dark h-fit rounded-[2rem] p-8 text-white lg:sticky lg:top-28">
+      <h3 className="font-display flex items-center gap-2 text-xl font-black"><CalculatorIcon className="text-gold h-5 w-5" /> {t('bk.cfg.title')}</h3>
 
       {!hotel && (
-        <p className="bg-gold/10 text-gold mt-4 rounded-xl px-4 py-2.5 text-xs font-bold">
-          🧭 {t('bk.orgNote')}
+        <p className="bg-gold/10 text-gold mt-4 inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold">
+          <CompassIcon className="h-3.5 w-3.5" /> {t('bk.orgNote')}
         </p>
       )}
 
@@ -374,7 +392,7 @@ function StayConfigurator({ offer }: { offer: Offer }) {
               min={today}
               value={start}
               onChange={(e) => setStart(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none [color-scheme:dark] focus:border-gold"
+              className="inp-dark mt-1 w-full px-3 py-2.5 text-sm [color-scheme:dark]"
             />
           </div>
           <div>
@@ -384,7 +402,7 @@ function StayConfigurator({ offer }: { offer: Offer }) {
               min={start || today}
               value={end}
               onChange={(e) => setEnd(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white outline-none [color-scheme:dark] focus:border-gold"
+              className="inp-dark mt-1 w-full px-3 py-2.5 text-sm [color-scheme:dark]"
             />
           </div>
         </div>
@@ -396,7 +414,7 @@ function StayConfigurator({ offer }: { offer: Offer }) {
           <select
             value={travelers}
             onChange={(e) => setTravelers(Number(e.target.value))}
-            className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white outline-none focus:border-gold"
+            className="inp-dark mt-1 w-full px-3 py-2.5 text-sm font-semibold"
           >
             {[1, 2, 3, 4, 5, 6, 8, 10, 12].map((n) => (
               <option key={n} value={n} className="text-ink">
@@ -411,7 +429,7 @@ function StayConfigurator({ offer }: { offer: Offer }) {
             <select
               value={rooms}
               onChange={(e) => setRooms(Number(e.target.value))}
-              className="mt-1 w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-semibold text-white outline-none focus:border-gold"
+              className="inp-dark mt-1 w-full px-3 py-2.5 text-sm font-semibold"
             >
               {[1, 2, 3, 4, 5].map((n) => (
                 <option key={n} value={n} className="text-ink">
@@ -447,7 +465,7 @@ function StayConfigurator({ offer }: { offer: Offer }) {
       <ul className="border-white/10 mt-5 space-y-2 border-t pt-4 text-sm">
         <li className="flex justify-between gap-3">
           <span className="text-mist">
-            {travelers} × {t('bk.pers')} · {hotel ? t(`bk.board.${board}`) : `${q.nights} ${t('od.nights')}`}
+            {travelers} Ã— {t('bk.pers')} Â· {hotel ? t(`bk.board.${board}`) : `${q.nights} ${t('od.nights')}`}
           </span>
           <span className="font-semibold">{formatPriceExact(q.perNightEur, lang)} {t('bk.perNight')}</span>
         </li>
@@ -464,11 +482,11 @@ function StayConfigurator({ offer }: { offer: Offer }) {
       </ul>
 
       {invalid ? (
-        <p className="text-coral mt-4 text-xs font-bold">⚠ {t('bk.invalidDates')}</p>
+        <p className="text-coral mt-4 inline-flex items-center gap-1.5 text-xs font-bold"><AlertIcon className="h-4 w-4" /> {t('bk.invalidDates')}</p>
       ) : (
         <Link
           to={`/booking?${bookingParams.toString()}`}
-          className="from-gold to-gold-soft shadow-gold/25 mt-5 block rounded-full bg-gradient-to-r py-4 text-center text-sm font-bold text-ink shadow-lg transition-transform hover:scale-[1.02]"
+          className="btn-gold mt-5 block py-4 text-center text-sm font-bold"
         >
           {t('od.book')}
         </Link>

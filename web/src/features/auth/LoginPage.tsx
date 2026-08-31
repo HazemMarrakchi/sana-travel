@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+﻿import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../core/auth'
 import { useT } from '../../core/i18n'
@@ -73,58 +73,62 @@ export function LoginPage() {
             SANA<span className="text-gold">.</span>
           </Link>
 
-          {/* tabs soulignés */}
-          <div className="border-night mt-10 flex gap-8 border-b lg:mt-0">
-            {(['login', 'register'] as const).map((m) => (
+          <div className="panel-dark mt-10 rounded-[2rem] p-8 sm:p-10 lg:mt-8">
+            {/* tabs soulignés */}
+            <div className="flex gap-8 border-b border-white/10">
+              {(['login', 'register'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => {
+                    setMode(m)
+                    setError('')
+                  }}
+                  className={`relative pb-4 text-sm font-bold transition-colors ${
+                    mode === m ? 'text-white' : 'text-mist hover:text-white/70'
+                  }`}
+                >
+                  {t(m === 'login' ? 'auth.tabLogin' : 'auth.tabRegister')}
+                  {mode === m && <span className="bg-gold absolute inset-x-0 -bottom-px h-0.5 rounded-full shadow-[0_0_12px_rgba(226,176,74,0.6)]" />}
+                </button>
+              ))}
+            </div>
+
+            <form onSubmit={submit} className="mt-8 space-y-5">
+              {mode === 'register' && (
+                <>
+                  <AuthField label={t('bk.name')}>
+                    <input value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Hazem Marrakchi" className="inp-dark w-full" />
+                  </AuthField>
+                  <AuthField label={t('bk.phone')}>
+                    <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+216 …" className="inp-dark w-full" />
+                  </AuthField>
+                </>
+              )}
+              <AuthField label={t('bk.email')}>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="vous@email.com" className="inp-dark w-full" autoComplete="email" />
+              </AuthField>
+              <AuthField label={t('auth.password')}>
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className="inp-dark w-full" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+              </AuthField>
+
+              {error && <p className="text-coral text-sm font-semibold">{error}</p>}
+
               <button
-                key={m}
-                type="button"
-                onClick={() => {
-                  setMode(m)
-                  setError('')
-                }}
-                className={`relative pb-4 text-sm font-bold transition-colors ${
-                  mode === m ? 'text-white' : 'text-mist hover:text-white/70'
-                }`}
+                type="submit"
+                disabled={busy}
+                className="btn-gold w-full py-4 text-sm disabled:opacity-60"
               >
-                {t(m === 'login' ? 'auth.tabLogin' : 'auth.tabRegister')}
-                {mode === m && <span className="bg-gold absolute inset-x-0 -bottom-px h-0.5 rounded-full" />}
+                {busy
+                  ? <span className="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-ink/30 border-t-ink" />
+                  : t(mode === 'login' ? 'auth.submitLogin' : 'auth.submitRegister')}
               </button>
-            ))}
+
+              <p className="text-mist pt-2 text-center text-xs">
+                {mode === 'login' ? t('auth.tabRegister') + ' →' : ''}{' '}
+              </p>
+            </form>
           </div>
-
-          <form onSubmit={submit} className="mt-8 space-y-5">
-            {mode === 'register' && (
-              <>
-                <AuthField label={t('bk.name')}>
-                  <input value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="Hazem Marrakchi" className="inp" />
-                </AuthField>
-                <AuthField label={t('bk.phone')}>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+216 …" className="inp" />
-                </AuthField>
-              </>
-            )}
-            <AuthField label={t('bk.email')}>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="vous@email.com" className="inp" autoComplete="email" />
-            </AuthField>
-            <AuthField label={t('auth.password')}>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="••••••••" className="inp" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
-            </AuthField>
-
-            {error && <p className="text-coral text-sm font-semibold">{error}</p>}
-
-            <button
-              type="submit"
-              disabled={busy}
-              className="from-gold to-gold-soft hover:shadow-gold/25 w-full rounded-full bg-gradient-to-r py-4 text-sm font-bold text-[#0a1628] shadow-lg transition-all hover:scale-[1.01] hover:shadow-xl disabled:opacity-60"
-            >
-              {busy ? '⏳ …' : t(mode === 'login' ? 'auth.submitLogin' : 'auth.submitRegister')}
-            </button>
-
-            <p className="text-mist pt-2 text-center text-xs">
-              {mode === 'login' ? t('auth.tabRegister') + ' →' : ''}{' '}
-            </p>
-          </form>
         </div>
       </section>
     </main>

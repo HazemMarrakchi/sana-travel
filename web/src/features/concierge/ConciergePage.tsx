@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+﻿import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useT } from '../../core/i18n'
+import { SparkleIcon, SendIcon } from '../../components/ui/Icons'
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api'
 
@@ -54,9 +55,9 @@ export function ConciergePage() {
   return (
     <main className="bg-deep flex min-h-screen flex-col px-5 pt-12 pb-10 lg:px-8">
       <div className="mx-auto w-full max-w-3xl">
-        <p className="text-gold text-center text-xs font-bold tracking-[0.35em] uppercase">{t('ct.kicker')}</p>
-        <h1 className="font-display mt-3 text-center text-4xl font-black text-white lg:text-5xl">
-          ✨ Sana<span className="text-gold">.</span>
+        <p className="kicker-gold text-center">{t('ct.kicker')}</p>
+        <h1 className="font-display mt-3 flex items-center justify-center gap-2 text-center text-4xl font-black text-white lg:text-5xl">
+          <SparkleIcon className="text-gold h-8 w-8" /> Sana<span className="text-gold">.</span>
         </h1>
         <p className="text-mist mx-auto mt-3 max-w-md text-center text-sm">
           {t('ct.body')}
@@ -77,14 +78,14 @@ export function ConciergePage() {
         </div>
 
         {/* panneau chat */}
-        <div className="border-night from-night to-deep mt-6 flex h-[52vh] min-h-[380px] flex-col overflow-hidden rounded-[2rem] border bg-gradient-to-b shadow-2xl ring-1 ring-white/5">
+        <div className="panel-dark mt-6 flex h-[52vh] min-h-[380px] flex-col overflow-hidden rounded-[2rem] ring-1 ring-white/5">
           <div ref={listRef} className="flex-1 space-y-4 overflow-y-auto p-6">
             {msgs.map((m, i) => (
               <div key={i} className={m.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
                 <p
                   className={
                     m.role === 'user'
-                      ? 'bg-gold max-w-[80%] rounded-2xl rounded-br-sm px-4 py-3 text-sm whitespace-pre-wrap text-[#0a1628]'
+                      ? 'bg-gold max-w-[80%] rounded-2xl rounded-br-sm px-4 py-3 text-sm whitespace-pre-wrap text-ink'
                       : 'border-white/8 max-w-[80%] rounded-2xl rounded-bl-sm border bg-white/[0.05] px-4 py-3 text-sm whitespace-pre-wrap text-white/90'
                   }
                 >
@@ -105,15 +106,15 @@ export function ConciergePage() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t('chat.placeholder')}
-                className="inp flex-1 !rounded-full"
+                className="inp-dark flex-1 !rounded-full"
                 maxLength={500}
               />
               <button
                 type="submit"
                 disabled={busy || !input.trim()}
-                className="from-gold to-gold-soft hover:shadow-gold/30 rounded-full bg-gradient-to-r px-6 text-sm font-bold text-[#0a1628] shadow-lg transition-all hover:scale-105 disabled:opacity-40"
+                className="btn-gold shrink-0 px-6 py-3 text-sm disabled:opacity-40"
               >
-                ➤
+                <SendIcon className="h-4 w-4" />
               </button>
             </div>
           </form>

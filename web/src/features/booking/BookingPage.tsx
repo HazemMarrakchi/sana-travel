@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+﻿import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { artFor, fetchOffer } from '../../core/api'
 import type { Offer } from '../../data/offers'
@@ -6,6 +6,7 @@ import { useT } from '../../core/i18n'
 import { isHotelOffer, quoteStay } from '../../core/stay'
 import { formatPrice, formatPriceExact } from '../../core/money'
 import { downloadDevis } from '../../core/devisPdf'
+import { FileIcon, MailIcon, CheckIcon } from '../../components/ui/Icons'
 
 interface CreatedBooking {
   reference: string
@@ -123,22 +124,22 @@ export function BookingPage() {
     }
   }
 
-  // ══════════ SUCCESS SCREEN ══════════
+  // â•â•â•â•â•â•â•â•â•â• SUCCESS SCREEN â•â•â•â•â•â•â•â•â•â•
   if (created) {
     return (
       <main className="bg-deep min-h-screen px-5 pt-12 pb-24">
         <div className="mx-auto max-w-xl text-center text-white">
-          <p className="text-6xl">🎉</p>
+          <p className="bg-gold/15 text-gold mx-auto grid h-20 w-20 place-items-center rounded-full"><CheckIcon className="h-10 w-10" /></p>
           <h1 className="font-display mt-6 text-4xl font-black">{t('bk.doneTitle')}</h1>
           <p className="text-mist mt-4 leading-relaxed">{t('bk.doneNote')}</p>
 
-          <div className="bg-night mx-auto mt-8 rounded-3xl p-8 shadow-xl">
+          <div className="panel-dark mx-auto mt-8 rounded-3xl p-8">
             <p className="text-mist text-xs font-bold uppercase tracking-widest">{t('bk.yourRef')}</p>
             <p className="font-display mt-2 text-5xl font-black tracking-wider text-gold">
               {created.reference}
             </p>
             <p className="text-mist mt-3 text-sm">
-              {offer.title} · {travelers} × {formatPrice(offer.priceEur, lang)}
+              {offer.title} Â· {travelers} Ã— {formatPrice(offer.priceEur, lang)}
             </p>
           </div>
 
@@ -159,11 +160,11 @@ export function BookingPage() {
                 contactEmail,
               })
             }
-            className="from-gold to-gold-soft mt-8 w-full rounded-full bg-gradient-to-r py-4 text-sm font-bold text-ink shadow-lg transition-transform hover:scale-[1.02]"
+            className="btn-gold mt-8 w-full py-4 text-sm font-bold"
           >
-            📄 {t('bk.pdf')}
+            <FileIcon className="h-4 w-4" /> {t('bk.pdf')}
           </button>
-          <Link to="/" className="border-white/25 hover:bg-white/10 mt-3 inline-block rounded-full border px-8 py-3.5 text-sm font-semibold transition-colors">
+          <Link to="/" className="btn-ghost-dark mt-3 inline-block px-8 py-3.5 text-sm font-semibold">
             {t('bk.home')}
           </Link>
         </div>
@@ -176,8 +177,8 @@ export function BookingPage() {
   return (
     <main className="bg-ivory min-h-screen">
       <div className="mx-auto max-w-3xl px-5 pt-12 pb-24 lg:px-8">
-        <p className="text-coral text-xs font-bold uppercase tracking-[0.35em]">{t('bk.kicker')}</p>
-        <h1 className="font-display mt-3 text-4xl font-black lg:text-5xl">{t('bk.title')}</h1>
+        <p className="kicker-coral">{t('bk.kicker')}</p>
+        <h1 className="font-display mt-4 text-5xl leading-[0.98] font-medium lg:text-6xl">{t('bk.title')}</h1>
 
         {/* stepper */}
         <ol className="mt-10 flex items-center gap-2">
@@ -188,7 +189,7 @@ export function BookingPage() {
                   step > i + 1 ? 'bg-lagoon text-white' : step === i + 1 ? 'bg-ink text-gold' : 'border-ink/20 border text-slate-soft'
                 }`}
               >
-                {step > i + 1 ? '✓' : i + 1}
+                {step > i + 1 ? 'âœ“' : i + 1}
               </span>
               <span className={`hidden text-xs font-bold uppercase tracking-wider sm:block ${step === i + 1 ? '' : 'text-slate-soft'}`}>
                 {label}
@@ -199,9 +200,9 @@ export function BookingPage() {
         </ol>
 
         <form onSubmit={submit} className="mt-10">
-          {/* ── STEP 1 : voyage ── */}
+          {/* â”€â”€ STEP 1 : voyage â”€â”€ */}
           <section className={step === 1 ? 'block' : 'hidden'}>
-            <div className="border-ink/10 rounded-3xl border bg-white p-7 shadow-sm">
+            <div className="card-light rounded-3xl p-7">
               <div className={`relative mb-6 h-36 overflow-hidden rounded-2xl bg-gradient-to-br ${artFor(offer.artKey)}`}>
                 <PosterMini src={offer.photo ?? offer.images?.[0]} alt={offer.title} />
                 <p className="font-display absolute bottom-3 left-5 text-2xl font-black text-white drop-shadow">
@@ -217,7 +218,7 @@ export function BookingPage() {
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 required
-                className="border-ink/15 focus:border-gold mt-2 w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none"
+                className="inp-light mt-2"
               />
               <label className="text-slate-soft mt-6 block text-xs font-bold uppercase tracking-widest">
                 {t('bk.travelers')}
@@ -225,7 +226,7 @@ export function BookingPage() {
               <select
                 value={travelers}
                 onChange={(e) => setTravelers(Number(e.target.value))}
-                className="border-ink/15 focus:border-gold mt-2 w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none"
+                className="inp-light mt-2"
               >
                 {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
                   <option key={n} value={n}>
@@ -234,13 +235,13 @@ export function BookingPage() {
                 ))}
               </select>
               <p className="mt-5 text-right text-sm font-semibold">
-                {formatPrice(offer.priceEur, lang)} / pers · {offer.nights} {t('od.nights')}
+                {formatPrice(offer.priceEur, lang)} / pers Â· {offer.nights} {t('od.nights')}
               </p>
             </div>
             <NextBtn onClick={() => setStep(2)} label={t('bk.next')} />
           </section>
 
-          {/* ── STEP 2 : coordonnées ── */}
+          {/* â”€â”€ STEP 2 : coordonnÃ©es â”€â”€ */}
           <section className={step === 2 ? 'block' : 'hidden'}>
             <div className="border-ink/10 space-y-5 rounded-3xl border bg-white p-7 shadow-sm">
               <Field label={t('bk.name')}>
@@ -250,7 +251,7 @@ export function BookingPage() {
                   onChange={(e) => setContactName(e.target.value)}
                   required
                   placeholder="Hazem Marrakchi"
-                  className="border-ink/15 focus:border-gold w-full rounded-xl border px-4 py-3 text-sm outline-none"
+                  className="inp-light"
                 />
               </Field>
               <Field label={t('bk.email')}>
@@ -260,7 +261,7 @@ export function BookingPage() {
                   onChange={(e) => setContactEmail(e.target.value)}
                   required
                   placeholder="vous@email.com"
-                  className="border-ink/15 focus:border-gold w-full rounded-xl border px-4 py-3 text-sm outline-none"
+                  className="inp-light"
                 />
               </Field>
               <Field label={t('bk.phone')}>
@@ -268,8 +269,8 @@ export function BookingPage() {
                   type="tel"
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="+216 …"
-                  className="border-ink/15 focus:border-gold w-full rounded-xl border px-4 py-3 text-sm outline-none"
+                  placeholder="+216 â€¦"
+                  className="inp-light"
                 />
               </Field>
             </div>
@@ -277,9 +278,9 @@ export function BookingPage() {
             <BackNext onBack={() => setStep(1)} backLabel={t('bk.back')} onNext={() => setStep(3)} nextLabel={t('bk.next')} />
           </section>
 
-          {/* ── STEP 3 : récap ── */}
+          {/* â”€â”€ STEP 3 : rÃ©cap â”€â”€ */}
           <section className={step === 3 ? 'block' : 'hidden'}>
-            <div className="bg-night rounded-3xl p-8 text-white shadow-lg">
+            <div className="panel-dark p-8 text-white">
               <h2 className="font-display text-2xl font-black">{t('bk.recap')}</h2>
               <dl className="border-white/10 mt-5 space-y-3 border-t pt-5 text-sm">
                 {[
@@ -310,23 +311,24 @@ export function BookingPage() {
                 </span>
               </div>
               <p className="text-mist mt-1 text-right text-xs">
-                ({totalEur.toLocaleString(lang === 'en' ? 'en-US' : 'fr-FR')} €)
+                ({totalEur.toLocaleString(lang === 'en' ? 'en-US' : 'fr-FR')} â‚¬)
               </p>
             </div>
             {error && <p className="text-coral mt-4 text-sm font-semibold">{error}</p>}
             <button
               type="submit"
               disabled={submitting}
-              className="from-gold to-gold-soft mt-8 w-full rounded-full bg-gradient-to-r py-4 text-sm font-bold text-ink shadow-lg transition-transform hover:scale-[1.01] disabled:opacity-60"
+              className="btn-gold mt-8 flex w-full items-center justify-center gap-2 py-4 text-sm font-bold disabled:opacity-60"
             >
-              {submitting ? '⏳ …' : `✉️ ${t('bk.submit')}`}
+              {submitting ? <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-ink/30 border-t-ink" /> : <MailIcon className="h-4 w-4" />}
+              {t('bk.submit')}
             </button>
             <button
               type="button"
               onClick={() => setStep(2)}
               className="text-slate-soft mt-3 w-full text-center text-xs font-bold underline underline-offset-4"
             >
-              ← {t('bk.back')}
+              â† {t('bk.back')}
             </button>
           </section>
         </form>
@@ -359,7 +361,7 @@ function NextBtn({ onClick, label }: { onClick: () => void; label: string }) {
       onClick={onClick}
       className="bg-ink text-gold mt-6 w-full rounded-full py-4 text-sm font-bold shadow-lg transition-transform hover:scale-[1.01]"
     >
-      {label} →
+      {label} â†’
     </button>
   )
 }
@@ -382,14 +384,14 @@ function BackNext({
         onClick={onBack}
         className="border-ink/20 hover:border-ink/50 flex-1 rounded-full border py-3.5 text-sm font-semibold transition-colors"
       >
-        ← {backLabel}
+        â† {backLabel}
       </button>
       <button
         type="button"
         onClick={onNext}
         className="bg-ink text-gold flex-[2] rounded-full py-3.5 text-sm font-bold shadow-lg transition-transform hover:scale-[1.01]"
       >
-        {nextLabel} →
+        {nextLabel} â†’
       </button>
     </div>
   )

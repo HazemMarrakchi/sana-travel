@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { apiAuth, useAuth } from '../../core/auth'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
 import { ART } from '../../data/offers'
+import { FileIcon, CheckIcon, UsersIcon, SearchIcon, FolderIcon, MapPinIcon, WalletIcon, StarIcon, FileTextIcon, ImageIcon, EditIcon, TrashIcon, LockIcon, CoffeeIcon, DownloadIcon } from '../../components/ui/Icons'
 
 interface AdminOffer {
   slug: string
@@ -246,11 +247,11 @@ function NavIcon({ path }: { path: string }) {
 }
 
 /** en-tête de section dans le formulaire d'offre */
-function FormSection({ icon, title }: { icon: string; title: string }) {
+function FormSection({ icon, title }: { icon: ReactNode; title: string }) {
   return (
     <div className="mt-2 sm:col-span-2 first:mt-0">
       <p className="text-gold mb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.25em]">
-        <span className="text-sm">{icon}</span> {title}
+        <span className="grid h-6 w-6 place-items-center">{icon}</span> {title}
       </p>
       <div className="h-px bg-white/[0.07]" />
     </div>
@@ -504,7 +505,7 @@ export function AdminPage() {
     return (
       <div className="bg-deep grid min-h-screen place-items-center px-6">
         <div className="border-gold/20 bg-night/60 rounded-3xl border p-12 text-center backdrop-blur">
-          <p className="text-5xl">🔒</p>
+          <p className="text-gold flex justify-center"><LockIcon className="h-12 w-12" /></p>
           <p className="text-mist mt-4">{t('admin.restricted')}</p>
           <Link to="/" className="text-gold mt-6 inline-block font-bold hover:underline">
             ← SANA Travel
@@ -528,7 +529,7 @@ export function AdminPage() {
     { label: t('st.cancelled'), value: counts.cancelled, color: '#ff7a59' },
   ]
 
-  const inp = 'focus:border-gold/60 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition'
+  const inp = 'inp-dark w-full text-sm'
   const lab = 'mb-1 block text-[11px] font-bold uppercase tracking-wider text-white/40'
   const countryKnown = Object.keys(GEO).includes(draft.country)
   const cityOptions = GEO[draft.country] ?? []
@@ -655,16 +656,16 @@ export function AdminPage() {
             </div>
 
             {[
-              { label: t('admin.quotes'), value: animQuotes, accent: '#e2b04a', icon: '📄' },
-              { label: t('admin.confirmed'), value: animConfirmed, accent: '#2ec4b6', icon: '✅' },
-              { label: t('admin.clients'), value: animClients, accent: '#93b1e0', icon: '👥' },
+              { label: t('admin.quotes'), value: animQuotes, accent: '#e2b04a', icon: <FileIcon className="h-6 w-6" /> },
+              { label: t('admin.confirmed'), value: animConfirmed, accent: '#2ec4b6', icon: <CheckIcon className="h-6 w-6" /> },
+              { label: t('admin.clients'), value: animClients, accent: '#93b1e0', icon: <UsersIcon className="h-6 w-6" /> },
             ].map((kpi) => (
               <div
                 key={kpi.label}
                 className="group rounded-3xl border border-white/[0.07] bg-gradient-to-b from-white/[0.05] to-transparent p-7 transition-all duration-300 hover:border-white/[0.14]"
               >
                 <div
-                  className="grid h-10 w-10 place-items-center rounded-xl text-lg"
+                  className="grid h-10 w-10 place-items-center rounded-xl"
                   style={{ background: `${kpi.accent}1f`, color: kpi.accent }}
                 >
                   {kpi.icon}
@@ -686,7 +687,7 @@ export function AdminPage() {
               </h2>
               <button
                 onClick={openCreate}
-                className="from-gold to-gold-soft text-ink hover:shadow-gold/40 rounded-full bg-gradient-to-r px-6 py-2.5 text-xs font-black shadow-lg shadow-gold/25 transition-all hover:scale-105"
+                className="btn-gold px-6 py-2.5 text-xs font-black transition-all hover:scale-105"
               >
                 + {t('admin.newOffer')}
               </button>
@@ -702,7 +703,7 @@ export function AdminPage() {
                   value={offerQuery}
                   onChange={(e) => setOfferQuery(e.target.value)}
                   placeholder={t('ts.destination')}
-                  className="focus:border-gold/50 w-full rounded-2xl border border-white/[0.09] bg-white/[0.04] py-3 pr-4 pl-11 text-sm outline-none transition placeholder:text-white/30"
+                  className="inp-dark w-full rounded-2xl py-3 pr-4 pl-11 text-sm"
                 />
               </div>
               {offerCountries.length > 1 && (
@@ -747,8 +748,8 @@ export function AdminPage() {
                     )}
                     <div className="from-deep absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-70" />
                     {o.featured && (
-                      <span className="text-ink absolute top-3 start-3 rounded-full bg-gold px-2.5 py-1 text-[10px] font-black uppercase">
-                        ★
+                      <span className="text-ink absolute top-3 start-3 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-black uppercase">
+                        <StarIcon className="h-3 w-3" />
                       </span>
                     )}
                   </div>
@@ -758,22 +759,22 @@ export function AdminPage() {
                       <p className="text-mist truncate text-xs">{o.city} · {o.country}</p>
                       <p className="text-gold-soft mt-1.5 text-sm font-black">
                         {formatPrice(o.priceEur, lang)}{' '}
-                        <span className="text-mist text-xs font-semibold">· {o.nights} n · ★ {o.rating ?? 4.8}</span>
+                        <span className="text-mist text-xs font-semibold">· {o.nights} n · <StarIcon className="text-gold mb-0.5 -ml-0.5 inline h-3.5 w-3.5" /> {o.rating ?? 4.8}</span>
                       </p>
                     </div>
                     <button
                       onClick={() => openEdit(o)}
                       title={t('admin.edit')}
-                      className="hover:border-gold/50 hover:text-gold grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 text-sm transition"
+                      className="hover:border-gold/50 hover:text-gold grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 transition"
                     >
-                      ✏️
+                      <EditIcon className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => removeOffer(o.slug)}
                       title={t('admin.delete')}
-                      className="hover:border-coral/60 grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 text-sm transition hover:bg-coral/15"
+                      className="hover:border-coral/60 grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 transition hover:bg-coral/15"
                     >
-                      🗑️
+                      <TrashIcon className="h-4 w-4" />
                     </button>
                   </div>
                 </article>
@@ -783,7 +784,7 @@ export function AdminPage() {
 
           {waking && (
             <div className="border-gold/25 bg-gold/10 mt-8 flex items-center gap-3 rounded-2xl border p-5">
-              <span className="animate-bounce text-xl">☕</span>
+              <CoffeeIcon className="animate-bounce text-gold h-5 w-5" />
               <p className="text-gold-soft text-sm font-semibold">{t('admin.waking')}</p>
             </div>
           )}
@@ -800,7 +801,7 @@ export function AdminPage() {
                   onClick={exportCsv}
                   className="hover:border-lagoon/60 hover:text-lagoon rounded-full border border-white/15 px-5 py-2 text-xs font-bold text-mist transition"
                 >
-                  ⬇ Excel / CSV
+                  <DownloadIcon className="h-3.5 w-3.5" /> Excel / CSV
                 </button>
               </div>
 
@@ -815,7 +816,7 @@ export function AdminPage() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={t('admin.search')}
-                    className="focus:border-gold/50 w-full rounded-2xl border border-white/[0.09] bg-white/[0.04] py-3.5 pr-20 pl-11 text-sm outline-none transition placeholder:text-white/30"
+                    className="inp-dark w-full rounded-2xl py-3.5 pr-20 pl-11 text-sm"
                   />
                   {query ? (
                     <button
@@ -921,7 +922,7 @@ export function AdminPage() {
                     ))}
                 {bookings !== null && visible.length === 0 && (
                   <div className="rounded-2xl border border-dashed border-white/10 p-10 text-center">
-                    <p className="text-3xl opacity-40">{query ? '🔍' : '🗂️'}</p>
+                    <p className="opacity-40 flex justify-center">{query ? <SearchIcon className="h-10 w-10" /> : <FolderIcon className="h-10 w-10" />}</p>
                     <p className="text-mist mt-3 text-sm">
                       {query ? `${t('admin.noResults')} « ${query} »` : bookings.length === 0 ? t('admin.noBookings') : t('admin.emptyFilter')}
                     </p>
@@ -1028,13 +1029,13 @@ export function AdminPage() {
               e.preventDefault()
               void saveOffer()
             }}
-            className="border-white/10 bg-night my-8 w-full max-w-2xl rounded-3xl border p-7 shadow-2xl sm:mx-auto"
+            className="panel-dark my-8 w-full max-w-2xl rounded-3xl border border-white/10 p-7 sm:mx-auto"
           >
             <h3 className="font-display text-2xl font-black">
               {modal.mode === 'create' ? t('admin.newOffer') : `${t('admin.edit')} · ${modal.slug}`}
             </h3>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <FormSection icon="📍" title={t('fs.geo')} />
+              <FormSection icon={<MapPinIcon className="h-5 w-5" />} title={t('fs.geo')} />
               <div>
                 <label className={lab}>{t('f.country')}</label>
                 <select
@@ -1096,7 +1097,7 @@ export function AdminPage() {
                 <input value={draft.hotelName} onChange={(e) => set('hotelName', e.target.value)} className={inp} />
               </div>
 
-              <FormSection icon="📝" title={t('fs.content')} />
+              <FormSection icon={<FileTextIcon className="h-5 w-5" />} title={t('fs.content')} />
               <div className="sm:col-span-2">
                 <label className={lab}>{t('f.title')} *</label>
                 <input required value={draft.title} onChange={(e) => set('title', e.target.value)} className={inp} />
@@ -1114,15 +1115,15 @@ export function AdminPage() {
                 <input value={draft.tags} onChange={(e) => set('tags', e.target.value)} className={inp} />
               </div>
 
-              <FormSection icon="💰" title={t('fs.pricing')} />
+              <FormSection icon={<WalletIcon className="h-5 w-5" />} title={t('fs.pricing')} />
               <div className="grid grid-cols-3 gap-3 sm:col-span-2">
                 {([
                   ['priceEur', 'f.price'],
                   ['nights', 'f.nights'],
-                  ['rating', '★'],
+                  ['rating', '__star__'],
                 ] as const).map(([k, lk]) => (
                   <div key={k}>
-                    <label className={lab}>{lk === '★' ? '★' : t(lk)}</label>
+                    <label className={lab}>{lk === '__star__' ? <span className="inline-flex items-center gap-1"><StarIcon className="h-3.5 w-3.5" /></span> : t(lk)}</label>
                     <input
                       type="number"
                       step={k === 'rating' ? '0.1' : '1'}
@@ -1135,7 +1136,7 @@ export function AdminPage() {
                 ))}
               </div>
 
-              <FormSection icon="🖼️" title={t('fs.media')} />
+              <FormSection icon={<ImageIcon className="h-5 w-5" />} title={t('fs.media')} />
               <div className="sm:col-span-2">
                 <label className={lab}>{t('f.images')} <span className="font-normal text-ink/50">(une URL par ligne)</span></label>
                 <textarea
@@ -1155,21 +1156,21 @@ export function AdminPage() {
               </div>
               <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold sm:col-span-2">
                 <input type="checkbox" checked={draft.featured} onChange={(e) => set('featured', e.target.checked)} className="accent-gold h-4 w-4" />
-                ★ {t('f.featured')}
+                <StarIcon className="text-gold h-4 w-4" /> {t('f.featured')}
               </label>
             </div>
             <div className="mt-7 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setModal(null)}
-                className="hover:border-white/30 rounded-full border border-white/15 px-6 py-2.5 text-xs font-bold text-mist transition"
+                className="btn-ghost-dark px-6 py-2.5 text-xs font-bold"
               >
                 {t('admin.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="from-gold to-gold-soft text-ink rounded-full bg-gradient-to-r px-8 py-2.5 text-xs font-black shadow-lg shadow-gold/25 transition-all hover:scale-105 disabled:opacity-50"
+                className="btn-gold px-8 py-2.5 text-xs font-black transition-all hover:scale-105 disabled:opacity-50"
               >
                 {saving ? '…' : t('admin.save')}
               </button>

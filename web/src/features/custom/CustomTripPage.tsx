@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { API_BASE, useAuth } from '../../core/auth'
 import { useT } from '../../core/i18n'
 import { formatPrice } from '../../core/money'
+import { AlertIcon, PlaneIcon, HotelIcon, CheckIcon, MoonIcon } from '../../components/ui/Icons'
+import { PosterImage } from '../../components/ui/PosterImage'
 
 /** propositions vols aller-retour au départ de Tunis (tarifs indicatifs) */
 const FLIGHTS: Record<string, { airline: string; airlineCode: string; priceEur: number; stops: number; origin: string; destination: string; duration: string }[]> = {
@@ -243,16 +245,16 @@ export function CustomTripPage() {
   if (reference) {
     return (
       <main className="bg-deep grid min-h-screen place-items-center px-5 pt-32 pb-24 text-white">
-        <div className="bg-night max-w-lg rounded-[2rem] border border-white/10 p-10 text-center shadow-2xl">
-          <p className="text-5xl">🎉</p>
+        <div className="panel-dark max-w-lg rounded-[2rem] p-10 text-center text-white">
+          <p className="bg-gold/15 text-gold mx-auto grid h-20 w-20 place-items-center rounded-full"><CheckIcon className="h-10 w-10" /></p>
           <h1 className="font-display mt-4 text-3xl font-black">{t('vt.done')}</h1>
           <p className="text-gold font-display mt-4 text-2xl font-black tracking-widest">{reference}</p>
           <p className="text-mist mt-4 text-sm leading-relaxed">{t('od.quoteSent')}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to="/account" className="from-gold to-gold-soft rounded-full bg-gradient-to-r px-6 py-3 text-sm font-bold text-ink">
+            <Link to="/account" className="btn-gold px-6 py-3 text-sm font-bold">
               {t('acct.myBookings')} →
             </Link>
-            <button onClick={() => setReference('')} className="border-white/25 text-mist hover:text-white rounded-full border px-6 py-3 text-sm font-semibold">
+            <button onClick={() => setReference('')} className="btn-ghost-dark px-6 py-3 text-sm font-semibold">
               {t('vt.title')}
             </button>
           </div>
@@ -262,21 +264,31 @@ export function CustomTripPage() {
   }
 
   const inp =
-    'w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm outline-none transition focus:border-gold/60'
+    'inp-dark w-full text-sm'
   const lab = 'mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-white/50'
 
   return (
-    <main className="bg-deep min-h-screen px-5 pt-32 pb-24 text-white lg:px-8">
-      <div className="mx-auto max-w-6xl">
-        <header className="max-w-2xl">
-          <p className="text-gold text-xs font-bold uppercase tracking-[0.35em]">{t('vt.kicker')}</p>
-          <h1 className="font-display mt-3 text-5xl font-black leading-[1.05]">{t('vt.title')}</h1>
-          <p className="text-mist mt-4 leading-relaxed">{t('vt.sub')}</p>
-        </header>
+    <main className="bg-deep min-h-screen text-white">
+      {/* en-tête immersif éditorial */}
+      <div className="relative overflow-hidden bg-deep">
+        <div className="absolute inset-0">
+          <PosterImage src="https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?auto=format&fit=crop&w=1920&q=80" alt="" />
+          <div className="from-deep absolute inset-0 bg-gradient-to-t via-deep/50 to-deep/60" />
+          <div className="texture-dark pointer-events-none absolute inset-0 opacity-40" />
+        </div>
+        <div className="relative mx-auto max-w-6xl px-5 pt-32 pb-16 lg:px-8">
+          <header className="max-w-2xl">
+            <p className="kicker-gold">{t('vt.kicker')}</p>
+            <h1 className="font-display mt-4 text-5xl leading-[0.98] font-medium sm:text-6xl">{t('vt.title')}</h1>
+            <p className="text-white/80 mt-5 max-w-xl font-light leading-relaxed">{t('vt.sub')}</p>
+          </header>
+        </div>
+      </div>
 
-        <div className="mt-12 grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+      <div className="mx-auto max-w-6xl px-5 pb-24 lg:px-8">
+      <div className="mt-12 grid gap-8 lg:grid-cols-[1.5fr_1fr]">
           {/* formulaire */}
-          <section className="bg-night space-y-6 rounded-[2rem] border border-white/10 p-8">
+          <section className="panel-dark space-y-6 rounded-[2rem] border border-white/10 p-8">
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
                 <label className={lab}>{t('vt.dest')}</label>
@@ -305,7 +317,7 @@ export function CustomTripPage() {
                 </button>
               </div>
               <div>
-                <label className={lab}>✈️ {t('vt.dep')}</label>
+                <label className={lab}><PlaneIcon className="text-gold mb-0.5 inline h-4 w-4" /> {t('vt.dep')}</label>
                 <input type="date" min={iso(new Date())} value={dep} onChange={(e) => setDep(e.target.value)} className={inp} />
               </div>
               {!oneWay && (
@@ -317,24 +329,24 @@ export function CustomTripPage() {
             </div>
 
             <p className="text-gold text-sm font-bold">
-              {oneWay ? '→ Aller simple · vol seul' : `🌙 ${nights} ${t('vt.nights')}`}
+              {oneWay ? '→ Aller simple · vol seul' : <span className="inline-flex items-center gap-1.5"><MoonIcon className="text-gold h-3.5 w-3.5" /> {nights} {t('vt.nights')}</span>}
             </p>
 
             {flights.length > 0 && (
               <div>
                 <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold">
                   <input type="checkbox" checked={withFlight} onChange={(e) => setWithFlight(e.target.checked)} className="accent-gold h-4 w-4" />
-                  ✈️ {t('vt.flight')}
+                  <PlaneIcon className="text-gold h-4 w-4" /> {t('vt.flight')}
                 </label>
                 {withFlight && (
                   <>
                     <p className="text-mist mt-3 text-[11px] font-bold uppercase tracking-wider">
                       {realFlights === null ? (
-                        <span className="animate-pulse">⏳ {t('vt.loadingFlights')}</span>
+                        <span className="animate-pulse inline-flex items-center gap-2"><span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-mist/30 border-t-mist" /> {t('vt.loadingFlights')}</span>
                       ) : flightSource === 'live' ? (
                         <span className="text-lagoon">● {t('vt.live')}</span>
                       ) : flightSource === 'none' ? (
-                        <span className="text-amber-400">⚠ {t('vt.noResults')}</span>
+                        <span className="text-amber-400 inline-flex items-center gap-1.5"><AlertIcon className="h-3.5 w-3.5" /> {t('vt.noResults')}</span>
                       ) : (
                         <span>○ {t('vt.estimate')}</span>
                       )}
@@ -363,7 +375,7 @@ export function CustomTripPage() {
                               }`}
                             >
                             <p className="flex items-center gap-2 text-sm font-bold leading-none">
-                              <span className="text-base leading-none">{AIRLINE_LOGO[code] ?? '✈️'}</span>
+                              {AIRLINE_LOGO[code] ? <span className="text-base leading-none">{AIRLINE_LOGO[code]}</span> : <PlaneIcon className="text-gold h-4 w-4" />}
                               <span>{f.airline}</span>
                               {f.flightNumber && (
                                 <span className="text-mist text-[11px] font-normal">· {f.flightNumber}</span>
@@ -439,18 +451,18 @@ export function CustomTripPage() {
           </section>
 
           {/* récap */}
-          <aside className="bg-night h-fit rounded-[2rem] border border-gold/30 p-8 lg:sticky lg:top-28">
+          <aside className="panel-dark h-fit rounded-[2rem] border border-gold/30 p-8 lg:sticky lg:top-28">
             <p className="text-gold text-xs font-bold uppercase tracking-[0.3em]">{t('vt.total')}</p>
             <p className="font-display mt-3 text-5xl font-black">{formatPrice(total, lang)}</p>
             <div className="mt-6 space-y-3 border-t border-white/10 pt-6 text-sm">
               {!oneWay && (
                 <p className="flex justify-between gap-4">
-                  <span className="text-mist">🏨 {base?.title ?? country} · {nights} {t('vt.nights')}</span>
+                  <span className="text-mist"><HotelIcon className="text-gold mb-0.5 inline h-4 w-4" /> {base?.title ?? country} · {nights} {t('vt.nights')}</span>
                   <span className="font-semibold tabular-nums">{formatPrice(hotelTotal, lang)}</span>
                 </p>
               )}
               <p className="flex justify-between gap-4">
-                <span className="text-mist">✈️ {flight ? flight.airline : t('vt.noFlight')}</span>
+                <span className="text-mist"><PlaneIcon className="text-gold mb-0.5 inline h-4 w-4" /> {flight ? flight.airline : t('vt.noFlight')}</span>
                 <span className="font-semibold tabular-nums">{flight ? formatPrice(flightTotal, lang) : '—'}</span>
               </p>
               <p className="flex justify-between gap-4">
@@ -460,7 +472,7 @@ export function CustomTripPage() {
             <button
               onClick={() => void submit()}
               disabled={sending}
-              className="from-gold to-gold-soft mt-8 w-full rounded-full bg-gradient-to-r px-6 py-4 text-sm font-black text-ink shadow-lg transition-transform hover:scale-[1.02] disabled:opacity-50"
+              className="btn-gold mt-8 w-full px-6 py-4 text-sm font-black disabled:opacity-50"
             >
               {sending ? '…' : `${t('vt.cta')} →`}
             </button>

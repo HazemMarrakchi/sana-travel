@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiAuth, useAuth } from '../../core/auth'
 import { useT } from '../../core/i18n'
@@ -7,6 +7,7 @@ import { loadFavorites, toggleFavorite } from '../../core/favorites'
 import { artFor, fetchOffers } from '../../core/api'
 import type { Offer } from '../../data/offers'
 import { PosterImage } from '../../components/ui/PosterImage'
+import { CalendarIcon, StarIcon, FileIcon, ReceiptIcon, PlaneIcon, CreditCardIcon, HeartIcon, WaveIcon } from '../../components/ui/Icons'
 
 interface MyBooking {
   _id: string
@@ -102,15 +103,15 @@ export function AccountPage() {
       <div className="mx-auto max-w-5xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-gold text-xs font-bold uppercase tracking-[0.35em]">{t('acct.kicker')}</p>
+            <p className="kicker-gold">{t('acct.kicker')}</p>
             <h1 className="font-display mt-2 text-4xl font-black text-white">
-              {t('acct.hello')} {user.fullName.split(' ')[0]} 👋
+              {t('acct.hello')} {user.fullName.split(' ')[0]} <WaveIcon className="text-gold inline h-6 w-6" />
             </h1>
             <p className="text-mist mt-1 text-sm">{user.email}</p>
           </div>
           <button
             onClick={logout}
-            className="border-white/25 text-mist hover:text-white hover:bg-white/10 rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors"
+            className="btn-ghost-dark px-6 py-2.5 text-sm font-semibold"
           >
             {t('auth.logout')}
           </button>
@@ -123,11 +124,11 @@ export function AccountPage() {
           <p className="text-mist animate-pulse">{t('bk.loading')}</p>
         )}
         {bookings?.length === 0 && (
-          <div className="bg-night rounded-3xl p-10 text-center">
+          <div className="panel-dark rounded-3xl p-10 text-center">
             <p className="text-mist">{t('acct.empty')}</p>
             <Link
               to="/destinations"
-              className="from-gold to-gold-soft mt-6 inline-block rounded-full bg-gradient-to-r px-8 py-3.5 text-sm font-bold text-ink shadow-lg transition-transform hover:scale-[1.02]"
+              className="btn-gold mt-6 inline-block px-8 py-3.5 text-sm font-bold"
             >
               {t('home.cta1')} →
             </Link>
@@ -136,7 +137,7 @@ export function AccountPage() {
 
         <div className="grid gap-4">
           {bookings?.map((b) => (
-            <div key={b._id} className="bg-night rounded-2xl p-6">
+            <div key={b._id} className="card-dark rounded-2xl p-6">
               <button
                 onClick={() => setOpen(open === b._id ? null : b._id)}
                 className="flex w-full flex-wrap items-center justify-between gap-4 text-start"
@@ -162,22 +163,22 @@ export function AccountPage() {
               {open === b._id && (
                 <div className="mt-5 border-t border-white/10 pt-5">
                   <div className="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
-                    <p className="text-mist">
-                      📄 {t('acct.details')} · <span className="text-white font-semibold">{b.offerSlug}</span>
+                    <p className="text-mist flex items-center gap-1.5">
+                      <FileIcon className="text-gold h-3.5 w-3.5" /> {t('acct.details')} · <span className="text-white font-semibold">{b.offerSlug}</span>
                     </p>
-                    <p className="text-mist">
-                      🗓️ {new Date(b.startDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR', { dateStyle: 'long' })}
+                    <p className="text-mist flex items-center gap-1.5">
+                      <CalendarIcon className="text-gold h-3.5 w-3.5" /> {new Date(b.startDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR', { dateStyle: 'long' })}
                       {b.endDate && ` → ${new Date(b.endDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR', { dateStyle: 'long' })}`}
                     </p>
-                    <p className="text-mist">
-                      📅 {new Date(b.createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR')}
+                    <p className="text-mist flex items-center gap-1.5">
+                      <CalendarIcon className="text-gold h-3.5 w-3.5" /> {new Date(b.createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : 'fr-FR')}
                     </p>
                     {b.note && (() => {
                       try {
                         const n = JSON.parse(b.note) as { pays?: string; ville?: string; vol?: string; nuits?: number }
                         return (
                           <p className="text-mist sm:col-span-2">
-                            🧾 {[n.ville, n.pays].filter(Boolean).join(', ')} · {n.nuits} {t('vt.nights')} · ✈️ {n.vol ?? t('vt.noFlight')}
+                            <ReceiptIcon className="text-gold mb-0.5 inline h-3.5 w-3.5" /> {[n.ville, n.pays].filter(Boolean).join(', ')} · {n.nuits} {t('vt.nights')} · <PlaneIcon className="text-gold mb-0.5 inline h-3.5 w-3.5" /> {n.vol ?? t('vt.noFlight')}
                           </p>
                         )
                       } catch {
@@ -197,10 +198,11 @@ export function AccountPage() {
                     <button
                       onClick={() => void payDeposit(b)}
                       disabled={paying === b._id}
-                      className="from-gold to-gold-soft text-ink shadow-gold/25 mt-5 rounded-full bg-gradient-to-r px-6 py-2.5 text-xs font-bold shadow-lg transition-transform hover:scale-[1.03] disabled:opacity-60 sm:ms-3"
-                    >
-                      {paying === b._id ? t('pay.redirect') : `💳 ${t('pay.cta')} · ${formatPrice(Math.round(b.totalEur * 0.3), lang)}`}
-                    </button>
+                 className="btn-gold mt-5 px-6 py-2.5 text-xs disabled:opacity-60 sm:ms-3"
+                >
+                  {paying === b._id ? <span className="inline-flex h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink/30 border-t-ink" /> : <CreditCardIcon className="h-3.5 w-3.5" />}
+                  {paying === b._id ? t('pay.redirect') : `${t('pay.cta')} · ${formatPrice(Math.round(b.totalEur * 0.3), lang)}`}
+                </button>
                   )}
                 </div>
               )}
@@ -210,7 +212,7 @@ export function AccountPage() {
 
         <h2 className="font-display mt-14 mb-5 text-xl font-bold text-white">{t('acct.favorites')}</h2>
         {favs.length === 0 ? (
-          <div className="bg-night rounded-3xl p-10 text-center">
+          <div className="panel-dark rounded-3xl p-10 text-center">
             <p className="text-mist text-sm">{t('acct.noFavs')}</p>
             <Link to="/destinations" className="text-gold mt-3 inline-block text-sm font-bold underline underline-offset-4">
               {t('dest.kicker')} →
@@ -222,11 +224,11 @@ export function AccountPage() {
               .map((slug) => favOffers.find((o) => o.slug === slug))
               .filter((o): o is Offer => !!o)
               .map((o) => (
-                <div key={o.slug} className="bg-night group relative overflow-hidden rounded-2xl">
+                <div key={o.slug} className="card-dark group relative overflow-hidden rounded-2xl">
                   <Link to={`/offres/${o.slug}`} className={`block aspect-[16/10] bg-gradient-to-br ${artFor(o.artKey)}`}>
                     <PosterImage src={o.photo ?? o.images?.[0]} alt={o.title} />
-                    <span className="absolute top-3 start-3 rounded-full bg-white/85 px-3 py-1 text-xs font-bold backdrop-blur-sm">
-                      ★ {o.rating}
+                    <span className="absolute top-3 start-3 inline-flex items-center gap-1 rounded-full bg-white/85 px-3 py-1 text-xs font-bold backdrop-blur-sm">
+                      <StarIcon className="text-gold h-3.5 w-3.5" /> {o.rating}
                     </span>
                     <div className="from-ink/80 absolute inset-0 bg-gradient-to-t via-transparent to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-4">
@@ -244,7 +246,7 @@ export function AccountPage() {
                     aria-label={t('fav.remove')}
                     className="bg-coral absolute top-3 end-3 grid size-9 place-items-center rounded-full text-sm text-white shadow-lg transition-transform hover:scale-110"
                   >
-                    ♥
+                    <HeartIcon className="h-4 w-4" />
                   </button>
                 </div>
               ))}

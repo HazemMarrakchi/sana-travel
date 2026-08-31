@@ -321,6 +321,7 @@ export const en: Dict = {
   'rvl.title': 'Traveler reviews',
   'rvl.empty': 'No reviews yet — be the first to share your experience.',
   'rvl.formTitle': 'Leave a review',
+  'rvl.rating': 'Your rating',
   'rvl.name': 'Your name',
   'rvl.comment': 'Share your experience…',
   'rvl.submit': 'Post my review',

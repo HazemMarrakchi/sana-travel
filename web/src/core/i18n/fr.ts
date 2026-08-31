@@ -322,6 +322,7 @@ export const fr: Dict = {
   'rvl.title': 'Avis des voyageurs',
   'rvl.empty': 'Aucun avis pour le moment — soyez le premier à partager votre expérience.',
   'rvl.formTitle': 'Laisser un avis',
+  'rvl.rating': 'Votre note',
   'rvl.name': 'Votre nom',
   'rvl.comment': 'Racontez votre expérience…',
   'rvl.submit': 'Publier mon avis',

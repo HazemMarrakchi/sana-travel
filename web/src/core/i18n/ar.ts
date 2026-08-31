@@ -320,6 +320,7 @@ export const ar: Dict = {
   'rvl.title': 'آراء المسافرين',
   'rvl.empty': 'لا توجد آراء بعد — كن أول من يشارك تجربته.',
   'rvl.formTitle': 'اترك تقييمك',
+  'rvl.rating': 'تقييمك',
   'rvl.name': 'اسمك',
   'rvl.comment': 'شاركنا تجربتك…',
   'rvl.submit': 'انشر تقييمي',
